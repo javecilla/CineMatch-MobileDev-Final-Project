@@ -9,11 +9,13 @@ if (localPropertiesFile.exists()) {
 
 plugins {
     alias(libs.plugins.android.application)
+    // Add the Google services Gradle plugin for Firebase
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.finalprojectandroiddev2"
-    compileSdk = 36 // Updated to fix your AAR warning
+    compileSdk = 36
 
     // 2. Enable BuildConfig generation for our environment variables
     buildFeatures {
@@ -23,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.example.finalprojectandroiddev2"
         minSdk = 26
-        targetSdk = 36 // Updated to fix your AAR warning
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -32,6 +34,9 @@ android {
         // 3. Inject the keys into BuildConfig
         buildConfigField("String", "TMDB_READ_ACCESS_TOKEN", "\"${localProperties.getProperty("TMDB_READ_ACCESS_TOKEN")}\"")
         buildConfigField("String", "TMDB_API_KEY", "\"${localProperties.getProperty("TMDB_API_KEY")}\"")
+
+        // Inject Firebase Route URL
+        buildConfigField("String", "FB_ROUTE_INSTANCE_URL", "\"${localProperties.getProperty("FB_ROUTE_INSTANCE_URL")}\"")
     }
 
     buildTypes {
@@ -64,4 +69,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     // OkHttp (usually dependency na 'to ni Retrofit, but good to have explicit)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // 5. Firebase Cloud Backend Integration
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
 }

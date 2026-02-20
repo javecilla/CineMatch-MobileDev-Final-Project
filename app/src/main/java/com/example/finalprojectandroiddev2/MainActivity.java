@@ -9,6 +9,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -32,6 +38,30 @@ public class MainActivity extends AppCompatActivity {
         });
 
         testMovieApi();
+        testRealtimeDatabase();
+    }
+
+    private void testRealtimeDatabase() {
+        // Updated to explicitly route to your Asia Southeast 1 infrastructure
+        String routeInstanceURL = BuildConfig.FB_ROUTE_INSTANCE_URL;
+        FirebaseDatabase database = FirebaseDatabase.getInstance(routeInstanceURL);
+        DatabaseReference myRef = database.getReference("lobbies");
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Log.d("FIREBASE_TEST", "Cloud Sync Operational! Data: " + dataSnapshot.getValue());
+                } else {
+                    Log.w("FIREBASE_TEST", "No data found in 'lobbies' node.");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("FIREBASE_TEST", "Failed to read value.", error.toException());
+            }
+        });
     }
 
     private void testMovieApi() {
@@ -59,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
                     String jsonData = response.body().string();
                     Log.d("API_TEST", "Success! Data securely fetched: " + jsonData);
                 } else {
-                    // Added fallback logging to catch silent HTTP errors
                     Log.e("API_TEST", "HTTP Error Code: " + response.code() + " Message: " + response.message());
                 }
             }
