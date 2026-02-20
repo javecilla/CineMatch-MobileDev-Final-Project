@@ -29,4 +29,11 @@
     <string name="btn_back">Back</string>
     <string name="msg_invalid_room_code">Invalid room code</string>
     <string name="btn_leave_lobby">Leave Lobby</string>
+
+    <!-- Swiping -->
+    <string name="label_movie_poster">Movie poster</string>
+    <string name="label_swiping_status">Swiping:</string>
+    <string name="btn_yes">Yes</string>
+    <string name="btn_no">No</string>
+    <string name="btn_exit_session">Exit Session</string>
 </resources>
