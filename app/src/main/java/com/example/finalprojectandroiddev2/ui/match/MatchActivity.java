@@ -25,7 +25,7 @@ public class MatchActivity extends BaseActivity {
             // For now, just a placeholder
         });
 
-        findViewById(R.id.btn_find_another_match).setOnClickListener(v -> {
+        findViewById(R.id.btn_find_another).setOnClickListener(v -> {
             // Navigate back to swiping session
             startActivity(new Intent(this, SwipingActivity.class));
             finish();
