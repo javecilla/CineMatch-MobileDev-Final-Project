@@ -38,3 +38,26 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/model/Lobby.java`
 - `app/src/main/java/com/example/finalprojectandroiddev2/model/User.java`
 - `app/src/main/java/com/example/finalprojectandroiddev2/model/Vote.java`
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.1: Splash Screen
+
+**What:** Implemented Step 2.1 (Splash Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_splash.xml** – ConstraintLayout with dark background, centered logo (app_logo_black_transparent.png), Material3 CircularProgressIndicator at bottom. IDs: container_splash, image_logo, progress_loading.
+- **SplashActivity.java** – Extends BaseActivity, sets splash layout, applies edge-to-edge insets. Empty of navigation logic (per plan).
+- **Logo** – Copied app_logo_black_transparent.png to drawable (best for dark theme: transparent, vibrant gradients).
+- **Colors** – Added dark theme palette: color_background (#050509), color_surface (#171923), color_primary (#39E1C6), etc. (APP_FLOW).
+- **Themes** – Switched to Theme.Material3.Dark.NoActionBar, applied dark palette.
+- **Manifest** – SplashActivity set as launcher; MainActivity no longer launcher.
+- **Strings** – app_name set to "CineMatch".
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_splash.xml` (new)
+- `app/src/main/res/drawable/app_logo_black_transparent.png` (copied)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/splash/SplashActivity.java` (new)
+- `app/src/main/res/values/colors.xml`, `themes.xml`, `strings.xml` (updated)
+- `app/src/main/res/values-night/themes.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
