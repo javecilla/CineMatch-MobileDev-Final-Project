@@ -1,5 +1,6 @@
 package com.example.finalprojectandroiddev2.ui.lobby;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -21,11 +22,20 @@ public class CreateLobbyActivity extends BaseActivity {
         setContentView(R.layout.activity_create_lobby);
         applyEdgeToEdgeInsets(R.id.container_create_lobby);
 
-        // Placeholder room code until Firebase generates real one
-        ((TextView) findViewById(R.id.text_room_code)).setText("------");
+        String placeholderCode = "ABC123";
+        ((TextView) findViewById(R.id.text_room_code)).setText(placeholderCode);
 
         RecyclerView recyclerMembers = findViewById(R.id.recycler_members);
         recyclerMembers.setLayoutManager(new LinearLayoutManager(this));
         recyclerMembers.setAdapter(new MemberAdapter());
+
+        findViewById(R.id.btn_start_swiping).setEnabled(true);
+        findViewById(R.id.btn_start_swiping).setOnClickListener(v -> {
+            Intent i = new Intent(this, LobbyActivity.class);
+            i.putExtra(LobbyActivity.EXTRA_ROOM_CODE, placeholderCode);
+            i.putExtra(LobbyActivity.EXTRA_IS_HOST, true);
+            startActivity(i);
+            finish();
+        });
     }
 }

@@ -197,13 +197,13 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_lobby.xml` layout
-- [ ] Add room code display at top
-- [ ] Add member list RecyclerView
-- [ ] Add member status indicators (online, voting, etc.)
-- [ ] Add "Start Swiping" button (host only, initially)
-- [ ] Add "Leave Lobby" button
-- [ ] Add progress indicator for loading
+- [x] Create `activity_lobby.xml` layout
+- [x] Add room code display at top
+- [x] Add member list RecyclerView
+- [x] Add member status indicators (online, voting, etc.)
+- [x] Add "Start Swiping" button (host only, initially)
+- [x] Add "Leave Lobby" button
+- [x] Add progress indicator for loading
 
 **Files to Create:**
 
