@@ -2,4 +2,14 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Dark theme (APP_FLOW palette) -->
+    <color name="color_background">#050509</color>
+    <color name="color_surface">#171923</color>
+    <color name="color_primary">#39E1C6</color>
+    <color name="color_primary_variant">#4EF2D7</color>
+    <color name="color_secondary">#FFC857</color>
+    <color name="color_error">#FF4B5C</color>
+    <color name="color_text_primary">#FFFFFF</color>
+    <color name="color_text_secondary">#A0A3B1</color>
 </resources>
