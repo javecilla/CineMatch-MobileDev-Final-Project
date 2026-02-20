@@ -300,3 +300,28 @@
 **Notes:** LoginActivity now serves as the entry point for unauthenticated users. All validation happens client-side before calling Firebase Auth. Error messages are user-friendly and displayed both inline (TextInputLayout errors) and globally (error TextView).
 
 **Fix (error messages):** Updated AuthRepository.getErrorMessage() to handle ERROR_INVALID_CREDENTIAL and other common Firebase error codes with user-friendly messages. Replaced technical error codes (e.g., "Authentication failed: ERROR_INVALID_CREDENTIAL") with clear messages (e.g., "Incorrect email or password. Please try again"). Added handling for additional error codes and improved default error message.
+
+---
+
+## 2025-02-20 – Phase 3 Step 3.3: Registration Activity Logic
+
+**What:** Implemented Step 3.3 (Registration Activity Logic) from APP_DEV_PLAN.
+
+**Changes:**
+
+- **RegistrationActivity** – Fully functional registration screen with Firebase Authentication integration:
+  - **AuthRepository integration** – Connected to AuthRepository singleton for sign-up operations
+  - **Input validation** – Email format validation using regex pattern, password length check (min 6 chars), password confirmation match validation, required field validation
+  - **Sign-up flow** – Calls `AuthRepository.signUp()` on button click, handles success/error callbacks
+  - **Loading state** – Disables register button and input fields during authentication, changes button text to "Registering…"
+  - **Error handling** – Displays Firebase error messages in error TextView, shows field-specific errors in TextInputLayouts (including password mismatch)
+  - **Navigation** – Navigates to HomeActivity on successful registration (clears back stack), "Already have an account? Sign In" button navigates to LoginActivity and finishes current activity
+  - **UX improvements** – Clears error messages when user types, prevents multiple simultaneous sign-up attempts, clears confirm password error when password field changes
+- **Strings** – Added error messages: `error_confirm_password_required`, `error_passwords_not_match`, `btn_registering`
+
+**Files created/updated:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/RegistrationActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+
+**Notes:** RegistrationActivity mirrors LoginActivity's functionality but includes password confirmation validation. On successful registration, users are automatically signed in (Firebase Auth handles this) and navigated to HomeActivity. All validation happens client-side before calling Firebase Auth. Error messages are user-friendly and displayed both inline (TextInputLayout errors) and globally (error TextView).
