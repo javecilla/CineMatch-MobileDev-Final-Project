@@ -32,10 +32,10 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create package structure (`ui/`, `data/`, `model/`, `viewmodel/`, `utils/`)
-- [ ] Set up constants file (`Constants.java` or `Config.java`)
-- [ ] Create base classes (BaseActivity, BaseFragment if using fragments)
-- [ ] Set up logging utility class
+- [x] Create package structure (`ui/`, `data/`, `model/`, `viewmodel/`, `utils/`)
+- [x] Set up constants file (`Constants.java` or `Config.java`)
+- [x] Create base classes (BaseActivity, BaseFragment if using fragments)
+- [x] Set up logging utility class
 
 **Files to Create:**
 
@@ -51,10 +51,10 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create Movie model class (from TMDB API response)
-- [ ] Create Lobby model class (Firebase structure)
-- [ ] Create User model class (Firebase Auth)
-- [ ] Create Vote model class (for swiping votes)
+- [x] Create Movie model class (from TMDB API response)
+- [x] Create Lobby model class (Firebase structure)
+- [x] Create User model class (Firebase Auth)
+- [x] Create Vote model class (for swiping votes)
 
 **Files to Create:**
 
