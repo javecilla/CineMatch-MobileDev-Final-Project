@@ -77,10 +77,10 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_splash.xml` layout
-- [ ] Add app logo/image
-- [ ] Add loading indicator
-- [ ] Create SplashActivity.java (empty for now)
+- [x] Create `activity_splash.xml` layout
+- [x] Add app logo/image
+- [x] Add loading indicator
+- [x] Create SplashActivity.java (empty for now)
 
 **Files to Create:**
 
