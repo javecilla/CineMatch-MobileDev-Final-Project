@@ -91,3 +91,23 @@
 - `app/src/main/AndroidManifest.xml` (updated)
 
 **Fix (layout):** Changed layout_height from wrap_content to match_parent in activity_login.xml to ensure the layout fills the screen. Also added logo image to the layout.
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.3: Registration Screen
+
+**What:** Implemented Step 2.3 (Registration Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_registration.xml** – ScrollView with ConstraintLayout, logo, Material3 TextInputLayout for email, password, confirm-password, error TextView (visibility gone), Register button, "Already have an account? Sign In" link. Vertically centered layout matching login.
+- **RegistrationActivity.java** – Extends BaseActivity, navigates to LoginActivity on "Sign In" click.
+- **LoginActivity** – Added navigation to RegistrationActivity on "Create account" click.
+- **Strings** – label_confirm_password, btn_register, btn_already_have_account.
+- **Manifest** – RegistrationActivity registered with windowSoftInputMode adjustResize.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_registration.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/RegistrationActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
