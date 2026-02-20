@@ -177,3 +177,31 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.7: Lobby Screen
+
+**What:** Implemented Step 2.7 (Lobby Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_lobby.xml** – Room code card at top, Start Swiping button (host only), member list card with RecyclerView, Leave Lobby button, progress indicator (visibility gone).
+- **item_member.xml** – Added status indicator (green dot) and text_status for online/voting.
+- **MemberAdapter** – Added status field to MemberItem, bind text_status and indicator_status.
+- **bg_status_online.xml** – Green circle drawable for online indicator.
+- **LobbyActivity** – Receives EXTRA_ROOM_CODE and EXTRA_IS_HOST, shows host-only Start Swiping, configures member RecyclerView, Leave navigates to Home.
+- **CreateLobbyActivity** – Start Swiping enabled for testing, navigates to LobbyActivity as host.
+- **JoinLobbyActivity** – Join validates 6-char code, navigates to LobbyActivity with room code.
+- **Strings** – btn_leave_lobby, status_online, status_voting.
+- **Manifest** – LobbyActivity registered.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_lobby.xml` (new)
+- `app/src/main/res/drawable/bg_status_online.xml` (new)
+- `app/src/main/res/layout/item_member.xml` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/LobbyActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/MemberAdapter.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/CreateLobbyActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/JoinLobbyActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
