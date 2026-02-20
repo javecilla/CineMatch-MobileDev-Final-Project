@@ -225,3 +225,23 @@
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/build.gradle.kts` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.9: Match Found Screen
+
+**What:** Implemented Step 2.9 (Match Found Screen) from APP_DEV_PLAN - **Final step of Phase 2**.
+
+**Changes:**
+- **activity_match.xml** – ScrollView with celebration text ("🎉 Match Found! 🎉"), large poster ImageView (2:3 ratio), movie details card (title, rating, release date, overview), Watch Now button (primary), Find Another Match button (outlined), Leave Lobby button (text). Dark theme, Material 3.
+- **MatchActivity** – Extends BaseActivity, Watch Now placeholder (external link pending), Find Another Match navigates to SwipingActivity, Leave Lobby navigates to HomeActivity and clears back stack. Movie data binding pending Firebase.
+- **Strings** – msg_match_found, btn_watch_now, btn_find_another_match.
+- **Manifest** – MatchActivity registered.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_match.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/match/MatchActivity.java` (new)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
+
+**Phase 2 Complete:** All UI layouts and screens are now implemented. Ready for Phase 3: Functionality & Integration.
