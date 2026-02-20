@@ -1,5 +1,6 @@
 package com.example.finalprojectandroiddev2.ui.auth;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.finalprojectandroiddev2.R;
@@ -7,7 +8,7 @@ import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 
 /**
  * Login screen with email/password inputs.
- * Navigation and Firebase Auth logic will be added in a later phase.
+ * Firebase Auth logic will be added in a later phase.
  */
 public class LoginActivity extends BaseActivity {
 
@@ -16,5 +17,8 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         applyEdgeToEdgeInsets(R.id.container_login);
+
+        findViewById(R.id.btn_register).setOnClickListener(v ->
+                startActivity(new Intent(this, RegistrationActivity.class)));
     }
 }
