@@ -35,6 +35,9 @@
             android:name=".ui.home.HomeActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.lobby.CreateLobbyActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
     </application>

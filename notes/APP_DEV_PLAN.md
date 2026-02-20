@@ -157,12 +157,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `dialog_create_lobby.xml` or `activity_create_lobby.xml`
-- [ ] Add room code display (large, copyable)
-- [ ] Add "Share Room Code" button
-- [ ] Add "Start Swiping" button (initially disabled)
-- [ ] Add member list section (empty initially)
-- [ ] Add "Waiting for members..." indicator
+- [x] Create `dialog_create_lobby.xml` or `activity_create_lobby.xml`
+- [x] Add room code display (large, copyable)
+- [x] Add "Share Room Code" button
+- [x] Add "Start Swiping" button (initially disabled)
+- [x] Add member list section (empty initially)
+- [x] Add "Waiting for members..." indicator
 
 **Files to Create:**
 

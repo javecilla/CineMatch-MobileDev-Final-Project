@@ -17,4 +17,12 @@
     <string name="btn_join_lobby">Join Lobby</string>
     <string name="btn_logout">Logout</string>
     <string name="msg_welcome_home">What would you like to do?</string>
+
+    <!-- Lobby -->
+    <string name="label_room_code">Room Code</string>
+    <string name="label_members">Members</string>
+    <string name="label_host">Host</string>
+    <string name="btn_share_room_code">Share Room Code</string>
+    <string name="btn_start_swiping">Start Swiping</string>
+    <string name="msg_waiting_for_members">Waiting for members to join…</string>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.ui.auth.LoginActivity;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
+import com.example.finalprojectandroiddev2.ui.lobby.CreateLobbyActivity;
 
 /**
  * Home screen (main page) with Create Lobby and Join Lobby options.
@@ -23,5 +24,8 @@ public class HomeActivity extends BaseActivity {
             startActivity(new Intent(this, LoginActivity.class));
             finishAffinity();
         });
+
+        findViewById(R.id.btn_create_lobby).setOnClickListener(v ->
+                startActivity(new Intent(this, CreateLobbyActivity.class)));
     }
 }
