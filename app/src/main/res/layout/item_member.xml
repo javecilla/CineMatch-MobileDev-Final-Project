@@ -7,23 +7,54 @@
     android:gravity="center_vertical"
     android:padding="12dp">
 
-    <ImageView
-        android:id="@+id/image_avatar"
+    <FrameLayout
         android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_avatar_placeholder"
-        android:contentDescription="@string/label_avatar"
-        android:scaleType="centerCrop" />
+        android:layout_height="40dp">
 
-    <TextView
-        android:id="@+id/text_username"
+        <ImageView
+            android:id="@+id/image_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_avatar_placeholder"
+            android:contentDescription="@string/label_avatar"
+            android:scaleType="centerCrop" />
+
+        <View
+            android:id="@+id/indicator_status"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="bottom|end"
+            android:background="@drawable/bg_status_online"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="12dp"
-        android:textColor="@color/color_text_primary"
-        android:textSize="16sp"
-        tools:text="Member Name" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_text_primary"
+            android:textSize="16sp"
+            tools:text="Member Name" />
+
+        <TextView
+            android:id="@+id/text_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/color_text_secondary"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Online"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/text_host_badge"
