@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adapter for lobby member list. Displays username, host badge, and status.
+ * Adapter for lobby member list. Displays username, host badge, and status indicator.
  */
 public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder> {
 
@@ -41,14 +41,8 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
         MemberItem item = members.get(position);
         holder.textUsername.setText(item.username);
         holder.textHostBadge.setVisibility(item.isHost ? View.VISIBLE : View.GONE);
-        if (item.status != null && !item.status.isEmpty()) {
-            holder.textStatus.setVisibility(View.VISIBLE);
-            holder.textStatus.setText(item.status);
-            holder.indicatorStatus.setVisibility(View.VISIBLE);
-        } else {
-            holder.textStatus.setVisibility(View.GONE);
-            holder.indicatorStatus.setVisibility(View.GONE);
-        }
+        // Status indicator visibility will be controlled by Firebase data in later phase
+        holder.viewStatusIndicator.setVisibility(item.isOnline ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -59,31 +53,29 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.ViewHolder
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView textUsername;
         final TextView textHostBadge;
-        final TextView textStatus;
-        final View indicatorStatus;
+        final View viewStatusIndicator;
 
         ViewHolder(View itemView) {
             super(itemView);
             textUsername = itemView.findViewById(R.id.text_username);
             textHostBadge = itemView.findViewById(R.id.text_host_badge);
-            textStatus = itemView.findViewById(R.id.text_status);
-            indicatorStatus = itemView.findViewById(R.id.indicator_status);
+            viewStatusIndicator = itemView.findViewById(R.id.view_status_indicator);
         }
     }
 
     public static class MemberItem {
         public final String username;
         public final boolean isHost;
-        public final String status;
+        public final boolean isOnline;
 
         public MemberItem(String username, boolean isHost) {
-            this(username, isHost, null);
+            this(username, isHost, true);
         }
 
-        public MemberItem(String username, boolean isHost, String status) {
+        public MemberItem(String username, boolean isHost, boolean isOnline) {
             this.username = username;
             this.isHost = isHost;
-            this.status = status;
+            this.isOnline = isOnline;
         }
     }
 }
