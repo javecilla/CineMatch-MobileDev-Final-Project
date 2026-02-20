@@ -137,12 +137,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_home.xml` layout
-- [ ] Add "Create Lobby" button (large, prominent)
-- [ ] Add "Join Lobby" button (large, prominent)
-- [ ] Add user profile section (username, avatar)
-- [ ] Add logout button
-- [ ] Style with Material 3 cards and buttons
+- [x] Create `activity_home.xml` layout
+- [x] Add "Create Lobby" button (large, prominent)
+- [x] Add "Join Lobby" button (large, prominent)
+- [x] Add user profile section (username, avatar)
+- [x] Add logout button
+- [x] Style with Material 3 cards and buttons
 
 **Files to Create:**
 
