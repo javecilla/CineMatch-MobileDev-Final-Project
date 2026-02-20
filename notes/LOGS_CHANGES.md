@@ -185,23 +185,19 @@
 **What:** Implemented Step 2.7 (Lobby Screen) from APP_DEV_PLAN.
 
 **Changes:**
-- **activity_lobby.xml** – Room code card at top, Start Swiping button (host only), member list card with RecyclerView, Leave Lobby button, progress indicator (visibility gone).
-- **item_member.xml** – Added status indicator (green dot) and text_status for online/voting.
-- **MemberAdapter** – Added status field to MemberItem, bind text_status and indicator_status.
-- **bg_status_online.xml** – Green circle drawable for online indicator.
-- **LobbyActivity** – Receives EXTRA_ROOM_CODE and EXTRA_IS_HOST, shows host-only Start Swiping, configures member RecyclerView, Leave navigates to Home.
-- **CreateLobbyActivity** – Start Swiping enabled for testing, navigates to LobbyActivity as host.
-- **JoinLobbyActivity** – Join validates 6-char code, navigates to LobbyActivity with room code.
-- **Strings** – btn_leave_lobby, status_online, status_voting.
+- **activity_lobby.xml** – Room code card at top, member list RecyclerView in card, LinearProgressIndicator (visibility gone), Start Swiping button (visibility gone, host only), Leave Lobby outlined button. Dark theme, Material 3.
+- **item_member.xml** – Added status indicator View (view_status_indicator) with bg_status_online drawable for online/voting status.
+- **bg_status_online.xml** – Circular drawable for member status indicator (primary color).
+- **MemberAdapter** – Added viewStatusIndicator field to ViewHolder, added isOnline field to MemberItem, bind status indicator visibility.
+- **LobbyActivity** – Extends BaseActivity, configures RecyclerView with MemberAdapter, Leave Lobby navigates to HomeActivity. Start Swiping visibility logic pending Firebase.
+- **Strings** – btn_leave_lobby.
 - **Manifest** – LobbyActivity registered.
 
 **Files created/updated:**
 - `app/src/main/res/layout/activity_lobby.xml` (new)
 - `app/src/main/res/drawable/bg_status_online.xml` (new)
-- `app/src/main/res/layout/item_member.xml` (updated)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/LobbyActivity.java` (new)
+- `app/src/main/res/layout/item_member.xml` (updated)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/MemberAdapter.java` (updated)
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/CreateLobbyActivity.java` (updated)
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/JoinLobbyActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
