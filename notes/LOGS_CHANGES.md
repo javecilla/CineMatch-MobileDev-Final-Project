@@ -298,3 +298,5 @@
 - `app/src/main/res/values/strings.xml` (updated)
 
 **Notes:** LoginActivity now serves as the entry point for unauthenticated users. All validation happens client-side before calling Firebase Auth. Error messages are user-friendly and displayed both inline (TextInputLayout errors) and globally (error TextView).
+
+**Fix (error messages):** Updated AuthRepository.getErrorMessage() to handle ERROR_INVALID_CREDENTIAL and other common Firebase error codes with user-friendly messages. Replaced technical error codes (e.g., "Authentication failed: ERROR_INVALID_CREDENTIAL") with clear messages (e.g., "Incorrect email or password. Please try again"). Added handling for additional error codes and improved default error message.

@@ -181,21 +181,35 @@ public class AuthRepository {
                     return "Incorrect password";
                 case "ERROR_USER_NOT_FOUND":
                     return "No account found with this email";
+                case "ERROR_INVALID_CREDENTIAL":
+                    return "Incorrect email or password. Please try again";
                 case "ERROR_USER_DISABLED":
                     return "This account has been disabled";
                 case "ERROR_TOO_MANY_REQUESTS":
-                    return "Too many requests. Please try again later";
+                    return "Too many failed attempts. Please try again later";
                 case "ERROR_EMAIL_ALREADY_IN_USE":
                     return "An account with this email already exists";
                 case "ERROR_WEAK_PASSWORD":
-                    return "Password is too weak";
+                    return "Password is too weak. Please use a stronger password";
                 case "ERROR_NETWORK_REQUEST_FAILED":
-                    return "Network error. Please check your connection";
+                    return "Network error. Please check your internet connection";
+                case "ERROR_OPERATION_NOT_ALLOWED":
+                    return "This sign-in method is not enabled";
+                case "ERROR_INVALID_USER_TOKEN":
+                    return "Your session has expired. Please sign in again";
+                case "ERROR_USER_TOKEN_EXPIRED":
+                    return "Your session has expired. Please sign in again";
                 default:
-                    return "Authentication failed: " + errorCode;
+                    // For any unhandled error codes, provide a generic user-friendly message
+                    Logger.w(Constants.TAG_AUTH, "Unhandled Firebase error code: " + errorCode);
+                    return "Unable to sign in. Please check your email and password, then try again";
             }
         }
-        return exception != null ? exception.getMessage() : "Unknown error occurred";
+        // For non-Firebase exceptions, provide a generic message
+        if (exception != null && exception.getMessage() != null) {
+            Logger.w(Constants.TAG_AUTH, "Non-Firebase exception: " + exception.getMessage());
+        }
+        return "Unable to sign in. Please try again";
     }
 
     /**
