@@ -133,3 +133,27 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.5: Create Lobby Screen
+
+**What:** Implemented Step 2.5 (Create Lobby Dialog/Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_create_lobby.xml** – Room code card (large, copyable text_room_code), Share Room Code button, member list card with "Waiting for members…" text and RecyclerView, Start Swiping button (disabled). Material 3 cards, dark theme.
+- **item_member.xml** – RecyclerView item for member list (avatar, username, host badge).
+- **MemberAdapter** – Empty adapter for member RecyclerView, ready for Firebase data.
+- **CreateLobbyActivity** – Extends BaseActivity, sets placeholder room code "------", configures RecyclerView with MemberAdapter.
+- **HomeActivity** – Create Lobby button navigates to CreateLobbyActivity.
+- **Strings** – label_room_code, label_members, label_host, btn_share_room_code, btn_start_swiping, msg_waiting_for_members.
+- **Manifest** – CreateLobbyActivity registered.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_create_lobby.xml` (new)
+- `app/src/main/res/layout/item_member.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/CreateLobbyActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/MemberAdapter.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
