@@ -1,0 +1,19 @@
+FINAL PROJECT IN IT 308W
+
+(ADVANCE MOBILE APPLICATION DEVELOPMENT)
+
+Instructions:
+
+1. Create an android application using Android Studio.
+2. Make sure that the following Activities are present (Registration Page, Login Page, Main
+Page/s). You will use Firebase to create an account.
+3. Search and choose any free API's available on the Internet.
+a. Create a list of each group's chosen API to avoid duplication.
+b. OpenWeather or any other weather-related APIs are not allowed.
+c. One group can use Pokemon API if they add a significant feature/s.
+4. Create a video advertisement for your Project. It will be played during the checking.
+(Minimum of 45 seconds)
+5. Aside from the main function of your app that will fetch data from the API, you must add
+features that are relevant to the purpose of your app. You must add database (Firebase
+Realtime Database). PLEASE CONSIDER UTILIZING A DIFFERENT DATABASE FEATURE.
+"ADD TO CART" AND "ADD TO FAVORITES" ARE NOT SUFFICIENT FEATURES.
