@@ -219,15 +219,15 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_swiping.xml` layout
-- [ ] Add movie card container (ViewPager2 or custom stack)
-- [ ] Add movie poster ImageView
-- [ ] Add movie title TextView
-- [ ] Add movie overview TextView
-- [ ] Add movie rating TextView
-- [ ] Add swipe indicators (Yes/No buttons as fallback)
-- [ ] Add member status bar (showing who's swiping)
-- [ ] Add "Exit Session" button
+- [x] Create `activity_swiping.xml` layout
+- [x] Add movie card container (ViewPager2 or custom stack)
+- [x] Add movie poster ImageView
+- [x] Add movie title TextView
+- [x] Add movie overview TextView
+- [x] Add movie rating TextView
+- [x] Add swipe indicators (Yes/No buttons as fallback)
+- [x] Add member status bar (showing who's swiping)
+- [x] Add "Exit Session" button
 
 **Files to Create:**
 

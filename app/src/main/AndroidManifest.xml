@@ -45,6 +45,9 @@
             android:name=".ui.lobby.LobbyActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.swiping.SwipingActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
     </application>
