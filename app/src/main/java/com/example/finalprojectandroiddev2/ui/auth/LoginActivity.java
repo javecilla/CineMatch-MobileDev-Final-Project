@@ -13,6 +13,7 @@ import com.example.finalprojectandroiddev2.model.User;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
+import com.example.finalprojectandroiddev2.utils.Logger;
 import com.example.finalprojectandroiddev2.utils.Utils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
