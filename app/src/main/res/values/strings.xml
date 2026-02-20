@@ -36,4 +36,9 @@
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
     <string name="btn_exit_session">Exit Session</string>
+
+    <!-- Match -->
+    <string name="msg_match_found">🎉 Match Found! 🎉</string>
+    <string name="btn_watch_now">Watch Now</string>
+    <string name="btn_find_another_match">Find Another Match</string>
 </resources>
