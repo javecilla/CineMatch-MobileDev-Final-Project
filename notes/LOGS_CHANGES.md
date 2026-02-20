@@ -245,3 +245,31 @@
 - `app/src/main/AndroidManifest.xml` (updated)
 
 **Phase 2 Complete:** All UI layouts and screens are now implemented. Ready for Phase 3: Functionality & Integration.
+
+---
+
+## 2025-02-20 – Phase 3 Step 3.1: Firebase Auth Setup
+
+**What:** Implemented Step 3.1 (Firebase Auth Setup) from APP_DEV_PLAN.
+
+**Changes:**
+
+- **CineMatchApplication** – Application class that initializes Firebase Auth on app startup. Firebase Auth is automatically initialized via google-services.json, but we verify it's ready.
+- **AuthRepository** – Singleton repository for Firebase Authentication operations:
+  - `signIn(email, password, callback)` – Signs in user with email/password, handles Firebase errors and converts to user-friendly messages
+  - `signUp(email, password, callback)` – Creates new account with email/password, validates password length (min 6 chars)
+  - `signOut()` – Signs out current user
+  - `getCurrentUser()` – Returns FirebaseUser or null
+  - `getCurrentUserModel()` – Converts FirebaseUser to app User model
+  - `addAuthStateListener()` / `removeAuthStateListener()` – Methods for monitoring auth state changes
+  - `AuthCallback` interface – Callback for async auth operations (onSuccess, onError)
+  - Error handling – Converts Firebase Auth error codes to user-friendly messages (invalid email, wrong password, user not found, etc.)
+- **Manifest** – Registered CineMatchApplication as the application class.
+
+**Files created/updated:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/CineMatchApplication.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/AuthRepository.java` (new)
+- `app/src/main/AndroidManifest.xml` (updated)
+
+**Notes:** AuthRepository uses singleton pattern for app-wide access. Error messages are user-friendly (e.g., "Incorrect password" instead of "ERROR_WRONG_PASSWORD"). Ready for integration with LoginActivity and RegistrationActivity in Step 3.2 and 3.3.
