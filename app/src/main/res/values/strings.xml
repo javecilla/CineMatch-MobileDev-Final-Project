@@ -29,6 +29,4 @@
     <string name="btn_back">Back</string>
     <string name="msg_invalid_room_code">Invalid room code</string>
     <string name="btn_leave_lobby">Leave Lobby</string>
-    <string name="status_online">Online</string>
-    <string name="status_voting">Voting</string>
 </resources>
