@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
+import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 
 /**
  * Login screen with email/password inputs.
@@ -20,5 +21,10 @@ public class LoginActivity extends BaseActivity {
 
         findViewById(R.id.btn_register).setOnClickListener(v ->
                 startActivity(new Intent(this, RegistrationActivity.class)));
+
+        findViewById(R.id.btn_sign_in).setOnClickListener(v -> {
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
+        });
     }
 }

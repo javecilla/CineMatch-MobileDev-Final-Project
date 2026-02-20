@@ -9,4 +9,12 @@
     <string name="btn_create_account">Create account</string>
     <string name="btn_register">Register</string>
     <string name="btn_already_have_account">Already have an account? Sign In</string>
+
+    <!-- Home -->
+    <string name="title_home">Home</string>
+    <string name="label_avatar">Profile picture</string>
+    <string name="btn_create_lobby">Create Lobby</string>
+    <string name="btn_join_lobby">Join Lobby</string>
+    <string name="btn_logout">Logout</string>
+    <string name="msg_welcome_home">What would you like to do?</string>
 </resources>

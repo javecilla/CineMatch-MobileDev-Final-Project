@@ -111,3 +111,25 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.4: Home Screen
+
+**What:** Implemented Step 2.4 (Home Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_home.xml** – MaterialCardView profile section (image_avatar, text_username, text_email, btn_logout), welcome text, Create Lobby and Join Lobby buttons in MaterialCards. IDs: container_home, card_profile, image_avatar, text_username, text_email, btn_logout, btn_create_lobby, btn_join_lobby.
+- **HomeActivity.java** – Extends BaseActivity, logout navigates to LoginActivity and clears back stack.
+- **LoginActivity** – Sign In button navigates to HomeActivity (placeholder until Firebase Auth).
+- **Strings** – title_home, label_avatar, btn_create_lobby, btn_join_lobby, btn_logout, msg_welcome_home.
+- **Drawable** – bg_avatar_placeholder.xml (oval shape for avatar).
+- **Manifest** – HomeActivity registered.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_home.xml` (new)
+- `app/src/main/res/drawable/bg_avatar_placeholder.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
