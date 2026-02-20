@@ -95,13 +95,13 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_login.xml` layout
-- [ ] Add email input field
-- [ ] Add password input field
-- [ ] Add "Sign In" button
-- [ ] Add "Create account" / "Register" link or button (navigates to RegistrationActivity)
-- [ ] Add error message TextView (initially hidden)
-- [ ] Style with Material 3 components and dark theme
+- [x] Create `activity_login.xml` layout
+- [x] Add email input field
+- [x] Add password input field
+- [x] Add "Sign In" button
+- [x] Add "Create account" / "Register" link or button (navigates to RegistrationActivity)
+- [x] Add error message TextView (initially hidden)
+- [x] Style with Material 3 components and dark theme
 
 **Files to Create:**
 
