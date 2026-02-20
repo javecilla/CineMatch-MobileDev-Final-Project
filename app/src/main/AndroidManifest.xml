@@ -38,6 +38,10 @@
             android:name=".ui.lobby.CreateLobbyActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.lobby.JoinLobbyActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
     </application>

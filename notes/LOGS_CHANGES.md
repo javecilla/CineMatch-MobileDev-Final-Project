@@ -157,3 +157,23 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.6: Join Lobby Screen
+
+**What:** Implemented Step 2.6 (Join Lobby Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_join_lobby.xml** – Logo, room code TextInputLayout (6 char, textCapCharacters, counter), error TextView (visibility gone), Join button, Back button. Vertically centered, dark theme.
+- **JoinLobbyActivity** – Extends BaseActivity, Back button calls finish().
+- **HomeActivity** – Join Lobby button navigates to JoinLobbyActivity.
+- **Strings** – btn_join, btn_back, msg_invalid_room_code.
+- **Manifest** – JoinLobbyActivity registered with windowSoftInputMode adjustResize.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_join_lobby.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/JoinLobbyActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)

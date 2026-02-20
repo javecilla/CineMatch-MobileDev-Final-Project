@@ -177,12 +177,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_join_lobby.xml` layout
-- [ ] Add room code input field (6 characters)
-- [ ] Add "Join" button
-- [ ] Add "Back" button
-- [ ] Add error message TextView (for invalid codes)
-- [ ] Style input field with Material 3 TextInputLayout
+- [x] Create `activity_join_lobby.xml` layout
+- [x] Add room code input field (6 characters)
+- [x] Add "Join" button
+- [x] Add "Back" button
+- [x] Add error message TextView (for invalid codes)
+- [x] Style input field with Material 3 TextInputLayout
 
 **Files to Create:**
 
