@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container_match"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    android:fillViewport="true"
+    tools:context=".ui.match.MatchActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:minHeight="match_parent">
+
+        <TextView
+            android:id="@+id/text_celebration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/msg_match_found"
+            android:textColor="@color/color_primary"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="🎉 Match Found! 🎉" />
+
+        <ImageView
+            android:id="@+id/image_movie_poster"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="24dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/label_movie_poster"
+            app:layout_constraintDimensionRatio="2:3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_celebration"
+            tools:src="@android:drawable/ic_menu_gallery" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_movie_details"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@color/color_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/image_movie_poster">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/text_movie_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    tools:text="Matched Movie Title" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/text_movie_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_secondary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="16dp"
+                        tools:text="⭐ 8.5" />
+
+                    <TextView
+                        android:id="@+id/text_movie_release_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="14sp"
+                        tools:text="2024" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/text_movie_overview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.2"
+                    tools:text="This is the matched movie overview. It describes the plot and storyline of the movie that everyone in the lobby voted Yes for." />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_watch_now"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/btn_watch_now"
+            android:textSize="16sp"
+            app:backgroundTint="@color/color_primary"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_media_play"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="@color/black"
+            app:layout_constraintBottom_toTopOf="@id/btn_find_another"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_movie_details" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_find_another"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/btn_find_another_match"
+            android:textSize="16sp"
+            app:strokeColor="@color/color_primary"
+            app:strokeWidth="2dp"
+            app:cornerRadius="12dp"
+            android:textColor="@color/color_primary"
+            app:layout_constraintBottom_toTopOf="@id/btn_leave_lobby"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_watch_now" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_leave_lobby"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/btn_leave_lobby"
+            android:textColor="@color/color_text_secondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_find_another" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

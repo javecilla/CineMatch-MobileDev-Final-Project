@@ -243,14 +243,14 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create `activity_match.xml` layout
-- [ ] Add celebration animation/view
-- [ ] Add matched movie poster (large)
-- [ ] Add matched movie title
-- [ ] Add matched movie details (overview, rating, release date)
-- [ ] Add "Watch Now" button (or external link)
-- [ ] Add "Find Another Match" button
-- [ ] Add "Leave Lobby" button
+- [x] Create `activity_match.xml` layout
+- [x] Add celebration animation/view
+- [x] Add matched movie poster (large)
+- [x] Add matched movie title
+- [x] Add matched movie details (overview, rating, release date)
+- [x] Add "Watch Now" button (or external link)
+- [x] Add "Find Another Match" button
+- [x] Add "Leave Lobby" button
 
 **Files to Create:**
 
