@@ -1,0 +1,67 @@
+import java.util.Properties
+
+// 1. Load the local.properties file securely
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace = "com.example.finalprojectandroiddev2"
+    compileSdk = 36 // Updated to fix your AAR warning
+
+    // 2. Enable BuildConfig generation for our environment variables
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        applicationId = "com.example.finalprojectandroiddev2"
+        minSdk = 26
+        targetSdk = 36 // Updated to fix your AAR warning
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 3. Inject the keys into BuildConfig
+        buildConfigField("String", "TMDB_READ_ACCESS_TOKEN", "\"${localProperties.getProperty("TMDB_READ_ACCESS_TOKEN")}\"")
+        buildConfigField("String", "TMDB_API_KEY", "\"${localProperties.getProperty("TMDB_API_KEY")}\"")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
+dependencies {
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.activity)
+    implementation(libs.constraintlayout)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+
+    // 4. Standard Retrofit library
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Gson converter para automatic na mag-map yung JSON to Java Objects (Unit 2 vibes)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp (usually dependency na 'to ni Retrofit, but good to have explicit)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+}
