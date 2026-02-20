@@ -271,12 +271,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Initialize Firebase Auth in Application class or MainActivity
-- [ ] Create AuthRepository class
-- [ ] Implement `signIn(email, password)` method
-- [ ] Implement `signUp(email, password)` method (creates account in Firebase)
-- [ ] Implement `signOut()` method
-- [ ] Handle auth state changes via Firebase AuthStateListener
+- [x] Initialize Firebase Auth in Application class or MainActivity
+- [x] Create AuthRepository class
+- [x] Implement `signIn(email, password)` method
+- [x] Implement `signUp(email, password)` method (creates account in Firebase)
+- [x] Implement `signOut()` method
+- [x] Handle auth state changes via Firebase AuthStateListener
 
 **Files to Create/Modify:**
 
