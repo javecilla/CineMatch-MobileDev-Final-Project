@@ -25,4 +25,7 @@
     <string name="btn_share_room_code">Share Room Code</string>
     <string name="btn_start_swiping">Start Swiping</string>
     <string name="msg_waiting_for_members">Waiting for members to join…</string>
+    <string name="btn_join">Join</string>
+    <string name="btn_back">Back</string>
+    <string name="msg_invalid_room_code">Invalid room code</string>
 </resources>
