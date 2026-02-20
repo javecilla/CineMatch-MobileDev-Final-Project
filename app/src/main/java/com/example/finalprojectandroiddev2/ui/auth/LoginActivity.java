@@ -2,16 +2,45 @@ package com.example.finalprojectandroiddev2.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.TextView;
 
 import com.example.finalprojectandroiddev2.R;
+import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
+import com.example.finalprojectandroiddev2.model.User;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
+import com.example.finalprojectandroiddev2.utils.Constants;
+import com.example.finalprojectandroiddev2.utils.Utils;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.regex.Pattern;
 
 /**
  * Login screen with email/password inputs.
- * Firebase Auth logic will be added in a later phase.
+ * Handles Firebase Authentication sign-in flow.
  */
 public class LoginActivity extends BaseActivity {
+
+    private TextInputLayout inputEmail;
+    private TextInputLayout inputPassword;
+    private TextInputEditText editEmail;
+    private TextInputEditText editPassword;
+    private TextView textError;
+    private MaterialButton btnSignIn;
+    private TextView btnRegister;
+
+    private AuthRepository authRepository;
+    private boolean isSigningIn = false;
+
+    // Email validation pattern
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,12 +48,168 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         applyEdgeToEdgeInsets(R.id.container_login);
 
-        findViewById(R.id.btn_register).setOnClickListener(v ->
-                startActivity(new Intent(this, RegistrationActivity.class)));
+        authRepository = AuthRepository.getInstance();
 
-        findViewById(R.id.btn_sign_in).setOnClickListener(v -> {
-            startActivity(new Intent(this, HomeActivity.class));
-            finish();
+        // Initialize views
+        inputEmail = findViewById(R.id.input_email);
+        inputPassword = findViewById(R.id.input_password);
+        editEmail = findViewById(R.id.edit_email);
+        editPassword = findViewById(R.id.edit_password);
+        textError = findViewById(R.id.text_error);
+        btnSignIn = findViewById(R.id.btn_sign_in);
+        btnRegister = findViewById(R.id.btn_register);
+
+        // Clear error when user types
+        editEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                clearError();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
+
+        editPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                clearError();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // Sign in button click
+        btnSignIn.setOnClickListener(v -> attemptSignIn());
+
+        // Register button click
+        btnRegister.setOnClickListener(v ->
+                startActivity(new Intent(this, RegistrationActivity.class)));
+    }
+
+    /**
+     * Attempts to sign in with email and password.
+     */
+    private void attemptSignIn() {
+        if (isSigningIn) {
+            return; // Prevent multiple simultaneous sign-in attempts
+        }
+
+        // Clear previous errors
+        clearError();
+        inputEmail.setError(null);
+        inputPassword.setError(null);
+
+        // Get input values
+        String email = editEmail.getText() != null ? editEmail.getText().toString().trim() : "";
+        String password = editPassword.getText() != null ? editPassword.getText().toString() : "";
+
+        // Validate inputs
+        if (!validateInputs(email, password)) {
+            return;
+        }
+
+        // Show loading state
+        setLoadingState(true);
+
+        // Call AuthRepository
+        authRepository.signIn(email, password, new AuthRepository.AuthCallback() {
+            @Override
+            public void onSuccess(User user) {
+                Logger.i(Constants.TAG_AUTH, "Login successful for user: " + user.getEmail());
+                setLoadingState(false);
+                navigateToHome();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Logger.e(Constants.TAG_AUTH, "Login failed: " + errorMessage);
+                setLoadingState(false);
+                showError(errorMessage);
+            }
+        });
+    }
+
+    /**
+     * Validates email and password inputs.
+     *
+     * @param email    Email to validate
+     * @param password Password to validate
+     * @return true if valid, false otherwise
+     */
+    private boolean validateInputs(String email, String password) {
+        boolean isValid = true;
+
+        // Validate email
+        if (Utils.isBlank(email)) {
+            inputEmail.setError(getString(R.string.error_email_required));
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            inputEmail.setError(getString(R.string.error_email_invalid));
+            isValid = false;
+        }
+
+        // Validate password
+        if (Utils.isBlank(password)) {
+            inputPassword.setError(getString(R.string.error_password_required));
+            isValid = false;
+        } else if (password.length() < 6) {
+            inputPassword.setError(getString(R.string.error_password_too_short));
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    /**
+     * Validates email format using regex pattern.
+     */
+    private boolean isValidEmail(String email) {
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    /**
+     * Shows error message in the error TextView.
+     */
+    private void showError(String message) {
+        textError.setText(message);
+        textError.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Clears error message.
+     */
+    private void clearError() {
+        textError.setVisibility(View.GONE);
+        textError.setText("");
+    }
+
+    /**
+     * Sets loading state (disables button, shows/hides loading indicator).
+     */
+    private void setLoadingState(boolean loading) {
+        isSigningIn = loading;
+        btnSignIn.setEnabled(!loading);
+        btnSignIn.setText(loading ? getString(R.string.btn_signing_in) : getString(R.string.btn_sign_in));
+        editEmail.setEnabled(!loading);
+        editPassword.setEnabled(!loading);
+        btnRegister.setEnabled(!loading);
+    }
+
+    /**
+     * Navigates to HomeActivity and finishes this activity.
+     */
+    private void navigateToHome() {
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

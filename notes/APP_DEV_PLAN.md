@@ -290,13 +290,13 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Connect LoginActivity UI to AuthRepository
-- [ ] Handle email/password input validation
-- [ ] Call `AuthRepository.signIn()` on "Sign In" button click
-- [ ] Show loading state during sign-in
-- [ ] Display Firebase error messages (invalid credentials, etc.)
-- [ ] Navigate to HomeActivity on successful login
-- [ ] Add "Create account" / "Register" action → start RegistrationActivity
+- [x] Connect LoginActivity UI to AuthRepository
+- [x] Handle email/password input validation
+- [x] Call `AuthRepository.signIn()` on "Sign In" button click
+- [x] Show loading state during sign-in
+- [x] Display Firebase error messages (invalid credentials, etc.)
+- [x] Navigate to HomeActivity on successful login
+- [x] Add "Create account" / "Register" action → start RegistrationActivity
 
 **Files to Modify:**
 
