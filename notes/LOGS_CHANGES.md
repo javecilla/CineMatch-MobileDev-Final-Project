@@ -273,3 +273,28 @@
 - `app/src/main/AndroidManifest.xml` (updated)
 
 **Notes:** AuthRepository uses singleton pattern for app-wide access. Error messages are user-friendly (e.g., "Incorrect password" instead of "ERROR_WRONG_PASSWORD"). Ready for integration with LoginActivity and RegistrationActivity in Step 3.2 and 3.3.
+
+---
+
+## 2025-02-20 – Phase 3 Step 3.2: Login Activity Logic
+
+**What:** Implemented Step 3.2 (Login Activity Logic) from APP_DEV_PLAN.
+
+**Changes:**
+
+- **LoginActivity** – Fully functional login screen with Firebase Authentication integration:
+  - **AuthRepository integration** – Connected to AuthRepository singleton for sign-in operations
+  - **Input validation** – Email format validation using regex pattern, password length check (min 6 chars), required field validation
+  - **Sign-in flow** – Calls `AuthRepository.signIn()` on button click, handles success/error callbacks
+  - **Loading state** – Disables sign-in button and input fields during authentication, changes button text to "Signing in…"
+  - **Error handling** – Displays Firebase error messages in error TextView, shows field-specific errors in TextInputLayouts
+  - **Navigation** – Navigates to HomeActivity on successful login (clears back stack), registration button navigates to RegistrationActivity
+  - **UX improvements** – Clears error messages when user types, prevents multiple simultaneous sign-in attempts
+- **Strings** – Added error messages: `error_email_required`, `error_email_invalid`, `error_password_required`, `error_password_too_short`, `btn_signing_in`
+
+**Files created/updated:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+
+**Notes:** LoginActivity now serves as the entry point for unauthenticated users. All validation happens client-side before calling Firebase Auth. Error messages are user-friendly and displayed both inline (TextInputLayout errors) and globally (error TextView).
