@@ -201,3 +201,27 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/MemberAdapter.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2025-02-20 – Phase 2 Step 2.8: Swiping Screen
+
+**What:** Implemented Step 2.8 (Swiping Screen) from APP_DEV_PLAN.
+
+**Changes:**
+- **activity_swiping.xml** – Member status card (HorizontalScrollView with "Swiping:" label), ViewPager2 for movie cards, Yes/No buttons (outlined No, filled Yes), Exit Session text button. Dark theme, Material 3.
+- **item_movie_card.xml** – MaterialCardView with poster ImageView (2:3 ratio), gradient overlay, title, rating (⭐), overview. Card elevation, rounded corners.
+- **bg_poster_gradient.xml** – Gradient overlay drawable for poster (transparent to dark).
+- **SwipingActivity** – Extends BaseActivity, configures ViewPager2 (adapter pending TMDB), Exit Session navigates to LobbyActivity. Yes/No button handlers pending swipe logic.
+- **Strings** – label_movie_poster, label_swiping_status, btn_yes, btn_no, btn_exit_session.
+- **build.gradle** – Added ViewPager2 dependency.
+- **Manifest** – SwipingActivity registered.
+
+**Files created/updated:**
+- `app/src/main/res/layout/activity_swiping.xml` (new)
+- `app/src/main/res/layout/item_movie_card.xml` (new)
+- `app/src/main/res/drawable/bg_poster_gradient.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java` (new)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/build.gradle.kts` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
