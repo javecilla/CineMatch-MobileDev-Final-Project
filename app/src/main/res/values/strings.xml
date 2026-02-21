@@ -19,6 +19,23 @@
     <string name="btn_registering">Registering…</string>
     <string name="msg_press_back_again_to_exit">Press back again to exit</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_title">Complete your profile</string>
+    <string name="onboarding_subtitle">Please fill in the required details below to continue.</string>
+    <string name="onboarding_label_name">Name</string>
+    <string name="onboarding_label_gender">Sex / Gender</string>
+    <string name="onboarding_label_birthday">Birthday</string>
+    <string name="onboarding_btn_continue">Continue to Home</string>
+    <string name="onboarding_btn_saving">Saving…</string>
+    <string name="onboarding_error_name_required">Name is required</string>
+    <string name="onboarding_error_gender_required">Please select your gender</string>
+    <string name="onboarding_error_birthday_required">Please select your birthday</string>
+    <string name="onboarding_back_toast">Please complete the form to continue.</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="gender_prefer_not_to_say">Prefer not to say</string>
+
     <!-- Home -->
     <string name="title_home">Home</string>
     <string name="label_avatar">Profile picture</string>

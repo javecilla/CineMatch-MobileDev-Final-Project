@@ -11,7 +11,7 @@ import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
 import com.example.finalprojectandroiddev2.model.User;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
-import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
+import com.example.finalprojectandroiddev2.ui.onboarding.OnboardingActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.example.finalprojectandroiddev2.utils.Utils;
@@ -240,10 +240,10 @@ public class RegistrationActivity extends BaseActivity {
     }
 
     /**
-     * Navigates to HomeActivity and finishes this activity.
+     * Navigates to OnboardingActivity (user must complete profile before Home).
      */
     private void navigateToHome() {
-        Intent intent = new Intent(this, HomeActivity.class);
+        Intent intent = new Intent(this, OnboardingActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

@@ -7,15 +7,18 @@ import android.os.Looper;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
+import com.example.finalprojectandroiddev2.data.repository.UserRepository;
+import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.ui.auth.LoginActivity;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
+import com.example.finalprojectandroiddev2.ui.onboarding.OnboardingActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.Logger;
 
 /**
  * Splash screen with app logo and loading indicator.
- * On launch, checks Firebase auth state: if authenticated → HomeActivity; if not → LoginActivity.
+ * On launch: if not authenticated → Login; if authenticated, checks profile → Onboarding (no profile) or Home.
  */
 public class SplashActivity extends BaseActivity {
 
@@ -31,24 +34,43 @@ public class SplashActivity extends BaseActivity {
     }
 
     /**
-     * Checks Firebase auth state and navigates to Home if authenticated, Login otherwise.
-     * Uses clear-task flags so back from Login/Home does not return to Splash.
+     * If not authenticated → Login. If authenticated, check users/{uid} profile → Onboarding or Home.
      */
     private void navigateByAuthState() {
         AuthRepository authRepository = AuthRepository.getInstance();
-        boolean isAuthenticated = authRepository.getCurrentUser() != null;
-
-        if (isAuthenticated) {
-            Logger.d(Constants.TAG_AUTH, "Splash: user authenticated, navigating to Home");
-            Intent intent = new Intent(this, HomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        } else {
-            Logger.d(Constants.TAG_AUTH, "Splash: user not authenticated, navigating to Login");
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        if (authRepository.getCurrentUser() == null) {
+            Logger.d(Constants.TAG_AUTH, "Splash: not authenticated, navigating to Login");
+            startActivity(clearTaskIntent(LoginActivity.class));
+            finish();
+            return;
         }
-        finish();
+
+        String uid = authRepository.getCurrentUser().getUid();
+        UserRepository.getInstance().getUserProfile(uid, new UserRepository.ProfileLoadCallback() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                if (profile == null || profile.getName() == null || profile.getName().trim().isEmpty()) {
+                    Logger.d(Constants.TAG_AUTH, "Splash: no profile, navigating to Onboarding");
+                    startActivity(clearTaskIntent(OnboardingActivity.class));
+                } else {
+                    Logger.d(Constants.TAG_AUTH, "Splash: profile exists, navigating to Home");
+                    startActivity(clearTaskIntent(HomeActivity.class));
+                }
+                finish();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Logger.e(Constants.TAG_AUTH, "Splash: profile load failed, sending to Onboarding: " + errorMessage);
+                startActivity(clearTaskIntent(OnboardingActivity.class));
+                finish();
+            }
+        });
+    }
+
+    private Intent clearTaskIntent(Class<?> activityClass) {
+        Intent intent = new Intent(this, activityClass);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        return intent;
     }
 }

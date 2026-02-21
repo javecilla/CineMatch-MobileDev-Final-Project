@@ -12,9 +12,12 @@ import androidx.activity.OnBackPressedCallback;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
+import com.example.finalprojectandroiddev2.data.repository.UserRepository;
 import com.example.finalprojectandroiddev2.model.User;
+import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
+import com.example.finalprojectandroiddev2.ui.onboarding.OnboardingActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.example.finalprojectandroiddev2.utils.Utils;
@@ -145,7 +148,7 @@ public class LoginActivity extends BaseActivity {
             public void onSuccess(User user) {
                 Logger.i(Constants.TAG_AUTH, "Login successful for user: " + user.getEmail());
                 setLoadingState(false);
-                navigateToHome();
+                navigateByProfile(user.getUid());
             }
 
             @Override
@@ -155,6 +158,36 @@ public class LoginActivity extends BaseActivity {
                 showError(errorMessage);
             }
         });
+    }
+
+    /**
+     * If user has no profile (users/{uid}) → Onboarding; otherwise → Home.
+     */
+    private void navigateByProfile(String uid) {
+        UserRepository.getInstance().getUserProfile(uid, new UserRepository.ProfileLoadCallback() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                if (profile == null || profile.getName() == null || profile.getName().trim().isEmpty()) {
+                    startActivity(clearTaskIntent(OnboardingActivity.class));
+                } else {
+                    startActivity(clearTaskIntent(HomeActivity.class));
+                }
+                finish();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Logger.e(Constants.TAG_AUTH, "Login: profile load failed, sending to Onboarding: " + errorMessage);
+                startActivity(clearTaskIntent(OnboardingActivity.class));
+                finish();
+            }
+        });
+    }
+
+    private Intent clearTaskIntent(Class<?> activityClass) {
+        Intent intent = new Intent(this, activityClass);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        return intent;
     }
 
     /**
@@ -223,13 +256,4 @@ public class LoginActivity extends BaseActivity {
         btnRegister.setEnabled(!loading);
     }
 
-    /**
-     * Navigates to HomeActivity and finishes this activity.
-     */
-    private void navigateToHome() {
-        Intent intent = new Intent(this, HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
 }
