@@ -2,6 +2,8 @@ package com.example.finalprojectandroiddev2.data.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Represents a single movie result from TMDB API.
  * Maps to the objects inside the "results" array of /movie/trending and /movie/popular.
@@ -29,6 +31,9 @@ public class Movie {
     @SerializedName("release_date")
     private String releaseDate;
 
+    @SerializedName("genre_ids")
+    private List<Integer> genreIds;
+
     // ── Getters ───────────────────────────────────────────────────────────────
 
     public int getId() { return id; }
@@ -45,4 +50,6 @@ public class Movie {
     public double getVoteAverage() { return voteAverage; }
 
     public String getReleaseDate() { return releaseDate; }
+
+    public List<Integer> getGenreIds() { return genreIds; }
 }

@@ -38,4 +38,14 @@ public interface TmdbApiService {
             @Query("page") int page,
             @Header("Authorization") String bearerToken
     );
+
+    /**
+     * GET /movie/top_rated
+     */
+    @GET("movie/top_rated")
+    Call<MovieListResponse> getTopRatedMovies(
+            @Query("language") String language,
+            @Query("page") int page,
+            @Header("Authorization") String bearerToken
+    );
 }

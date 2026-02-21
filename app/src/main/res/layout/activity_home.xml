@@ -164,6 +164,32 @@
                 tools:listitem="@layout/item_movie_carousel"
                 tools:itemCount="4" />
 
+            <!-- ── Top Rated Movies section ── -->
+            <TextView
+                android:id="@+id/text_top_rated_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="18dp"
+                android:text="@string/label_top_rated_movies"
+                android:textColor="@color/color_text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_top_rated_movies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="6dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_movie_top_rated"
+                tools:itemCount="3" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

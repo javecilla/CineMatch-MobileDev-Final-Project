@@ -46,6 +46,7 @@ public class HomeActivity extends BaseActivity {
     private DrawerLayout drawerLayout;
     private long lastBackPressMs = 0;
     private TrendingMovieAdapter trendingAdapter;
+    private TopRatedMovieAdapter topRatedAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +115,7 @@ public class HomeActivity extends BaseActivity {
 
         loadUserProfile();
         setupTrendingMovies();
+        setupTopRatedMovies();
     }
 
     // ── Trending Movies ───────────────────────────────────────────────────────
@@ -150,6 +152,41 @@ public class HomeActivity extends BaseActivity {
                     public void onFailure(Call<MovieListResponse> call, Throwable t) {
                         Toast.makeText(HomeActivity.this,
                                 "Failed to load trending movies",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    // ── Top Rated Movies ──────────────────────────────────────────────────
+
+    private void setupTopRatedMovies() {
+        RecyclerView rv = findViewById(R.id.rv_top_rated_movies);
+        rv.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.HORIZONTAL, false));
+
+        topRatedAdapter = new TopRatedMovieAdapter(new ArrayList<>());
+        rv.setAdapter(topRatedAdapter);
+
+        String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
+
+        TmdbApiClient.getService()
+                .getTopRatedMovies("en-US", 1, bearer)
+                .enqueue(new Callback<MovieListResponse>() {
+                    @Override
+                    public void onResponse(Call<MovieListResponse> call,
+                                          Response<MovieListResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Movie> movies = response.body().getResults();
+                            if (movies != null && !movies.isEmpty()) {
+                                topRatedAdapter.setMovies(movies);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MovieListResponse> call, Throwable t) {
+                        Toast.makeText(HomeActivity.this,
+                                "Failed to load top rated movies",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
