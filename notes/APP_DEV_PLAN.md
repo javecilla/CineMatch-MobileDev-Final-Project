@@ -985,4 +985,4 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 ---
 
-*This plan is a living document. Update as development progresses and requirements change.*
+_This plan is a living document. Update as development progresses and requirements change._

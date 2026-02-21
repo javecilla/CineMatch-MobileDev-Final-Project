@@ -39,6 +39,8 @@
     <!-- Home -->
     <string name="title_home">Home</string>
     <string name="label_avatar">Profile picture</string>
+    <string name="btn_menu">Menu</string>
+    <string name="msg_menu_coming_soon">Menu coming soon</string>
     <string name="btn_create_lobby">Create Lobby</string>
     <string name="btn_join_lobby">Join Lobby</string>
     <string name="btn_logout">Logout</string>
