@@ -69,6 +69,9 @@
     <string name="label_add_to_favorite">Add to Favorites</string>
     <string name="label_add_to_watchlist">Add to Watchlist</string>
 
+    <!-- Top Rated Movies carousel -->
+    <string name="label_top_rated_movies">Top Rated Movies</string>
+
     <!-- Lobby -->
     <string name="label_room_code">Room Code</string>
     <string name="label_members">Members</string>

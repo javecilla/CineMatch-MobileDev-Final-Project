@@ -1,5 +1,21 @@
 # CineMatch – Log of Changes
 
+## 2026-02-21 – Top Rated Movies Carousel
+
+**What:** Added a second horizontal carousel ("Top Rated Movies") below the Trending section on the Home screen. Cards are wider (240dp) and show the movie title and genre names below the poster.
+
+**Changes:**
+
+- **`res/layout/item_movie_top_rated.xml`** _(NEW)_ – 240dp-wide card with poster `ImageView`, title `TextView`, and genres `TextView`.
+- **`ui/home/TopRatedMovieAdapter.java`** _(NEW)_ – Adapter with `getGenresAsString(List<Integer>)` helper that maps all 19 standard TMDB genre IDs to display names using a static `HashMap`.
+- **`data/model/Movie.java`** – Added `genre_ids` field (`List<Integer>`) with `@SerializedName` and `getGenreIds()` getter.
+- **`data/api/TmdbApiService.java`** – Added `getTopRatedMovies(language, page, bearerToken)` endpoint (`GET /movie/top_rated`).
+- **`res/layout/activity_home.xml`** – Added Top Rated label `TextView` and `rv_top_rated_movies` `RecyclerView` below the Trending section.
+- **`res/values/strings.xml`** – Added `label_top_rated_movies` string.
+- **`ui/home/HomeActivity.java`** – Added `topRatedAdapter` field and `setupTopRatedMovies()` method (Retrofit call to `/movie/top_rated`); called from `onCreate()`.
+
+---
+
 ## 2026-02-21 – TMDB Trending Movies API Integration
 
 **What:** Wired up a live Retrofit call to TMDB `/trending/movie/day` so the Home screen carousel shows real movie data instead of a blank list.
