@@ -17,6 +17,7 @@
     <string name="error_confirm_password_required">Please confirm your password</string>
     <string name="error_passwords_not_match">Passwords do not match</string>
     <string name="btn_registering">Registering…</string>
+    <string name="msg_press_back_again_to_exit">Press back again to exit</string>
 
     <!-- Home -->
     <string name="title_home">Home</string>
