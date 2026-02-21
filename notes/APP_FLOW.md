@@ -111,13 +111,13 @@ lobbies/
 
 ### **Endpoints Used**
 
-| **Endpoint**               | **Purpose**          | **Parameters**          |
-| :------------------------- | :------------------- | :---------------------- |
-| `/movie/popular`           | Get popular movies   | `language=en-US&page=1` |
-| `/movie/trending`          | Get trending movies  | `time_window=day`       |
-| `/movie/top_rated`         | Get top-rated movies | `language=en-US&page=1` |
-| `/movie/{movie_id}`        | Get movie details    | `movie_id`              |
-| `/movie/{movie_id}/images` | Get movie posters    | `movie_id`              |
+| **Endpoint**                    | **Purpose**          | **Parameters**          |
+| :------------------------------ | :------------------- | :---------------------- | --- |
+| `/movie/popular`                | Get popular movies   | `language=en-US&page=1` |
+| `/trending/movie/{time_window}` | Get trending movies  | `time_window=day`       |
+| `/movie/top_rated`              | Get top-rated movies | `language=en-US&page=1` |
+| `/movie/{movie_id}`             | Get movie details    | `movie_id`              |
+| `/movie/{movie_id}/images`      | Get movie posters    | `movie_id`              |     |
 
 ### **API Response Structure**
 

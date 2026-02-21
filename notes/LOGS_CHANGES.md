@@ -1,5 +1,39 @@
 # CineMatch – Log of Changes
 
+## 2026-02-21 – TMDB Trending Movies API Integration
+
+**What:** Wired up a live Retrofit call to TMDB `/trending/movie/day` so the Home screen carousel shows real movie data instead of a blank list.
+
+**Changes:**
+
+- **`data/model/MovieListResponse.java`** _(NEW)_ – Gson wrapper for TMDB list responses (`page`, `results`, `total_pages`, `total_results`).
+- **`data/api/TmdbApiService.java`** _(NEW)_ – Retrofit interface with `getTrendingMovies(timeWindow, language, bearerToken)` and `getPopularMovies()` endpoints.
+- **`data/api/TmdbApiClient.java`** _(NEW)_ – Singleton Retrofit builder using `Constants.TMDB_BASE_URL` and `GsonConverterFactory`.
+- **`ui/home/HomeActivity.java`** – `setupTrendingMovies()` now enqueues a real async Retrofit call to `/trending/movie/day` with `BuildConfig.TMDB_READ_ACCESS_TOKEN`. On success, `trendingAdapter.setMovies()` is called with the results list. Shows a Toast on network failure.
+
+**Notes:** Bearer auth header is set per-call from `BuildConfig.TMDB_READ_ACCESS_TOKEN` (stored in `local.properties`). `TrendingMovieAdapter.setMovies()` mutates the adapter's existing `ArrayList` and calls `notifyDataSetChanged()`.
+
+---
+
+## 2026-02-21 – Home Screen: Trending Movies Carousel
+
+**What:** Added a horizontal "Trending Movies" RecyclerView carousel to the Home screen, and wired up the Glide image loading library.
+
+**Changes:**
+
+- **`app/build.gradle.kts`** – Added Glide 4.16.0 (`glide` + `compiler` annotationProcessor).
+- **`data/model/Movie.java`** _(NEW)_ – TMDB movie model with `@SerializedName` Gson fields: `id`, `title`, `posterPath`, `backdropPath`, `overview`, `voteAverage`, `releaseDate`.
+- **`res/layout/item_movie_carousel.xml`** _(NEW)_ – Movie card (160×240dp, `cardCornerRadius=16dp`, dark slate bg). Poster `ImageView` fills the card (`centerCrop`). Gradient scrim overlay at bottom with two `ImageButton`s: `btn_favorite` (`heart_outline_icon`) and `btn_watchlist` (`add_shadow_outline.`).
+- **`res/drawable/gradient_bottom_scrim.xml`** _(NEW)_ – Bottom-to-top gradient shape for card scrim.
+- **`ui/home/TrendingMovieAdapter.java`** _(NEW)_ – `RecyclerView.Adapter<MovieViewHolder>` with Glide poster loading (`https://image.tmdb.org/t/p/w500/{poster_path}`) and Toast click handlers for favourite and watchlist overlay buttons.
+- **`res/layout/activity_home.xml`** – Refactored root `ConstraintLayout` to `NestedScrollView > LinearLayout` to support scrolling. Added `text_trending_label` (`TextView`) and `rv_trending_movies` (`RecyclerView`, horizontal).
+- **`ui/home/HomeActivity.java`** – Added `setupTrendingMovies()` method: creates horizontal `LinearLayoutManager`, instantiates `TrendingMovieAdapter` with empty list (TMDB fetch to be wired in Phase 6).
+- **`res/values/strings.xml`** – Added `label_trending_movies`, `label_movie_poster`, `label_add_to_favorite`, `label_add_to_watchlist`.
+
+**Notes:** RecyclerView starts empty — real TMDB data will be fetched in Phase 6 (TMDB API integration). The `add_shadow_outline.` drawable name includes the trailing dot as supplied by the user; ensure the file exists with that exact name.
+
+---
+
 ## 2025-02-20 – Phase 1 Step 1.1: Project Structure Setup
 
 **What:** Implemented Step 1.1 (Project Structure Setup) from APP_DEV_PLAN.

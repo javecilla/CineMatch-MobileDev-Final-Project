@@ -16,4 +16,10 @@
     <color name="color_text_secondary">#A0A3B1</color>
     <!-- Logout button outline and text (light gray) -->
     <color name="color_logout_tint">#B1B4Bf</color>
+
+
+    <!-- Carousel Button Icon Colors -->
+    <color name="color_carousel_icon_tint">#B1B4Bf</color>
+    <color name="color_carousel_icon_tint_2">#FF4B5C</color>
+    <color name="color_carousel_icon_tint_3">#FF4B5C</color>
 </resources>
