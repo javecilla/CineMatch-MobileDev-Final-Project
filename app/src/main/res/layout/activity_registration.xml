@@ -112,6 +112,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/btn_register"
+            android:textColor="@color/button_text_on_primary"
             app:backgroundTint="@color/color_primary"
             app:cornerRadius="12dp"
             app:layout_constraintBottom_toTopOf="@id/btn_sign_in"
