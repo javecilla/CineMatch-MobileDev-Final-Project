@@ -163,15 +163,15 @@ lobbies/
 
 ### **Material Design 3 Guidelines**
 
-1. **Color Scheme (Dark Theme)**: Match the attached CineMatch mockup  
-   - **Background**: Near-black / charcoal (`#050509`–`#101018`)  
-   - **Surface / Cards**: Dark slate (`#171923`–`#202331`) with subtle elevation shadows  
-   - **Primary Accent**: Vibrant teal / cyan (`#39E1C6`–`#4EF2D7`) for active states, primary buttons, and highlights  
-   - **Secondary Accent**: Warm yellow / amber (`#FFC857`–`#FFB300`) for ratings (⭐) and subtle emphasis  
-   - **Error / Negative**: Desaturated red (`#FF4B5C`) for destructive actions or error messages  
-   - **Text Primary**: High-contrast white (`#FFFFFF`) for titles and key labels  
-   - **Text Secondary**: Soft gray (`#A0A3B1`) for supporting text and metadata  
-   - **Bottom Navigation**: Translucent dark bar with outlined / filled icons using the primary accent on selection  
+1. **Color Scheme (Dark Theme)**: Match the attached CineMatch mockup
+   - **Background**: Near-black / charcoal (`#050509`–`#101018`)
+   - **Surface / Cards**: Dark slate (`#171923`–`#202331`) with subtle elevation shadows
+   - **Primary Accent**: Vibrant teal / cyan (`#39E1C6`–`#4EF2D7`) for active states, primary buttons, and highlights
+   - **Secondary Accent**: Warm yellow / amber (`#FFC857`–`#FFB300`) for ratings (⭐) and subtle emphasis
+   - **Error / Negative**: Desaturated red (`#FF4B5C`) for destructive actions or error messages
+   - **Text Primary**: High-contrast white (`#FFFFFF`) for titles and key labels
+   - **Text Secondary**: Soft gray (`#A0A3B1`) for supporting text and metadata
+   - **Bottom Navigation**: Translucent dark bar with outlined / filled icons using the primary accent on selection
 2. **Typography**: Material 3 type scale (headline, body, label) with bold, uppercase app title (`CINEMATCH`) and clear hierarchy for headings vs. metadata
 3. **Components**: Material 3 components (Cards, Buttons, Chips, etc.)
 4. **Motion**: Smooth transitions and animations
