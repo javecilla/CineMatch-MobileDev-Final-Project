@@ -390,3 +390,36 @@
 - `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/UserRepository.java` (new)
 
 **Notes:** Avatar remains a local default drawable (no Firebase Storage integration, as per project constraints). User profiles are not yet wired into Registration or Home screens; those steps will use `UserRepository` to save and display profile details.
+
+---
+
+## 2025-02-20 – Onboarding flow and Home display name
+
+**What:** After registration, users are sent to an Onboarding screen to fill required profile fields (name, gender, birthday) before reaching Home. Back/swipe from Onboarding is blocked. Home shows the user’s name from the saved profile.
+
+**Changes:**
+
+- **OnboardingActivity** (new):
+  - Single screen with form: **Name** (TextInputLayout), **Sex/Gender** (Material dropdown: Male, Female, Other, Prefer not to say), **Birthday** (click opens DatePickerDialog; stored as `yyyy-MM-dd`, displayed e.g. `May 21, 1998`).
+  - “Continue to Home” saves profile via `UserRepository.saveUserProfile()` then navigates to Home with clear task.
+  - **Back disabled:** `OnBackPressedCallback` consumes back press and shows toast: “Please complete the form to continue.”
+  - Validation: name required, gender required, birthday required; errors shown on fields and in error TextView.
+- **RegistrationActivity:** After successful sign-up, navigates to **OnboardingActivity** (not Home) with `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK`.
+- **SplashActivity:** If user is authenticated, loads `users/{uid}` via `UserRepository.getUserProfile()`. If no profile or empty name → **OnboardingActivity**; otherwise → **HomeActivity**.
+- **LoginActivity:** After successful sign-in, same profile check: no profile or empty name → **OnboardingActivity**; otherwise → **HomeActivity**.
+- **HomeActivity:** Loads `UserProfile` for current user and sets **text_username** to `profile.getName()`. Falls back to auth email (or “Home”) if profile missing. **text_email** shows auth email. Avatar remains default drawable.
+- **Layout:** `activity_onboarding.xml` – logo, title “Complete your profile”, subtitle, name/gender/birthday inputs, error TextView, “Continue to Home” button (dark theme, Material 3).
+- **Strings:** Onboarding title, subtitle, labels, button, errors, gender options, back-press toast. **Manifest:** `OnboardingActivity` registered.
+
+**Files created/updated:**
+
+- `app/src/main/res/layout/activity_onboarding.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/onboarding/OnboardingActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/RegistrationActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/splash/SplashActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
+
+**Notes:** User cannot leave Onboarding without submitting the form (back is intercepted). Profile is written to `users/{uid}` (name, gender, birthday, email). Home displays the saved name at the top; avatar stays the default (no Firebase Storage).
