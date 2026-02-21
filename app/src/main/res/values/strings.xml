@@ -46,6 +46,26 @@
     <string name="btn_logout">Logout</string>
     <string name="msg_welcome_home">What would you like to do?</string>
 
+    <!-- Sidebar -->
+    <string name="sidebar_nav_home">Home</string>
+    <string name="sidebar_nav_favorites">Favorites</string>
+    <string name="sidebar_nav_favorites_coming_soon">Favorites — coming soon</string>
+    <string name="sidebar_nav_watchlist">Watchlist</string>
+    <string name="sidebar_nav_watchlist_coming_soon">Watchlist — coming soon</string>
+    <string name="sidebar_nav_profile">Profile</string>
+    <string name="sidebar_nav_profile_coming_soon">Profile — coming soon</string>
+    <string name="sidebar_nav_movies">Movies</string>
+    <string name="sidebar_nav_movies_coming_soon">Movies — coming soon</string>
+    <string name="sidebar_nav_signout">Sign Out</string>
+    <string name="sidebar_nav_about_project">About Project</string>
+    <string name="sidebar_nav_about_team">About Team</string>
+    <string name="sidebar_default_username">Guest User</string>
+    <string name="sidebar_about_project_coming_soon">About Project — coming soon</string>
+    <string name="sidebar_about_team_coming_soon">About Team — coming soon</string>
+    <string name="sidebar_btn_close">Close</string>
+    
+    
+
     <!-- Lobby -->
     <string name="label_room_code">Room Code</string>
     <string name="label_members">Members</string>

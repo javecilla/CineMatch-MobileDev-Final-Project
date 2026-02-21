@@ -99,6 +99,7 @@
 **What:** Implemented Step 2.3 (Registration Screen) from APP_DEV_PLAN.
 
 **Changes:**
+
 - **activity_registration.xml** – ScrollView with ConstraintLayout, logo, Material3 TextInputLayout for email, password, confirm-password, error TextView (visibility gone), Register button, "Already have an account? Sign In" link. Vertically centered layout matching login.
 - **RegistrationActivity.java** – Extends BaseActivity, navigates to LoginActivity on "Sign In" click.
 - **LoginActivity** – Added navigation to RegistrationActivity on "Create account" click.
@@ -106,6 +107,7 @@
 - **Manifest** – RegistrationActivity registered with windowSoftInputMode adjustResize.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_registration.xml` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/RegistrationActivity.java` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
@@ -119,6 +121,7 @@
 **What:** Implemented Step 2.4 (Home Screen) from APP_DEV_PLAN.
 
 **Changes:**
+
 - **activity_home.xml** – MaterialCardView profile section (image_avatar, text_username, text_email, btn_logout), welcome text, Create Lobby and Join Lobby buttons in MaterialCards. IDs: container_home, card_profile, image_avatar, text_username, text_email, btn_logout, btn_create_lobby, btn_join_lobby.
 - **HomeActivity.java** – Extends BaseActivity, logout navigates to LoginActivity and clears back stack.
 - **LoginActivity** – Sign In button navigates to HomeActivity (placeholder until Firebase Auth).
@@ -127,6 +130,7 @@
 - **Manifest** – HomeActivity registered.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_home.xml` (new)
 - `app/src/main/res/drawable/bg_avatar_placeholder.xml` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (new)
@@ -141,6 +145,7 @@
 **What:** Implemented Step 2.5 (Create Lobby Dialog/Screen) from APP_DEV_PLAN.
 
 **Changes:**
+
 - **activity_create_lobby.xml** – Room code card (large, copyable text_room_code), Share Room Code button, member list card with "Waiting for members…" text and RecyclerView, Start Swiping button (disabled). Material 3 cards, dark theme.
 - **item_member.xml** – RecyclerView item for member list (avatar, username, host badge).
 - **MemberAdapter** – Empty adapter for member RecyclerView, ready for Firebase data.
@@ -150,6 +155,7 @@
 - **Manifest** – CreateLobbyActivity registered.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_create_lobby.xml` (new)
 - `app/src/main/res/layout/item_member.xml` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/CreateLobbyActivity.java` (new)
@@ -165,6 +171,7 @@
 **What:** Implemented Step 2.6 (Join Lobby Screen) from APP_DEV_PLAN.
 
 **Changes:**
+
 - **activity_join_lobby.xml** – Logo, room code TextInputLayout (6 char, textCapCharacters, counter), error TextView (visibility gone), Join button, Back button. Vertically centered, dark theme.
 - **JoinLobbyActivity** – Extends BaseActivity, Back button calls finish().
 - **HomeActivity** – Join Lobby button navigates to JoinLobbyActivity.
@@ -172,6 +179,7 @@
 - **Manifest** – JoinLobbyActivity registered with windowSoftInputMode adjustResize.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_join_lobby.xml` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/JoinLobbyActivity.java` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
@@ -185,6 +193,7 @@
 **What:** Implemented Step 2.7 (Lobby Screen) from APP_DEV_PLAN.
 
 **Changes:**
+
 - **activity_lobby.xml** – Room code card at top, member list RecyclerView in card, LinearProgressIndicator (visibility gone), Start Swiping button (visibility gone, host only), Leave Lobby outlined button. Dark theme, Material 3.
 - **item_member.xml** – Added status indicator View (view_status_indicator) with bg_status_online drawable for online/voting status.
 - **bg_status_online.xml** – Circular drawable for member status indicator (primary color).
@@ -194,6 +203,7 @@
 - **Manifest** – LobbyActivity registered.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_lobby.xml` (new)
 - `app/src/main/res/drawable/bg_status_online.xml` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/lobby/LobbyActivity.java` (new)
@@ -209,6 +219,7 @@
 **What:** Implemented Step 2.8 (Swiping Screen) from APP_DEV_PLAN.
 
 **Changes:**
+
 - **activity_swiping.xml** – Member status card (HorizontalScrollView with "Swiping:" label), ViewPager2 for movie cards, Yes/No buttons (outlined No, filled Yes), Exit Session text button. Dark theme, Material 3.
 - **item_movie_card.xml** – MaterialCardView with poster ImageView (2:3 ratio), gradient overlay, title, rating (⭐), overview. Card elevation, rounded corners.
 - **bg_poster_gradient.xml** – Gradient overlay drawable for poster (transparent to dark).
@@ -218,6 +229,7 @@
 - **Manifest** – SwipingActivity registered.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_swiping.xml` (new)
 - `app/src/main/res/layout/item_movie_card.xml` (new)
 - `app/src/main/res/drawable/bg_poster_gradient.xml` (new)
@@ -233,12 +245,14 @@
 **What:** Implemented Step 2.9 (Match Found Screen) from APP_DEV_PLAN - **Final step of Phase 2**.
 
 **Changes:**
+
 - **activity_match.xml** – ScrollView with celebration text ("🎉 Match Found! 🎉"), large poster ImageView (2:3 ratio), movie details card (title, rating, release date, overview), Watch Now button (primary), Find Another Match button (outlined), Leave Lobby button (text). Dark theme, Material 3.
 - **MatchActivity** – Extends BaseActivity, Watch Now placeholder (external link pending), Find Another Match navigates to SwipingActivity, Leave Lobby navigates to HomeActivity and clears back stack. Movie data binding pending Firebase.
 - **Strings** – msg_match_found, btn_watch_now, btn_find_another_match.
 - **Manifest** – MatchActivity registered.
 
 **Files created/updated:**
+
 - `app/src/main/res/layout/activity_match.xml` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/match/MatchActivity.java` (new)
 - `app/src/main/res/values/strings.xml` (updated)
@@ -425,3 +439,26 @@
 **Notes:** User cannot leave Onboarding without submitting the form (back is intercepted). Profile is written to `users/{uid}` (name, gender, birthday, email). Home displays the saved name at the top; avatar stays the default (no Firebase Storage).
 
 **Fix (logout):** Logout was only navigating to LoginActivity without signing out of Firebase Auth, so reopening the app showed the user still logged in. HomeActivity now calls `AuthRepository.getInstance().signOut()` before starting LoginActivity and finishing, so the Firebase session is cleared and the next app launch correctly shows the Login screen.
+
+---
+
+## 2026-02-21 – Home Screen Sidebar Navigation
+
+**What:** Added a slide-in sidebar (DrawerLayout) to the Home screen, triggered by the hamburger menu button in the navbar.
+
+**Changes:**
+
+- **activity_home.xml** – Restructured root to `DrawerLayout`. Existing `ConstraintLayout` is the main content; sidebar (`layout_sidebar.xml`) included as `layout_gravity="end"` panel.
+- **layout_sidebar.xml** (new) – Sidebar layout with:
+  - User avatar (`default_user_avatar2`) in a `MaterialCardView` (56dp, 16dp corners) alongside `sidebar_text_username` and `sidebar_text_email` TextViews.
+  - Nav buttons: **Home** (closes drawer), **About Project** (toast), **About Team** (toast).
+  - **Logout** button at the bottom (red tint) that calls `AuthRepository.signOut()` and navigates to `LoginActivity`.
+- **HomeActivity.java** – Wires `btn_menu` to open/close drawer; wires all sidebar buttons; loads `UserProfile` from `UserRepository` to populate sidebar username and email; adds double-back-press-to-exit (with drawer-close-first behavior).
+- **strings.xml** – Added sidebar string resources: `sidebar_nav_home`, `sidebar_nav_about_project`, `sidebar_nav_about_team`, `sidebar_default_username`, `sidebar_about_project_coming_soon`, `sidebar_about_team_coming_soon`.
+
+**Files created/updated:**
+
+- `app/src/main/res/layout/layout_sidebar.xml` (new)
+- `app/src/main/res/layout/activity_home.xml` (updated – DrawerLayout root)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
