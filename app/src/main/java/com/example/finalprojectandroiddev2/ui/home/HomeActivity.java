@@ -7,8 +7,20 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.finalprojectandroiddev2.data.model.Movie;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.finalprojectandroiddev2.BuildConfig;
 import com.example.finalprojectandroiddev2.R;
+import com.example.finalprojectandroiddev2.data.api.TmdbApiClient;
+import com.example.finalprojectandroiddev2.data.api.TmdbApiService;
+import com.example.finalprojectandroiddev2.data.model.Movie;
+import com.example.finalprojectandroiddev2.data.model.MovieListResponse;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
 import com.example.finalprojectandroiddev2.data.repository.UserRepository;
 import com.example.finalprojectandroiddev2.model.UserProfile;
@@ -17,6 +29,10 @@ import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.lobby.CreateLobbyActivity;
 import com.example.finalprojectandroiddev2.ui.lobby.JoinLobbyActivity;
 import com.google.firebase.auth.FirebaseUser;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Home screen.
@@ -29,6 +45,7 @@ public class HomeActivity extends BaseActivity {
 
     private DrawerLayout drawerLayout;
     private long lastBackPressMs = 0;
+    private TrendingMovieAdapter trendingAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +113,46 @@ public class HomeActivity extends BaseActivity {
         });
 
         loadUserProfile();
+        setupTrendingMovies();
+    }
+
+    // ── Trending Movies ───────────────────────────────────────────────────────
+
+    /**
+     * Sets up the horizontal carousel and immediately fetches trending movies from
+     * TMDB /trending/movie/day using the Bearer read-access token from BuildConfig.
+     */
+    private void setupTrendingMovies() {
+        RecyclerView rv = findViewById(R.id.rv_trending_movies);
+        rv.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.HORIZONTAL, false));
+
+        trendingAdapter = new TrendingMovieAdapter(new ArrayList<>());
+        rv.setAdapter(trendingAdapter);
+
+        String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
+
+        TmdbApiService api = TmdbApiClient.getService();
+        api.getTrendingMovies("day", "en-US", bearer)
+                .enqueue(new Callback<MovieListResponse>() {
+                    @Override
+                    public void onResponse(Call<MovieListResponse> call,
+                                          Response<MovieListResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Movie> movies = response.body().getResults();
+                            if (movies != null && !movies.isEmpty()) {
+                                trendingAdapter.setMovies(movies);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MovieListResponse> call, Throwable t) {
+                        Toast.makeText(HomeActivity.this,
+                                "Failed to load trending movies",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     // ── Drawer helpers ────────────────────────────────────────────────────────

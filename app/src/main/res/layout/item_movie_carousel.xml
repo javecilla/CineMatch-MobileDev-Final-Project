@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="160dp"
+    android:layout_height="240dp"
+    android:layout_marginEnd="12dp"
+    app:cardBackgroundColor="@color/color_surface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="0dp">
+
+    <!-- Movie poster fills the card -->
+    <ImageView
+        android:id="@+id/iv_movie_poster"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/label_movie_poster" />
+
+    <!-- Add to Favourite — bottom-start corner -->
+    <ImageButton
+        android:id="@+id/btn_favorite"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="8dp"
+        android:src="@drawable/heart_outline_icon"
+        android:background="@drawable/bg_circle_overlay"
+        android:contentDescription="@string/label_add_to_favorite"
+        android:scaleType="fitCenter"
+        android:padding="6dp"
+        app:tint="@color/color_carousel_icon_tint" />
+
+    <!-- Add to Watchlist — bottom-end corner -->
+    <ImageButton
+        android:id="@+id/btn_watchlist"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="8dp"
+        android:src="@drawable/add_shadow_outline"
+        android:background="@drawable/bg_circle_overlay"
+        android:contentDescription="@string/label_add_to_watchlist"
+        android:scaleType="fitCenter"
+        android:padding="6dp"
+        app:tint="@color/color_carousel_icon_tint" />
+
+</com.google.android.material.card.MaterialCardView>

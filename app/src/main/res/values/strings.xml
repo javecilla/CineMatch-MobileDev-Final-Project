@@ -63,8 +63,11 @@
     <string name="sidebar_about_project_coming_soon">About Project — coming soon</string>
     <string name="sidebar_about_team_coming_soon">About Team — coming soon</string>
     <string name="sidebar_btn_close">Close</string>
-    
-    
+
+    <!-- Trending Movies carousel -->
+    <string name="label_trending_movies">Trending Movies</string>
+    <string name="label_add_to_favorite">Add to Favorites</string>
+    <string name="label_add_to_watchlist">Add to Watchlist</string>
 
     <!-- Lobby -->
     <string name="label_room_code">Room Code</string>
