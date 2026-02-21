@@ -2,6 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Semi-transparent black for disabled primary button text (readable but clearly disabled) -->
+    <color name="button_text_on_primary_disabled">#80000000</color>
 
     <!-- Dark theme (APP_FLOW palette) -->
     <color name="color_background">#050509</color>
