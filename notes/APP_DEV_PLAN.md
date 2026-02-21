@@ -330,12 +330,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Set SplashActivity or MainActivity as launcher activity
-- [ ] On app launch, check Firebase auth state:
+- [x] Set SplashActivity or MainActivity as launcher activity
+- [x] On app launch, check Firebase auth state:
   - If **authenticated** → navigate to HomeActivity (Main)
   - If **not authenticated** → navigate to LoginActivity (user must login first)
-- [ ] Prevent back navigation from Login to Splash/Main (or handle exit confirmation)
-- [ ] Handle session persistence (Firebase handles this; ensure no auto-logout on app restart unless intended)
+- [x] Prevent back navigation from Login to Splash/Main (or handle exit confirmation)
+- [x] Handle session persistence (Firebase handles this; ensure no auto-logout on app restart unless intended)
 
 **Files to Modify:**
 

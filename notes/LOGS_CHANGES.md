@@ -325,3 +325,30 @@
 - `app/src/main/res/values/strings.xml` (updated)
 
 **Notes:** RegistrationActivity mirrors LoginActivity's functionality but includes password confirmation validation. On successful registration, users are automatically signed in (Firebase Auth handles this) and navigated to HomeActivity. All validation happens client-side before calling Firebase Auth. Error messages are user-friendly and displayed both inline (TextInputLayout errors) and globally (error TextView).
+
+---
+
+## 2025-02-20 – Phase 3 Step 3.4: Auth State Management & Entry Flow
+
+**What:** Implemented Step 3.4 (Auth State Management & Entry Flow) from APP_DEV_PLAN.
+
+**Changes:**
+
+- **SplashActivity** – Auth-aware routing after splash delay:
+  - Uses `AuthRepository.getCurrentUser()` to determine if user is authenticated
+  - If **authenticated** → starts HomeActivity with `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK`, then finishes
+  - If **not authenticated** → starts LoginActivity with same flags, then finishes
+  - Ensures back stack does not contain Splash; session persistence is left to Firebase (no auto-logout on restart)
+- **LoginActivity** – Back-press handling:
+  - Registered `OnBackPressedCallback`: first back press shows Toast "Press back again to exit"; second back press within 2 seconds calls `finishAffinity()` to exit app
+  - Prevents accidental exit and avoids returning to Splash (Splash already finished and task was cleared)
+- **AndroidManifest** – No changes; SplashActivity remains launcher, LoginActivity and RegistrationActivity already declared
+- **Strings** – Added `msg_press_back_again_to_exit` for exit confirmation
+
+**Files created/updated:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/splash/SplashActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/auth/LoginActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+
+**Notes:** App opens to Splash → then to Login when not authenticated, or to Home when authenticated. Registration remains available from Login. Session persistence is handled by Firebase Auth by default.

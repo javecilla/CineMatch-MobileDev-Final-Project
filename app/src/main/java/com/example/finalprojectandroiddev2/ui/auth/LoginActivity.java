@@ -6,6 +6,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
@@ -37,6 +40,8 @@ public class LoginActivity extends BaseActivity {
 
     private AuthRepository authRepository;
     private boolean isSigningIn = false;
+    private long lastBackPressTime = 0;
+    private static final long BACK_PRESS_INTERVAL_MS = 2000;
 
     // Email validation pattern
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -93,6 +98,20 @@ public class LoginActivity extends BaseActivity {
         // Register button click
         btnRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegistrationActivity.class)));
+
+        // Prevent back navigation to Splash; show exit confirmation on first back press
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                long now = System.currentTimeMillis();
+                if (now - lastBackPressTime < BACK_PRESS_INTERVAL_MS) {
+                    finishAffinity();
+                } else {
+                    lastBackPressTime = now;
+                    Toast.makeText(LoginActivity.this, R.string.msg_press_back_again_to_exit, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     /**
