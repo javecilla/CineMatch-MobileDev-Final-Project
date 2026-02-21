@@ -15,6 +15,7 @@ public final class Constants {
     public static final String TAG_UI = "CineMatch.UI";
 
     // Firebase Realtime Database node names (lower_snake_case per APP_FLOW schema)
+    public static final String NODE_USERS = "users";
     public static final String NODE_LOBBIES = "lobbies";
     public static final String NODE_MEMBERS = "members";
     public static final String NODE_MOVIES = "movies";

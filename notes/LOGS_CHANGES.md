@@ -352,3 +352,41 @@
 - `app/src/main/res/values/strings.xml` (updated)
 
 **Notes:** App opens to Splash → then to Login when not authenticated, or to Home when authenticated. Registration remains available from Login. Session persistence is handled by Firebase Auth by default.
+
+---
+
+## 2025-02-20 – User Profiles in Firebase Realtime Database
+
+**What:** Added support for storing additional user details (beyond email/password in Firebase Auth) in Firebase Realtime Database.
+
+**Changes:**
+
+- **Constants** – Added `NODE_USERS = "users"` to represent the root node for user profiles.
+- **UserProfile model** – New `UserProfile` data class representing extra user details stored under `users/{uid}`:
+  - `uid` – Firebase Authentication user id
+  - `name` – Full name (e.g., "Jerome Avecilla")
+  - `gender` – Sex/gender string
+  - `birthday` – Birthday as an ISO string (e.g., "1998-05-21")
+  - `email` – Optional email copy for convenience
+- **UserRepository** – New repository for reading/writing user profiles in Realtime Database:
+  - Uses `FirebaseDatabase.getInstance(BuildConfig.FB_ROUTE_INSTANCE_URL)` and `Constants.NODE_USERS`
+  - `saveUserProfile(UserProfile profile, ProfileSaveCallback)` – Creates/updates `users/{uid}` with profile data
+  - `getUserProfile(String uid, ProfileLoadCallback)` – Loads `users/{uid}` as `UserProfile` or returns `null` if not found
+  - Logs successes and errors via `Logger` with `TAG_FIREBASE`
+
+**Data structure in Firebase Realtime Database:**
+
+- `users/`
+  - `{uid}/`
+    - `name`
+    - `gender`
+    - `birthday`
+    - `email` (optional helper field)
+
+**Files created/updated:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/utils/Constants.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/model/UserProfile.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/UserRepository.java` (new)
+
+**Notes:** Avatar remains a local default drawable (no Firebase Storage integration, as per project constraints). User profiles are not yet wired into Registration or Home screens; those steps will use `UserRepository` to save and display profile details.
