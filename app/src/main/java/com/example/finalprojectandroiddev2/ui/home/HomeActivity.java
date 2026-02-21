@@ -34,6 +34,7 @@ public class HomeActivity extends BaseActivity {
         loadUserProfile();
 
         findViewById(R.id.btn_logout).setOnClickListener(v -> {
+            AuthRepository.getInstance().signOut();
             startActivity(new Intent(this, LoginActivity.class));
             finishAffinity();
         });

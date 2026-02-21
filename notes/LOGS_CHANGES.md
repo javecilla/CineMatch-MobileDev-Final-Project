@@ -423,3 +423,5 @@
 - `app/src/main/AndroidManifest.xml` (updated)
 
 **Notes:** User cannot leave Onboarding without submitting the form (back is intercepted). Profile is written to `users/{uid}` (name, gender, birthday, email). Home displays the saved name at the top; avatar stays the default (no Firebase Storage).
+
+**Fix (logout):** Logout was only navigating to LoginActivity without signing out of Firebase Auth, so reopening the app showed the user still logged in. HomeActivity now calls `AuthRepository.getInstance().signOut()` before starting LoginActivity and finishing, so the Firebase session is cleared and the next app launch correctly shows the Login screen.
