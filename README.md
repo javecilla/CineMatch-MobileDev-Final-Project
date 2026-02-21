@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://jerome-avecilla.infinityfreeapp.com/assets/mobiledev/hero.jpg" alt="Logo">
+  <img src="https://jerome-avecilla.infinityfreeapp.com/assets/mobiledev/hero2.jpg" alt="Logo">
 </p>
 
 # <p align="center">CineMatch: Real-time Collaborative Movie Discovery Engine</p>
