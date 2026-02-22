@@ -15,6 +15,7 @@ import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 import com.example.finalprojectandroiddev2.ui.swiping.SwipingActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
+import com.example.finalprojectandroiddev2.utils.LobbyPrefs;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.example.finalprojectandroiddev2.utils.RoomCodeGenerator;
 import com.google.android.material.button.MaterialButton;
@@ -159,6 +160,8 @@ public class CreateLobbyActivity extends BaseActivity {
                 new FirebaseRepository.SimpleCallback() {
                     @Override public void onSuccess() {
                         Logger.d(TAG, "Lobby created: " + roomCode);
+                        // Persist room code so HomeActivity can show the return banner
+                        LobbyPrefs.saveActiveRoomCode(CreateLobbyActivity.this, roomCode);
                         attachFirebaseListeners();
                     }
                     @Override public void onFailure(String message) {
@@ -245,12 +248,13 @@ public class CreateLobbyActivity extends BaseActivity {
 
     // ── Back / Leave ───────────────────────────────────────────────────────────
 
-    @Override
-    public void onBackPressed() {
-        leaveLobby();
-    }
+    // Back is intentionally NOT overridden: pressing Back just backgrounds the activity.
+    // The return banner in HomeActivity lets the user come back. Only the Leave button
+    // triggers removal from Firebase.
 
     private void leaveLobby() {
+        // Clear the stored room code — user is intentionally leaving
+        LobbyPrefs.clearActiveRoomCode(this);
         if (roomCode != null) {
             firebaseRepo.removeMember(roomCode, currentUserId, null);
         }

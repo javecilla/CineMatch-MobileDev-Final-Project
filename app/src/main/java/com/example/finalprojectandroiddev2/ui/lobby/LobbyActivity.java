@@ -15,6 +15,7 @@ import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 import com.example.finalprojectandroiddev2.ui.swiping.SwipingActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
+import com.example.finalprojectandroiddev2.utils.LobbyPrefs;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -75,6 +76,9 @@ public class LobbyActivity extends BaseActivity {
                 : "";
 
         firebaseRepo = FirebaseRepository.getInstance();
+
+        // Persist room code so HomeActivity shows the return banner if user presses Back
+        LobbyPrefs.saveActiveRoomCode(this, roomCode);
 
         bindViews();
         setupRecyclerView();
@@ -233,6 +237,8 @@ public class LobbyActivity extends BaseActivity {
     }
 
     private void leaveLobby() {
+        // Clear the stored room code — user is intentionally leaving
+        LobbyPrefs.clearActiveRoomCode(this);
         firebaseRepo.removeMember(roomCode, currentUserId, new FirebaseRepository.SimpleCallback() {
             @Override public void onSuccess() {
                 navigateToHome();

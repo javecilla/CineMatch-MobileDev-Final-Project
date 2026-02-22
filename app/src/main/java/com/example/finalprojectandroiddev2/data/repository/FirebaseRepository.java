@@ -83,6 +83,11 @@ public class FirebaseRepository {
         void onStatusChanged(String status);
     }
 
+    public interface MemberLoadCallback {
+        /** Called with the member data, or {@code null} if the user is not in the lobby. */
+        void onResult(LobbyMember member);
+    }
+
     // ── Lobby Creation ──────────────────────────────────────────────────────────
 
     /**
@@ -324,6 +329,28 @@ public class FirebaseRepository {
                         if (callback != null) callback.onFailure(e.getMessage());
                     });
         });
+    }
+
+    // ── Single-read helpers ─────────────────────────────────────────────────────
+
+    /**
+     * One-shot read of lobbies/{roomCode}/members/{userId}.
+     * Returns the LobbyMember if the user is still in the lobby, or null if not.
+     * Used by HomeActivity to verify membership before showing the return banner.
+     */
+    public void getMember(String roomCode, String userId, MemberLoadCallback callback) {
+        lobbiesRef.child(roomCode)
+                  .child(Constants.NODE_MEMBERS)
+                  .child(userId)
+                  .get()
+                  .addOnCompleteListener(task -> {
+                      if (task.isSuccessful() && task.getResult().exists()) {
+                          LobbyMember m = task.getResult().getValue(LobbyMember.class);
+                          callback.onResult(m);
+                      } else {
+                          callback.onResult(null);
+                      }
+                  });
     }
 
     // ── Cleanup ─────────────────────────────────────────────────────────────────
