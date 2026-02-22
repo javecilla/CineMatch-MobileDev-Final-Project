@@ -1,5 +1,31 @@
 # CineMatch – Log of Changes
 
+## 2026-02-22 – Phase 5: Lobby Management
+
+**What:** Implemented the full lobby lifecycle: create, join, real-time member list, Start Swiping, and Leave/Disband — all backed by Firebase Realtime Database.
+
+**New Files:**
+
+- **`data/model/LobbyMember.java`** — POJO matching the Firebase schema (`username`, `joinedAt`, `isHost`). Required no-arg constructor for Firebase deserialization.
+- **`data/repository/FirebaseRepository.java`** — Singleton wrapping `FirebaseDatabase`. Methods: `createLobby()`, `lobbyExists()`, `joinLobby()` (with capacity + status guards), `listenMembers()` (`ChildEventListener`), `listenLobbyStatus()` (`ValueEventListener`), `setLobbyStatus()`, `removeMember()` (with last-member cleanup and host-transfer), `detachListeners()`.
+- **`utils/RoomCodeGenerator.java`** — Generates random 6-char uppercase alphanumeric codes and verifies uniqueness against Firebase; retries up to 5 times on collision.
+
+**Modified Files:**
+
+- **`ui/lobby/CreateLobbyActivity.java`** — Generates room code, calls `createLobby()`, attaches real-time member listener, enables "Start Swiping" when ≥ 2 members, share button fires `ACTION_SEND`, back/destroy triggers `removeMember()` + `detachListeners()`.
+- **`ui/lobby/JoinLobbyActivity.java`** — Validates 6-char alphanumeric format, calls `joinLobby()` (guards: exists, not full, status = "waiting"), maps errors to friendly strings, navigates to `LobbyActivity` on success.
+- **`ui/lobby/LobbyActivity.java`** — Receives `room_code` + `is_host` extras, shows real-time member list, host-only Start Swiping (enabled when ≥ 2 members), status listener auto-navigates non-host devices to `SwipingActivity`, Leave Lobby confirmation dialog with `removeMember()` cleanup.
+- **`res/values/strings.xml`** — Added `msg_lobby_not_found`, `msg_lobby_full`, `msg_lobby_already_started`, `error_invalid_code`, `msg_generating_code`, `msg_leave_lobby_confirm`.
+
+**Key Design Decisions:**
+
+- `FirebaseRepository` is a **singleton** to avoid duplicate listener registrations across activity recreations.
+- `removeMember()` handles three cases in one method: (a) last member → delete entire lobby, (b) host leaves + others remain → transfer `isHost` + `hostId`, (c) regular member leaves → simple node remove.
+- `LobbyActivity` uses `LinkedHashMap<userId, MemberItem>` to maintain insertion order and O(1) member update/removal.
+- Status listener (`listenLobbyStatus`) is the single source of truth for navigating all devices to SwipingActivity when the host taps Start Swiping.
+
+---
+
 ## 2026-02-22 – Popular Movies Vertical List
 
 **What:** Added a vertical "Popular" movies section on the Home screen below the Top Rated carousel. Each card shows a poster, title, popularity score, genre chips, and a formatted release date. The list is rotated so items 15–20 display first and items 1–14 are appended at the end.

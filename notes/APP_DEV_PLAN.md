@@ -356,11 +356,11 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Display current user info
-- [ ] Handle "Create Lobby" button click → Navigate to CreateLobbyActivity
-- [ ] Handle "Join Lobby" button click → Navigate to JoinLobbyActivity
-- [ ] Implement logout functionality
-- [ ] Handle back button (exit app confirmation)
+- [x] Display current user info
+- [x] Handle "Create Lobby" button click → Navigate to CreateLobbyActivity
+- [x] Handle "Join Lobby" button click → Navigate to JoinLobbyActivity
+- [x] Implement logout functionality
+- [x] Handle back button (exit app confirmation)
 
 **Files to Modify:**
 
@@ -380,10 +380,10 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create FirebaseRepository class
-- [ ] Initialize Firebase Realtime Database
-- [ ] Set up database reference helpers
-- [ ] Create database utility methods
+- [x] Create FirebaseRepository class
+- [x] Initialize Firebase Realtime Database
+- [x] Set up database reference helpers
+- [x] Create database utility methods
 
 **Files to Create:**
 
@@ -397,10 +397,10 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Create RoomCodeGenerator utility class
-- [ ] Generate unique 6-character alphanumeric codes
-- [ ] Check Firebase for code uniqueness
-- [ ] Retry if code exists
+- [x] Create RoomCodeGenerator utility class
+- [x] Generate unique 6-character alphanumeric codes
+- [x] Check Firebase for code uniqueness
+- [x] Retry if code exists
 
 **Files to Create:**
 
@@ -414,13 +414,13 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Generate room code on create
-- [ ] Create lobby node in Firebase
-- [ ] Add host as first member
-- [ ] Set lobby status to "waiting"
-- [ ] Display room code in UI
-- [ ] Implement "Share Room Code" functionality
-- [ ] Listen for member joins in real-time
+- [x] Generate room code on create
+- [x] Create lobby node in Firebase
+- [x] Add host as first member
+- [x] Set lobby status to "waiting"
+- [x] Display room code in UI
+- [x] Implement "Share Room Code" functionality
+- [x] Listen for member joins in real-time
 
 **Files to Modify:**
 
@@ -435,12 +435,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Validate room code format
-- [ ] Check if lobby exists in Firebase
-- [ ] Check if lobby is full
-- [ ] Add user to members list
-- [ ] Navigate to LobbyActivity
-- [ ] Handle invalid code errors
+- [x] Validate room code format
+- [x] Check if lobby exists in Firebase
+- [x] Check if lobby is full
+- [x] Add user to members list
+- [x] Navigate to LobbyActivity
+- [x] Handle invalid code errors
 
 **Files to Modify:**
 
@@ -455,12 +455,12 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Set up RecyclerView adapter for members
-- [ ] Listen to Firebase members node
-- [ ] Update member list in real-time
-- [ ] Show member status (online, voting)
-- [ ] Display host indicator
-- [ ] Handle member leave events
+- [x] Set up RecyclerView adapter for members
+- [x] Listen to Firebase members node
+- [x] Update member list in real-time
+- [x] Show member status (online, voting)
+- [x] Display host indicator
+- [x] Handle member leave events
 
 **Files to Create/Modify:**
 
@@ -475,9 +475,9 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Enable "Start Swiping" button when members > 1
-- [ ] Update lobby status to "swiping"
-- [ ] Navigate all members to SwipingActivity
+- [x] Enable "Start Swiping" button when members > 1
+- [x] Update lobby status to "swiping"
+- [x] Navigate all members to SwipingActivity
 - [ ] Initialize movie list for session
 
 **Files to Modify:**
@@ -492,11 +492,11 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Tasks:**
 
-- [ ] Remove user from members list
-- [ ] If host leaves, transfer host or disband lobby
-- [ ] Clean up Firebase listeners
-- [ ] Navigate back to HomeActivity
-- [ ] Handle edge cases (last member, etc.)
+- [x] Remove user from members list
+- [x] If host leaves, transfer host or disband lobby
+- [x] Clean up Firebase listeners
+- [x] Navigate back to HomeActivity
+- [x] Handle edge cases (last member, etc.)
 
 **Files to Modify:**
 

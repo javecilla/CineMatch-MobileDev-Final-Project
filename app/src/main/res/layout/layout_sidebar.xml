@@ -167,7 +167,7 @@
                 android:layout_height="match_parent"
                 android:contentDescription="@string/label_avatar"
                 android:scaleType="centerCrop"
-                android:src="@drawable/default_user_avatar2" />
+                android:src="@drawable/default_user_avatar3" />
         </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout

@@ -87,6 +87,13 @@
     <string name="btn_back">Back</string>
     <string name="msg_invalid_room_code">Invalid room code</string>
     <string name="btn_leave_lobby">Leave Lobby</string>
+    <string name="msg_lobby_not_found">Lobby not found.</string>
+    <string name="msg_lobby_full">Lobby is full (max 10 members).</string>
+    <string name="msg_lobby_already_started">Session already started. You cannot join now.</string>
+    <string name="error_invalid_code">Please enter a valid 6-character room code.</string>
+    <string name="msg_generating_code">Generating room code…</string>
+    <string name="msg_leave_lobby_confirm">Leave this lobby?</string>
+
 
     <!-- Swiping -->
     <string name="label_movie_poster">Movie poster</string>
