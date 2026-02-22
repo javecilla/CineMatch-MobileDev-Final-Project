@@ -1,5 +1,26 @@
 # CineMatch – Log of Changes
 
+## 2026-02-22 – Popular Movies Vertical List
+
+**What:** Added a vertical "Popular" movies section on the Home screen below the Top Rated carousel. Each card shows a poster, title, popularity score, genre chips, and a formatted release date. The list is rotated so items 15–20 display first and items 1–14 are appended at the end.
+
+**Changes:**
+
+- **`res/layout/item_movie_popular.xml`** _(NEW)_ – Horizontal card layout: 120×170dp poster on the left; title (bold, 2 lines), ⭐ popularity row, genre `ChipGroup`, and 📅 release date row on the right via `ConstraintLayout`. Card background set to `color_background`, elevation 0.
+- **`ui/home/PopularMovieAdapter.java`** _(NEW)_ – Adapter with Glide poster loading, `"%.1f"` popularity formatting, dynamic genre `Chip` creation (background `color_surface`, text `color_text_primary`, no close icon), and `formatReleaseDate()` helper (`"YYYY-MM-DD"` → `"MMM yyyy"`).
+- **`data/model/Movie.java`** – Added `popularity` (`double`) field with `@SerializedName` and `getPopularity()` getter.
+- **`res/layout/activity_home.xml`** – Added Popular header (`ConstraintLayout` with "Popular" label + "See more" capsule button styled like Join Lobby) and `rv_popular_movies` `RecyclerView` (`nestedScrollingEnabled="false"`).
+- **`res/values/strings.xml`** – Added `label_popular_movies` and `btn_see_more` strings.
+- **`ui/home/HomeActivity.java`** – Added `popularAdapter` field and `setupPopularMovies()` (Retrofit call to `/movie/popular` page 1). Result is rotated: items 15–20 first, items 1–14 appended at end.
+
+**Bug Fixes (same session):**
+
+- **`res/drawable/calendar_icon.xml`** – Added missing `android:width="24dp"` / `android:height="24dp"` on `<vector>` (runtime crash: _width > 0_ required).
+- **`res/layout/item_movie_popular.xml`** – Removed invalid `style="@style/Widget.Material3.ImageView"` from poster `ImageView` (resource linking failure).
+- **`data/model/Movie.java`** – Added missing `popularity` field that caused a compile-time `cannot find symbol getPopularity()` error in `PopularMovieAdapter`.
+
+---
+
 ## 2026-02-21 – Top Rated Movies Carousel
 
 **What:** Added a second horizontal carousel ("Top Rated Movies") below the Trending section on the Home screen. Cards are wider (240dp) and show the movie title and genre names below the poster.
