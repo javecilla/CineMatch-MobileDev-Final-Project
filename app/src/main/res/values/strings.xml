@@ -80,6 +80,8 @@
     <string name="label_room_code">Room Code</string>
     <string name="label_members">Members</string>
     <string name="label_host">Host</string>
+    <string name="label_member">Member</string>
+
     <string name="btn_share_room_code">Share Room Code</string>
     <string name="btn_start_swiping">Start Swiping</string>
     <string name="msg_waiting_for_members">Waiting for members to join…</string>
@@ -93,6 +95,7 @@
     <string name="error_invalid_code">Please enter a valid 6-character room code.</string>
     <string name="msg_generating_code">Generating room code…</string>
     <string name="msg_leave_lobby_confirm">Leave this lobby?</string>
+    <string name="share_room_code_message">Join my CineMatch lobby! Room code: %s</string>
 
 
     <!-- Swiping -->

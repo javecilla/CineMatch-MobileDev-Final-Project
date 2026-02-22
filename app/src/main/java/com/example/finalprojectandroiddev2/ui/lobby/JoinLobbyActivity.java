@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
+import com.example.finalprojectandroiddev2.data.repository.UserRepository;
+import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.google.android.material.button.MaterialButton;
@@ -37,6 +39,7 @@ public class JoinLobbyActivity extends BaseActivity {
     private FirebaseRepository firebaseRepo;
     private String currentUserId;
     private String currentUsername;
+    private String currentGender;
 
     // ── Views ──────────────────────────────────────────────────────────────────
     private TextInputLayout         inputRoomCodeLayout;
@@ -54,15 +57,35 @@ public class JoinLobbyActivity extends BaseActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) { finish(); return; }
-        currentUserId   = user.getUid();
-        currentUsername = user.getDisplayName() != null
-                ? user.getDisplayName()
-                : user.getEmail() != null ? user.getEmail() : "User";
+        currentUserId = user.getUid();
 
         firebaseRepo = FirebaseRepository.getInstance();
 
         bindViews();
         setupButtons();
+
+        // Pre-fetch the user's real name + gender from Realtime Database so it's
+        // ready when they tap Join (avoids a second round-trip at join time).
+        UserRepository.getInstance().getUserProfile(currentUserId, new UserRepository.ProfileLoadCallback() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                if (profile != null && profile.getName() != null && !profile.getName().isEmpty()) {
+                    currentUsername = profile.getName();
+                    currentGender   = profile.getGender() != null ? profile.getGender() : "";
+                } else {
+                    FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+                    currentUsername = u != null && u.getEmail() != null ? u.getEmail() : "User";
+                    currentGender   = "";
+                }
+            }
+            @Override
+            public void onError(String error) {
+                Logger.e(TAG, "Profile fetch failed, falling back to email: " + error);
+                FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+                currentUsername = u != null && u.getEmail() != null ? u.getEmail() : "User";
+                currentGender   = "";
+            }
+        });
     }
 
     // ── Setup ──────────────────────────────────────────────────────────────────
@@ -100,7 +123,9 @@ public class JoinLobbyActivity extends BaseActivity {
         setLoading(true);
 
         firebaseRepo.joinLobby(
-                rawCode, currentUserId, currentUsername,
+                rawCode, currentUserId,
+                currentUsername != null ? currentUsername : "User",
+                currentGender   != null ? currentGender   : "",
                 new FirebaseRepository.SimpleCallback() {
                     @Override public void onSuccess() {
                         setLoading(false);

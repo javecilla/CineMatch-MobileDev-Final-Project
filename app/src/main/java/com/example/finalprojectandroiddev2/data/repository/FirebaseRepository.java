@@ -23,14 +23,16 @@ import java.util.Map;
  *
  * Firebase schema (lobbies/):
  *   lobbies/{roomCode}/
- *     hostId:    String
+ *     hostId:    String   (current host, changes on host transfer)
+ *     createdBy: String   (original creator UID — never changes)
  *     createdAt: long
  *     status:    "waiting" | "swiping" | "matched"
  *     members/
  *       {userId}/
  *         username:  String
+ *         gender:    String
  *         joinedAt:  long
- *         isHost:    boolean
+ *         host:      boolean  (key is 'host', not 'isHost', to match LobbyMember.isHost() getter)
  */
 public class FirebaseRepository {
 
@@ -87,26 +89,28 @@ public class FirebaseRepository {
      * Creates a lobby node and adds the host as the first member.
      *
      * lobbies/{roomCode}/ = { hostId, createdAt, status: "waiting" }
-     * lobbies/{roomCode}/members/{hostId}/ = { username, joinedAt, isHost: true }
+     * lobbies/{roomCode}/members/{hostId}/ = { username, gender, joinedAt, isHost: true }
      *
      * Uses two separate setValue() calls because Firebase does not allow '/' in
      * map keys when using setValue() on a flat HashMap.
      */
-    public void createLobby(String roomCode, String hostId, String username,
+    public void createLobby(String roomCode, String hostId, String username, String gender,
                             SimpleCallback callback) {
         DatabaseReference lobbyRef = lobbiesRef.child(roomCode);
 
         // 1. Write lobby metadata (no nested paths in the map keys)
         Map<String, Object> lobbyData = new HashMap<>();
         lobbyData.put("hostId",    hostId);
+        lobbyData.put("createdBy", hostId);  // permanent record of original creator (UID)
         lobbyData.put("createdAt", System.currentTimeMillis());
         lobbyData.put("status",    Constants.LOBBY_STATUS_WAITING);
 
         // 2. Write host member data via proper .child() chaining
         Map<String, Object> memberData = new HashMap<>();
         memberData.put("username", username);
+        memberData.put("gender",   gender != null ? gender : "");
         memberData.put("joinedAt", System.currentTimeMillis());
-        memberData.put("isHost",   true);
+        memberData.put("host",     true);   // key must match getter isHost() → property "host"
 
         lobbyRef.setValue(lobbyData)
                 .addOnSuccessListener(unused -> {
@@ -151,7 +155,7 @@ public class FirebaseRepository {
      * Validates the lobby is open and not full, then adds the user as a member.
      * Calls onFailure if the lobby doesn't exist, is full, or has already started.
      */
-    public void joinLobby(String roomCode, String userId, String username,
+    public void joinLobby(String roomCode, String userId, String username, String gender,
                           SimpleCallback callback) {
         DatabaseReference lobbyRef = lobbiesRef.child(roomCode);
 
@@ -180,8 +184,9 @@ public class FirebaseRepository {
             // Add member
             Map<String, Object> memberData = new HashMap<>();
             memberData.put("username",  username);
+            memberData.put("gender",    gender != null ? gender : "");
             memberData.put("joinedAt",  System.currentTimeMillis());
-            memberData.put("isHost",    false);
+            memberData.put("host",      false);  // key must match getter isHost() → property "host"
 
             lobbyRef.child(Constants.NODE_MEMBERS).child(userId)
                     .setValue(memberData)
@@ -289,19 +294,24 @@ public class FirebaseRepository {
                 return;
             }
 
-            // Check if the leaving member is the host
+            // Check if the leaving member is the host.
+            // Key is "host" (not "isHost") — matches LobbyMember.isHost() getter serialization.
             DataSnapshot leavingSnap = membersSnap.child(userId);
-            Boolean isHost = leavingSnap.child("isHost").getValue(Boolean.class);
+            Boolean leavingIsHost = leavingSnap.child("host").getValue(Boolean.class);
 
             // Remove the member first
             membersRef.child(userId).removeValue()
                     .addOnSuccessListener(unused -> {
-                        if (Boolean.TRUE.equals(isHost)) {
-                            // Transfer host to the next remaining member
+                        if (Boolean.TRUE.equals(leavingIsHost)) {
+                            // Transfer host badge to the next remaining member
                             for (DataSnapshot child : membersSnap.getChildren()) {
-                                if (!child.getKey().equals(userId)) {
-                                    child.getRef().child("isHost").setValue(true);
-                                    lobbyRef.child("hostId").setValue(child.getKey());
+                                String candidateId = child.getKey();
+                                if (candidateId != null && !candidateId.equals(userId)) {
+                                    // Promote this member to host
+                                    child.getRef().child("host").setValue(true);
+                                    // Update lobby-level hostId (current host)
+                                    lobbyRef.child("hostId").setValue(candidateId);
+                                    Logger.d(TAG, "Host transferred to: " + candidateId);
                                     break;
                                 }
                             }

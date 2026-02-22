@@ -9,6 +9,8 @@ import android.widget.Toast;
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.model.LobbyMember;
 import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
+import com.example.finalprojectandroiddev2.data.repository.UserRepository;
+import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 import com.example.finalprojectandroiddev2.ui.swiping.SwipingActivity;
@@ -42,6 +44,7 @@ public class CreateLobbyActivity extends BaseActivity {
     private String roomCode;
     private String currentUserId;
     private String currentUsername;
+    private String currentGender;
     private boolean sessionStarted = false;
 
     private FirebaseRepository firebaseRepo;
@@ -54,8 +57,11 @@ public class CreateLobbyActivity extends BaseActivity {
     private TextView       textRoomCode;
     private RecyclerView   recyclerMembers;
     private TextView       textWaiting;
+    private TextView       textMemberCount;
     private MaterialButton btnShare;
     private MaterialButton btnStartSwiping;
+    private MaterialButton btnLeaveLobby;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +72,6 @@ public class CreateLobbyActivity extends BaseActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) { finish(); return; }
         currentUserId = user.getUid();
-        currentUsername = user.getDisplayName() != null
-                ? user.getDisplayName()
-                : user.getEmail() != null ? user.getEmail() : "User";
 
         firebaseRepo = FirebaseRepository.getInstance();
 
@@ -76,11 +79,36 @@ public class CreateLobbyActivity extends BaseActivity {
         setupRecyclerView();
         setupButtons();
 
-        // Show placeholder while generating
+        // Show placeholder while fetching profile and generating code
         textRoomCode.setText(getString(R.string.msg_generating_code));
         btnStartSwiping.setEnabled(false);
 
-        generateCodeAndCreateLobby();
+        // Fetch real name + gender from Realtime Database, then start lobby creation
+        UserRepository.getInstance().getUserProfile(currentUserId, new UserRepository.ProfileLoadCallback() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                if (profile != null && profile.getName() != null && !profile.getName().isEmpty()) {
+                    currentUsername = profile.getName();
+                    currentGender   = profile.getGender() != null ? profile.getGender() : "";
+                } else {
+                    // Fallback: use email prefix if profile not yet loaded
+                    String email = FirebaseAuth.getInstance().getCurrentUser() != null
+                            ? FirebaseAuth.getInstance().getCurrentUser().getEmail() : null;
+                    currentUsername = email != null ? email : "User";
+                    currentGender   = "";
+                }
+                generateCodeAndCreateLobby();
+            }
+
+            @Override
+            public void onError(String error) {
+                Logger.e(TAG, "Failed to load profile, using email fallback: " + error);
+                FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+                currentUsername = u != null && u.getEmail() != null ? u.getEmail() : "User";
+                currentGender   = "";
+                generateCodeAndCreateLobby();
+            }
+        });
     }
 
     // ── Setup ──────────────────────────────────────────────────────────────────
@@ -89,8 +117,10 @@ public class CreateLobbyActivity extends BaseActivity {
         textRoomCode    = findViewById(R.id.text_room_code);
         recyclerMembers = findViewById(R.id.recycler_members);
         textWaiting     = findViewById(R.id.text_waiting_for_members);
+        textMemberCount = findViewById(R.id.text_member_count);
         btnShare        = findViewById(R.id.btn_share_room_code);
         btnStartSwiping = findViewById(R.id.btn_start_swiping);
+        btnLeaveLobby   = findViewById(R.id.btn_leave_lobby);
     }
 
     private void setupRecyclerView() {
@@ -102,6 +132,7 @@ public class CreateLobbyActivity extends BaseActivity {
     private void setupButtons() {
         btnShare.setOnClickListener(v -> shareRoomCode());
         btnStartSwiping.setOnClickListener(v -> startSwipingSession());
+        btnLeaveLobby.setOnClickListener(v -> leaveLobby());
     }
 
     // ── Room Code Generation ───────────────────────────────────────────────────
@@ -124,7 +155,7 @@ public class CreateLobbyActivity extends BaseActivity {
 
     private void createLobbyInFirebase() {
         firebaseRepo.createLobby(
-                roomCode, currentUserId, currentUsername,
+                roomCode, currentUserId, currentUsername, currentGender,
                 new FirebaseRepository.SimpleCallback() {
                     @Override public void onSuccess() {
                         Logger.d(TAG, "Lobby created: " + roomCode);
@@ -167,15 +198,18 @@ public class CreateLobbyActivity extends BaseActivity {
     // ── Member list helpers ────────────────────────────────────────────────────
 
     private void updateOrAddMember(String userId, LobbyMember member) {
+        boolean isMe = userId.equals(currentUserId);
         memberMap.put(userId, new MemberAdapter.MemberItem(
-                member.getUsername(), member.isHost(), true));
+                member.getUsername(), member.getGender(), member.isHost(), true, isMe));
         refreshAdapter();
         updateStartButton();
         textWaiting.setVisibility(memberMap.size() <= 1 ? View.VISIBLE : View.GONE);
+        textMemberCount.setText(memberMap.size() + " / 10");
     }
 
     private void refreshAdapter() {
         memberAdapter.setMembers(new ArrayList<>(memberMap.values()));
+        textMemberCount.setText(memberMap.size() + " / 10");
     }
 
     private void updateStartButton() {
