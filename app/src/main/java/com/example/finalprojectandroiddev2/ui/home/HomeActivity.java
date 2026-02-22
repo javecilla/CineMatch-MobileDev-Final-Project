@@ -47,6 +47,7 @@ public class HomeActivity extends BaseActivity {
     private long lastBackPressMs = 0;
     private TrendingMovieAdapter trendingAdapter;
     private TopRatedMovieAdapter topRatedAdapter;
+    private PopularMovieAdapter popularAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +72,15 @@ public class HomeActivity extends BaseActivity {
 
         findViewById(R.id.sidebar_btn_home).setOnClickListener(v -> closeSidebar());
 
-        findViewById(R.id.sidebar_btn_favorites).setOnClickListener(v -> {
-            closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_favorites_coming_soon, Toast.LENGTH_SHORT).show();
-        });
+        // findViewById(R.id.sidebar_btn_favorites).setOnClickListener(v -> {
+        //     closeSidebar();
+        //     Toast.makeText(this, R.string.sidebar_nav_favorites_coming_soon, Toast.LENGTH_SHORT).show();
+        // });
 
-        findViewById(R.id.sidebar_btn_watchlist).setOnClickListener(v -> {
-            closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_watchlist_coming_soon, Toast.LENGTH_SHORT).show();
-        });
+        // findViewById(R.id.sidebar_btn_watchlist).setOnClickListener(v -> {
+        //     closeSidebar();
+        //     Toast.makeText(this, R.string.sidebar_nav_watchlist_coming_soon, Toast.LENGTH_SHORT).show();
+        // });
 
         findViewById(R.id.sidebar_btn_movies).setOnClickListener(v -> {
             closeSidebar();
@@ -116,6 +117,7 @@ public class HomeActivity extends BaseActivity {
         loadUserProfile();
         setupTrendingMovies();
         setupTopRatedMovies();
+        setupPopularMovies();
     }
 
     // ── Trending Movies ───────────────────────────────────────────────────────
@@ -170,15 +172,18 @@ public class HomeActivity extends BaseActivity {
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
 
         TmdbApiClient.getService()
-                .getTopRatedMovies("en-US", 1, bearer)
+                .getTopRatedMovies("en-US", 5, bearer)
                 .enqueue(new Callback<MovieListResponse>() {
                     @Override
                     public void onResponse(Call<MovieListResponse> call,
                                           Response<MovieListResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             List<Movie> movies = response.body().getResults();
-                            if (movies != null && !movies.isEmpty()) {
-                                topRatedAdapter.setMovies(movies);
+                            if (movies != null && movies.size() > 10) {
+                                // Start with item 11 onward, then append items 1–10 at the end
+                                List<Movie> reordered = new ArrayList<>(movies.subList(10, movies.size()));
+                                reordered.addAll(movies.subList(0, 10));
+                                topRatedAdapter.setMovies(reordered);
                             }
                         }
                     }
@@ -187,6 +192,43 @@ public class HomeActivity extends BaseActivity {
                     public void onFailure(Call<MovieListResponse> call, Throwable t) {
                         Toast.makeText(HomeActivity.this,
                                 "Failed to load top rated movies",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    // ── Popular Movies ────────────────────────────────────────────────────────
+
+    private void setupPopularMovies() {
+        RecyclerView rv = findViewById(R.id.rv_popular_movies);
+        rv.setLayoutManager(new LinearLayoutManager(this));
+
+        popularAdapter = new PopularMovieAdapter(new ArrayList<>());
+        rv.setAdapter(popularAdapter);
+
+        String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
+
+        TmdbApiClient.getService()
+                .getPopularMovies("en-US", 1, bearer)
+                .enqueue(new Callback<MovieListResponse>() {
+                    @Override
+                    public void onResponse(Call<MovieListResponse> call,
+                                          Response<MovieListResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Movie> movies = response.body().getResults();
+                            if (movies != null && movies.size() > 14) {
+                                // Start from item 15 onward, then append items 1–14 at the end
+                                List<Movie> reordered = new ArrayList<>(movies.subList(14, movies.size()));
+                                reordered.addAll(movies.subList(0, 14));
+                                popularAdapter.setMovies(reordered);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MovieListResponse> call, Throwable t) {
+                        Toast.makeText(HomeActivity.this,
+                                "Failed to load popular movies",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

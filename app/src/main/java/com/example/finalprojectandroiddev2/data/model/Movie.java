@@ -34,6 +34,9 @@ public class Movie {
     @SerializedName("genre_ids")
     private List<Integer> genreIds;
 
+    @SerializedName("popularity")
+    private double popularity;
+
     // ── Getters ───────────────────────────────────────────────────────────────
 
     public int getId() { return id; }
@@ -52,4 +55,6 @@ public class Movie {
     public String getReleaseDate() { return releaseDate; }
 
     public List<Integer> getGenreIds() { return genreIds; }
+
+    public double getPopularity() { return popularity; }
 }

@@ -72,6 +72,10 @@
     <!-- Top Rated Movies carousel -->
     <string name="label_top_rated_movies">Top Rated Movies</string>
 
+    <!-- Popular Movies list -->
+    <string name="label_popular_movies">Popular</string>
+    <string name="btn_see_more">See more</string>
+
     <!-- Lobby -->
     <string name="label_room_code">Room Code</string>
     <string name="label_members">Members</string>

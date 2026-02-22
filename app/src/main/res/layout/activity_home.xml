@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="24dp"
+            android:paddingTop="-5dp"
             android:paddingBottom="32dp">
 
             <!-- ── Navbar ── -->
@@ -90,7 +90,7 @@
                 android:layout_marginStart="18dp"
                 android:layout_marginEnd="18dp"
                 app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="50dp"
                 app:cardElevation="4dp">
 
                 <com.google.android.material.button.MaterialButton
@@ -99,8 +99,9 @@
                     android:layout_height="64dp"
                     android:text="@string/btn_create_lobby"
                     android:textSize="18sp"
+                    android:textColor="@color/black"
                     app:backgroundTint="@color/color_primary"
-                    app:cornerRadius="16dp"
+                    app:cornerRadius="50dp"
                     app:icon="@android:drawable/ic_input_add"
                     app:iconGravity="textStart"
                     app:iconPadding="16dp"
@@ -117,7 +118,7 @@
                 android:layout_marginStart="18dp"
                 android:layout_marginEnd="18dp"
                 app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="50dp"
                 app:cardElevation="4dp">
 
                 <com.google.android.material.button.MaterialButton
@@ -128,7 +129,7 @@
                     android:textColor="@color/color_primary"
                     android:textSize="18sp"
                     app:backgroundTint="@color/color_surface"
-                    app:cornerRadius="16dp"
+                    app:cornerRadius="50dp"
                     app:icon="@android:drawable/ic_menu_share"
                     app:iconGravity="textStart"
                     app:iconPadding="16dp"
@@ -161,7 +162,7 @@
                 android:clipToPadding="false"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_movie_carousel"
+                tools:listitem="@layout/item_movie_trending"
                 tools:itemCount="4" />
 
             <!-- ── Top Rated Movies section ── -->
@@ -189,6 +190,59 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_movie_top_rated"
                 tools:itemCount="3" />
+
+            <!-- ── Popular Movies section ── -->
+
+            <!-- Header: Popular label + See More button -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <TextView
+                    android:id="@+id/text_popular_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_popular_movies"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_popular_see_more"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_see_more"
+                    android:textColor="@color/color_primary"
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/color_surface"
+                    app:cornerRadius="50dp"
+                    app:strokeColor="@color/color_primary"
+                    app:strokeWidth="2dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Popular vertical list -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_popular_movies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_movie_popular"
+                tools:itemCount="5" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

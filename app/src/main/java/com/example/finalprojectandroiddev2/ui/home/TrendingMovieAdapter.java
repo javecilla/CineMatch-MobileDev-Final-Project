@@ -35,7 +35,7 @@ public class TrendingMovieAdapter extends RecyclerView.Adapter<TrendingMovieAdap
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_movie_carousel, parent, false);
+                .inflate(R.layout.item_movie_trending, parent, false);
         return new MovieViewHolder(view);
     }
 
@@ -53,15 +53,15 @@ public class TrendingMovieAdapter extends RecyclerView.Adapter<TrendingMovieAdap
                 .into(holder.ivPoster);
 
         // Overlay button click listeners
-        holder.btnFavorite.setOnClickListener(v ->
-                Toast.makeText(v.getContext(),
-                        "\"" + movie.getTitle() + "\" added to Favorites",
-                        Toast.LENGTH_SHORT).show());
+        // holder.btnFavorite.setOnClickListener(v ->
+        //         Toast.makeText(v.getContext(),
+        //                 "\"" + movie.getTitle() + "\" added to Favorites",
+        //                 Toast.LENGTH_SHORT).show());
 
-        holder.btnWatchlist.setOnClickListener(v ->
-                Toast.makeText(v.getContext(),
-                        "\"" + movie.getTitle() + "\" added to Watchlist",
-                        Toast.LENGTH_SHORT).show());
+        // holder.btnWatchlist.setOnClickListener(v ->
+        //         Toast.makeText(v.getContext(),
+        //                 "\"" + movie.getTitle() + "\" added to Watchlist",
+        //                 Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -80,14 +80,14 @@ public class TrendingMovieAdapter extends RecyclerView.Adapter<TrendingMovieAdap
 
     static class MovieViewHolder extends RecyclerView.ViewHolder {
         final ImageView ivPoster;
-        final ImageButton btnFavorite;
-        final ImageButton btnWatchlist;
+        // final ImageButton btnFavorite;
+        // final ImageButton btnWatchlist;
 
         MovieViewHolder(@NonNull View itemView) {
             super(itemView);
             ivPoster    = itemView.findViewById(R.id.iv_movie_poster);
-            btnFavorite = itemView.findViewById(R.id.btn_favorite);
-            btnWatchlist = itemView.findViewById(R.id.btn_watchlist);
+            // btnFavorite = itemView.findViewById(R.id.btn_favorite);
+            // btnWatchlist = itemView.findViewById(R.id.btn_watchlist);
         }
     }
 }
