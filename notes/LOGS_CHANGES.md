@@ -1,5 +1,43 @@
 # CineMatch – Log of Changes
 
+## 2026-02-23 – Feature: "Tap to Return to Lobby" Sticky Banner + Back-Press Fix
+
+**What:** A primary-colored sticky banner is now shown at the top of the Home screen whenever the current user is still a member of an active lobby. Tapping it navigates back to `LobbyActivity` with their **live role** (host or member) read from Firebase — so re-joining as the wrong role is no longer possible.
+
+**Root cause of role-override bug:** `CreateLobbyActivity.onBackPressed()` was calling `removeMember()`, which deleted the user's Firebase record. If the host pressed Back and then navigated back to the lobby, `joinLobby()` would write them as a plain member (not host). Similarly, other devices could not see them as a member anymore.
+
+**Changes:**
+
+- **`LobbyPrefs.java`** _(new)_ — Thin `SharedPreferences` helper with `saveActiveRoomCode()`, `getActiveRoomCode()`, and `clearActiveRoomCode()`. Persists across Back presses and app restarts. Stored in `lobby_prefs` file under key `active_room_code`.
+
+- **`FirebaseRepository.java`**:
+  - Added `MemberLoadCallback` interface (`onResult(LobbyMember member)` — null = not found).
+  - Added `getMember(roomCode, userId, callback)` — single-read of `lobbies/{roomCode}/members/{userId}`. Used to verify membership and get the live `isHost` value on Home resume.
+
+- **`CreateLobbyActivity.java`**:
+  - **Removed `onBackPressed()` override** — Back no longer removes the user from Firebase. Only the Leave Lobby button triggers removal.
+  - Saves room code to `LobbyPrefs` after `createLobby()` succeeds.
+  - Clears `LobbyPrefs` in `leaveLobby()` (explicit leave only).
+
+- **`LobbyActivity.java`**:
+  - Saves room code to `LobbyPrefs` in `onCreate()` — covers all joiners.
+  - Clears `LobbyPrefs` in `leaveLobby()` (explicit leave only).
+
+- **`activity_home.xml`**:
+  - The `NestedScrollView` is now wrapped in a `ConstraintLayout` (`content_wrapper`).
+  - A `MaterialCardView` banner (`banner_return_lobby`) is pinned to the top, `visibility="gone"` by default.
+  - `NestedScrollView` is constrained below the banner — content is never hidden by it.
+
+- **`HomeActivity.java`**:
+  - `applyEdgeToEdgeInsets` now targets `content_wrapper` instead of `container_home`.
+  - Binds `bannerReturnLobby` view in `onCreate`.
+  - `onResume()` calls `checkActiveLobby()`: reads SP → calls `getMember()` → if member exists: shows banner with live `isHost`; if null: clears SP and hides banner (handles being kicked by host).
+  - Tapping banner → `LobbyActivity` with the correct `room_code` + `is_host`.
+
+- **`strings.xml`** — Added `banner_return_lobby` = `"↩  Tap to return to lobby"`.
+
+---
+
 ## 2026-02-23 – Fix: Lobby Screen Horizontal Padding Stripped by Edge-to-Edge Insets
 
 **Root cause:** `BaseActivity.applyEdgeToEdgeInsets()` called `v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)`. `setPadding()` **replaces** all existing padding, and `systemBars.left` / `systemBars.right` are `0` on standard portrait phones — so the `android:padding="24dp"` defined in XML was silently wiped out on every physical device. The left/right sides of all lobby cards appeared flush with screen edges.

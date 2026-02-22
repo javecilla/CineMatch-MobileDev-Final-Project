@@ -2,6 +2,7 @@ package com.example.finalprojectandroiddev2.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,12 +23,16 @@ import com.example.finalprojectandroiddev2.data.api.TmdbApiService;
 import com.example.finalprojectandroiddev2.data.model.Movie;
 import com.example.finalprojectandroiddev2.data.model.MovieListResponse;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
+import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
 import com.example.finalprojectandroiddev2.data.repository.UserRepository;
 import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.ui.auth.LoginActivity;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.lobby.CreateLobbyActivity;
 import com.example.finalprojectandroiddev2.ui.lobby.JoinLobbyActivity;
+import com.example.finalprojectandroiddev2.ui.lobby.LobbyActivity;
+import com.example.finalprojectandroiddev2.utils.LobbyPrefs;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import retrofit2.Call;
@@ -44,18 +49,25 @@ import retrofit2.Response;
 public class HomeActivity extends BaseActivity {
 
     private DrawerLayout drawerLayout;
-    private long lastBackPressMs = 0;
+    private View         bannerReturnLobby;
+    private long         lastBackPressMs = 0;
+
+    /** Room code stored while the banner is visible, so the click handler can use it. */
+    private String  activeBannerRoomCode;
+    private boolean activeBannerIsHost;
+
     private TrendingMovieAdapter trendingAdapter;
     private TopRatedMovieAdapter topRatedAdapter;
-    private PopularMovieAdapter popularAdapter;
+    private PopularMovieAdapter  popularAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        applyEdgeToEdgeInsets(R.id.container_home);
+        applyEdgeToEdgeInsets(R.id.content_wrapper);
 
-        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout      = findViewById(R.id.drawer_layout);
+        bannerReturnLobby = findViewById(R.id.banner_return_lobby);
 
         // ── Navbar ────────────────────────────────────────────────────────────
         findViewById(R.id.btn_menu).setOnClickListener(v -> openSidebar());
@@ -118,6 +130,58 @@ public class HomeActivity extends BaseActivity {
         setupTrendingMovies();
         setupTopRatedMovies();
         setupPopularMovies();
+    }
+
+    // ── Lifecycle ────────────────────────────────────────────────────────────
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkActiveLobby();
+    }
+
+    /**
+     * Checks whether the current user is still in an active lobby.
+     * - Reads the room code from SharedPreferences.
+     * - Verifies membership with a single Firebase read (getMember).
+     * - Shows the sticky banner if the user is still a member.
+     * - Clears preferences + hides banner if they were removed.
+     */
+    private void checkActiveLobby() {
+        String roomCode = LobbyPrefs.getActiveRoomCode(this);
+        if (roomCode == null) {
+            bannerReturnLobby.setVisibility(View.GONE);
+            return;
+        }
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            LobbyPrefs.clearActiveRoomCode(this);
+            bannerReturnLobby.setVisibility(View.GONE);
+            return;
+        }
+
+        FirebaseRepository.getInstance().getMember(roomCode, user.getUid(), member -> {
+            if (member != null) {
+                // User is still in the lobby — show the banner
+                activeBannerRoomCode = roomCode;
+                activeBannerIsHost   = member.isHost();
+                bannerReturnLobby.setVisibility(View.VISIBLE);
+                bannerReturnLobby.setOnClickListener(v -> returnToLobby());
+            } else {
+                // User was removed from the lobby (e.g. kicked) — clear and hide
+                LobbyPrefs.clearActiveRoomCode(this);
+                bannerReturnLobby.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void returnToLobby() {
+        if (activeBannerRoomCode == null) return;
+        Intent intent = new Intent(this, LobbyActivity.class);
+        intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, activeBannerRoomCode);
+        intent.putExtra(LobbyActivity.EXTRA_IS_HOST,   activeBannerIsHost);
+        startActivity(intent);
     }
 
     // ── Trending Movies ───────────────────────────────────────────────────────
