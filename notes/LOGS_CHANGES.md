@@ -39,7 +39,7 @@
 
 - **`app/build.gradle.kts`** – Added Glide 4.16.0 (`glide` + `compiler` annotationProcessor).
 - **`data/model/Movie.java`** _(NEW)_ – TMDB movie model with `@SerializedName` Gson fields: `id`, `title`, `posterPath`, `backdropPath`, `overview`, `voteAverage`, `releaseDate`.
-- **`res/layout/item_movie_carousel.xml`** _(NEW)_ – Movie card (160×240dp, `cardCornerRadius=16dp`, dark slate bg). Poster `ImageView` fills the card (`centerCrop`). Gradient scrim overlay at bottom with two `ImageButton`s: `btn_favorite` (`heart_outline_icon`) and `btn_watchlist` (`add_shadow_outline.`).
+- **`res/layout/item_movie_trending.xml`** _(NEW)_ – Movie card (160×240dp, `cardCornerRadius=16dp`, dark slate bg). Poster `ImageView` fills the card (`centerCrop`). Gradient scrim overlay at bottom with two `ImageButton`s: `btn_favorite` (`heart_outline_icon`) and `btn_watchlist` (`add_shadow_outline.`).
 - **`res/drawable/gradient_bottom_scrim.xml`** _(NEW)_ – Bottom-to-top gradient shape for card scrim.
 - **`ui/home/TrendingMovieAdapter.java`** _(NEW)_ – `RecyclerView.Adapter<MovieViewHolder>` with Glide poster loading (`https://image.tmdb.org/t/p/w500/{poster_path}`) and Toast click handlers for favourite and watchlist overlay buttons.
 - **`res/layout/activity_home.xml`** – Refactored root `ConstraintLayout` to `NestedScrollView > LinearLayout` to support scrolling. Added `text_trending_label` (`TextView`) and `rv_trending_movies` (`RecyclerView`, horizontal).

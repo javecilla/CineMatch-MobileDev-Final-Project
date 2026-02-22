@@ -19,7 +19,7 @@
         android:contentDescription="@string/label_movie_poster" />
 
     <!-- Add to Favourite — bottom-start corner -->
-    <ImageButton
+    <!-- <ImageButton
         android:id="@+id/btn_favorite"
         android:layout_width="36dp"
         android:layout_height="36dp"
@@ -30,10 +30,10 @@
         android:contentDescription="@string/label_add_to_favorite"
         android:scaleType="fitCenter"
         android:padding="6dp"
-        app:tint="@color/color_carousel_icon_tint" />
+        app:tint="@color/color_carousel_icon_tint" /> -->
 
     <!-- Add to Watchlist — bottom-end corner -->
-    <ImageButton
+    <!-- <ImageButton
         android:id="@+id/btn_watchlist"
         android:layout_width="36dp"
         android:layout_height="36dp"
@@ -44,6 +44,6 @@
         android:contentDescription="@string/label_add_to_watchlist"
         android:scaleType="fitCenter"
         android:padding="6dp"
-        app:tint="@color/color_carousel_icon_tint" />
+        app:tint="@color/color_carousel_icon_tint" /> -->
 
 </com.google.android.material.card.MaterialCardView>
