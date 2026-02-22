@@ -1,5 +1,86 @@
 # CineMatch – Log of Changes
 
+## 2026-02-23 – Fix: Lobby Screen Horizontal Padding Stripped by Edge-to-Edge Insets
+
+**Root cause:** `BaseActivity.applyEdgeToEdgeInsets()` called `v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)`. `setPadding()` **replaces** all existing padding, and `systemBars.left` / `systemBars.right` are `0` on standard portrait phones — so the `android:padding="24dp"` defined in XML was silently wiped out on every physical device. The left/right sides of all lobby cards appeared flush with screen edges.
+
+**Fix:**
+
+- **`BaseActivity.java`** — `applyEdgeToEdgeInsets()` now converts `24dp → px` at runtime and adds it to the system bar insets on all four sides before calling `setPadding()`, preserving base padding on every device.
+- **`activity_lobby.xml`** / **`activity_create_lobby.xml`** — Removed `android:padding="24dp"` from root `ConstraintLayout` (padding is now applied solely in `BaseActivity` to avoid double-padding).
+
+---
+
+## 2026-02-23 – Fix: Lobby Button Gap Grows as Members Leave
+
+**Root cause:** Both lobby layouts used `ScrollView + fillViewport="true"`, which expanded the inner `ConstraintLayout` to fill the full screen height. The buttons were chained with `constraintTop_toBottomOf` the element above, so the gap between the members card and the Leave Lobby button stretched to fill all remaining screen space. Fewer members = taller gap. After a host transfer with only 1 member remaining, the gap was extreme.
+
+**Fix:** Rewrote both lobby layouts to use a **full-height `ConstraintLayout`** (no `ScrollView`) with a **bottom-anchored button chain**:
+
+- `card_leave_lobby` — pinned to `parent` bottom; never moves.
+- `card_start_swiping` — `constraintBottom_toTopOf(card_leave_lobby)`, `visibility="gone"` for non-hosts. When GONE, it collapses upward; Leave Lobby stays put.
+- `card_members` — `height="0dp"`, fills all space between `card_room_code` and the button stack.
+- `RecyclerView` inside members card — `height="0dp" + layout_weight="1"`, scrolls internally when member count is high.
+
+**Files changed:**
+
+- **`activity_lobby.xml`** — Full rewrite to bottom-anchored `ConstraintLayout`.
+- **`activity_create_lobby.xml`** — Same structural rewrite; `card_start_swiping` remains always-visible for the host.
+
+---
+
+## 2026-02-23 – Feature: Host Transfer on Leave + `createdBy` Lobby Field
+
+**What:** When the host leaves a lobby that still has members, the host role is now transferred to the next remaining member. The original creator is also permanently recorded in Firebase.
+
+**Root cause of silent failure:** The existing `removeMember()` host-transfer code was never firing. `createLobby()` and `joinLobby()` wrote the host flag with key `"host"` (matching the `LobbyMember.isHost()` Java-bean getter serialization), but `removeMember()` was reading and writing `"isHost"` — so the host check always returned `null`/`false` and the transfer block was silently skipped.
+
+**Changes:**
+
+- **`FirebaseRepository.java`**:
+  - Added `createdBy: hostId` to lobby metadata in `createLobby()` — written once, never overwritten. Stores the original creator's **UID** (stable; names can change, UIDs cannot).
+  - Fixed `removeMember()`: reads `"host"` (not `"isHost"`) to detect the leaving host; writes `"host": true` to promote the next candidate; updates `hostId` on the lobby root; logs the transfer.
+  - Updated Javadoc schema comment to document `createdBy` and the correct `"host"` key name.
+
+- **`LobbyActivity.java`** — `updateOrAddMember()` now detects when the current user's own record changes from member to host (`isMe && member.isHost() && !isHost`). On promotion: flips `isHost = true`, makes `card_start_swiping` visible, and wires the Start Swiping click listener — all without restarting the activity.
+
+- **`strings.xml`** — Added `share_room_code_message` format string used by `LobbyActivity.shareRoomCode()`.
+
+---
+
+## 2026-02-23 – Fix: Empty Username in Lobby Members
+
+**Root cause:** `CreateLobbyActivity` and `JoinLobbyActivity` were reading `FirebaseUser.getDisplayName()` to set the lobby member's username. For email/password users this is always `null`, resulting in an empty `username` field in Firebase.
+
+**Fix:** Both activities now call `UserRepository.getUserProfile(uid)` on start to fetch the user's real `name` and `gender` from `/users/{uid}` in Realtime Database. The real values are stored in `currentUsername` / `currentGender` fields and passed to Firebase when creating or joining the lobby.
+
+**Files changed:**
+
+- **`LobbyMember.java`** — Added `gender` field (+ getter/setter) so it is persisted in Firebase alongside `username`.
+- **`FirebaseRepository.java`** — `createLobby()` and `joinLobby()` now accept a `gender` parameter and write it into the member node.
+- **`CreateLobbyActivity.java`** — Replaced `getDisplayName()` with `UserRepository.getUserProfile()` call in `onCreate()`; room code generation is deferred until the profile arrives. Passes `currentGender` to `createLobby()`.
+- **`JoinLobbyActivity.java`** — Same pattern: profile is pre-fetched in `onCreate()`; `attemptJoin()` passes the resolved `currentGender` to `joinLobby()`.
+- **`MemberAdapter.java`** — `MemberItem` now has a `gender` field. `onBindViewHolder` shows gender as the subtitle; falls back to "Host"/"Member" if gender is empty.
+- **`LobbyActivity.java`** / **`CreateLobbyActivity.java`** — `updateOrAddMember()` now passes `member.getGender()` to the `MemberItem` constructor.
+
+---
+
+## 2026-02-23 – Lobby UI Refinements
+
+**What:** Improved the visual design and usability of the Create Lobby and Join Lobby screens.
+
+**Changes:**
+
+- **`item_member.xml`** — Rebuilt member card to match the sidebar avatar style: 48×48dp rounded avatar (`default_user_avatar3.jpg`), username in bold, role subtitle ("Host" / "Member") below, host badge + online dot on the right.
+- **`activity_lobby.xml`** — Members section header is now a horizontal row with "Members" on the left and a live `text_member_count` (e.g. "2 / 10") on the right. Buttons restyled: Start Swiping uses a solid primary card/button (50dp radius, matching home screen Create Lobby), Leave Lobby uses an outlined error-colour card/button.
+- **`activity_create_lobby.xml`** — Added same live member count header. Added "Leave Lobby" outline button below Start Swiping so the host can leave even when alone in the lobby. Restyled Start Swiping to match the new solid primary pattern.
+- **`MemberAdapter.java`** — Binds `image_avatar` (always `default_user_avatar3`), `text_role` ("Host" / "Member" from string resources), retains existing host badge and online dot logic.
+- **`strings.xml`** — Added `label_member` string.
+- **`LobbyActivity.java`** — Added `textMemberCount` and `cardStartSwiping` fields; `refreshAdapter()` now updates count; host-visibility toggle now applies to the whole card wrapper.
+- **`CreateLobbyActivity.java`** — Added `textMemberCount` and `btnLeaveLobby` fields; `updateOrAddMember()` and `refreshAdapter()` update count; Leave Lobby button wired to `leaveLobby()`.
+
+---
+
 ## 2026-02-22 – Phase 5: Lobby Management
 
 **What:** Implemented the full lobby lifecycle: create, join, real-time member list, Start Swiping, and Leave/Disband — all backed by Firebase Realtime Database.

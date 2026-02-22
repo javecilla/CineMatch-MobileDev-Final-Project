@@ -54,10 +54,13 @@ public class LobbyActivity extends BaseActivity {
 
     // ── View references ────────────────────────────────────────────────────────
     private TextView                  textRoomCode;
+    private TextView                  textMemberCount;
     private RecyclerView              recyclerMembers;
     private LinearProgressIndicator   progressLoading;
     private MaterialButton            btnStartSwiping;
     private MaterialButton            btnLeaveLobby;
+    private MaterialButton            btnShareRoomCode;
+    private View                      cardStartSwiping;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,11 +86,14 @@ public class LobbyActivity extends BaseActivity {
     // ── Setup ──────────────────────────────────────────────────────────────────
 
     private void bindViews() {
-        textRoomCode    = findViewById(R.id.text_room_code);
-        recyclerMembers = findViewById(R.id.recycler_members);
-        progressLoading = findViewById(R.id.progress_loading);
-        btnStartSwiping = findViewById(R.id.btn_start_swiping);
-        btnLeaveLobby   = findViewById(R.id.btn_leave_lobby);
+        textRoomCode     = findViewById(R.id.text_room_code);
+        textMemberCount  = findViewById(R.id.text_member_count);
+        recyclerMembers  = findViewById(R.id.recycler_members);
+        progressLoading  = findViewById(R.id.progress_loading);
+        btnStartSwiping  = findViewById(R.id.btn_start_swiping);
+        btnLeaveLobby    = findViewById(R.id.btn_leave_lobby);
+        btnShareRoomCode = findViewById(R.id.btn_share_room_code);
+        cardStartSwiping = findViewById(R.id.card_start_swiping);
     }
 
     private void setupRecyclerView() {
@@ -99,14 +105,29 @@ public class LobbyActivity extends BaseActivity {
     private void setupButtons() {
         // "Start Swiping" — visible and enabled only for the host
         if (isHost) {
-            btnStartSwiping.setVisibility(View.VISIBLE);
+            cardStartSwiping.setVisibility(View.VISIBLE);
             btnStartSwiping.setEnabled(false); // enabled once >= 2 members
             btnStartSwiping.setOnClickListener(v -> startSwipingSession());
         } else {
-            btnStartSwiping.setVisibility(View.GONE);
+            cardStartSwiping.setVisibility(View.GONE);
         }
 
         btnLeaveLobby.setOnClickListener(v -> confirmLeave());
+
+        // Share room code — available to all members, not just the host
+        if (btnShareRoomCode != null) {
+            btnShareRoomCode.setOnClickListener(v -> shareRoomCode());
+        }
+    }
+
+    private void shareRoomCode() {
+        if (roomCode == null) return;
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT,
+                getString(R.string.share_room_code_message, roomCode));
+        startActivity(Intent.createChooser(shareIntent,
+                getString(R.string.btn_share_room_code)));
     }
 
     private void displayRoomCode() {
@@ -149,10 +170,20 @@ public class LobbyActivity extends BaseActivity {
             memberMap = new java.util.LinkedHashMap<>();
 
     private void updateOrAddMember(String userId, LobbyMember member) {
-        MemberAdapter.MemberItem item =
-                new MemberAdapter.MemberItem(member.getUsername(), member.isHost(), true);
+        boolean isMe = userId.equals(currentUserId);
+        MemberAdapter.MemberItem item = new MemberAdapter.MemberItem(
+                member.getUsername(), member.getGender(), member.isHost(), true, isMe);
         memberMap.put(userId, item);
         refreshAdapter();
+
+        // If this update promotes the current user to host (host transfer), update our state
+        if (isMe && member.isHost() && !isHost) {
+            isHost = true;
+            // Show and wire the Start Swiping card/button that was hidden for members
+            cardStartSwiping.setVisibility(View.VISIBLE);
+            btnStartSwiping.setOnClickListener(v -> startSwipingSession());
+        }
+
         updateStartButton();
     }
 
@@ -164,6 +195,7 @@ public class LobbyActivity extends BaseActivity {
 
     private void refreshAdapter() {
         memberAdapter.setMembers(new ArrayList<>(memberMap.values()));
+        textMemberCount.setText(memberMap.size() + " / 10");
     }
 
     private void updateStartButton() {

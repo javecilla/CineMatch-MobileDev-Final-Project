@@ -29,7 +29,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void applyEdgeToEdgeInsets(int rootViewId) {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(rootViewId), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            // Convert 24dp to px — this is the layout's base padding defined in XML.
+            // We ADD it to the system bar insets because setPadding() replaces all padding;
+            // without this, horizontal padding (which has 0 system insets) would be wiped.
+            int dp24 = Math.round(24 * v.getContext().getResources().getDisplayMetrics().density);
+            v.setPadding(
+                    systemBars.left  + dp24,
+                    systemBars.top   + dp24,
+                    systemBars.right + dp24,
+                    systemBars.bottom + dp24
+            );
             return insets;
         });
     }
