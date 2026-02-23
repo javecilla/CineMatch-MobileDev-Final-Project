@@ -1,5 +1,35 @@
 # CineMatch – Log of Changes
 
+## 2026-02-24 – Feature: Phase 7.2 – Swipe Gesture Detection (SwipingActivity)
+
+**What:** Movie cards now support swipe-left (No) and swipe-right (Yes) gestures directly on the card view, with animated visual feedback and fly-off / snap-back transitions.
+
+**Gesture flow:**
+
+- **Drag right** → card translates + rotates clockwise → **YES ✓** label fades in (green)
+- **Drag left** → card translates + rotates counter-clockwise → **NO ✗** label fades in (red)
+- **Release ≥ 120dp** → `flyOff()` animation (card flies off-screen) → fires `SwipeCallback` → `advanceCard()`
+- **Release < 120dp** → `snapBack()` animation (card springs back to rest)
+- **Short tap (no drag)** → toggles expanded/collapsed info panel (unchanged)
+
+**Architecture:**
+
+- `MovieCardAdapter.SwipeCallback` interface (`onSwipedYes()` / `onSwipedNo()`) decouples gesture detection from vote logic — both swipe gesture AND Yes/No button tap call the exact same `handleYes()` / `handleNo()` in `SwipingActivity`. Ready for Step 7.3 vote recording with zero changes to gesture code.
+- `ViewPager2.setUserInputEnabled(false)` is retained — ViewPager2's own swipe is still off. Gestures are handled by `OnTouchListener` on the card view itself.
+
+**Files created:**
+
+- **`res/drawable/bg_swipe_label_yes.xml`** _(new)_ — Rounded green-bordered semi-transparent background for YES label
+- **`res/drawable/bg_swipe_label_no.xml`** _(new)_ — Rounded red-bordered semi-transparent background for NO label
+
+**Files modified:**
+
+- **`res/layout/item_movie_card.xml`** — Added `overlay_swipe_yes` (`start|top`, −20° tilt, green) and `overlay_swipe_no` (`end|top`, +20° tilt, red); both `INVISIBLE` by default
+- **`ui/swiping/MovieCardAdapter.java`** — Full rewrite: added `SwipeCallback` interface, `attachTouchListener()` per card (translate, rotate, overlay alpha), `flyOff(boolean isYes)`, `snapBack()`, `resetCard()` helpers; constants: `SWIPE_THRESHOLD_DP=120`, `MAX_ROTATION_DEG=20`, `FLY_DURATION_MS=280`, `SNAP_DURATION_MS=250`
+- **`ui/swiping/SwipingActivity.java`** — Registered `SwipeCallback` in `setupViewPager()` routing `onSwipedYes()→handleYes()` and `onSwipedNo()→handleNo()`
+
+---
+
 ## 2026-02-24 – SwipingActivity: Lock Swipe to Yes/No Buttons Only
 
 **What:** Users could freely swipe between movie cards on the ViewPager2 without voting. This broke the voting mechanic — skipped cards would have no recorded vote.
