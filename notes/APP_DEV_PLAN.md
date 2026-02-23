@@ -507,83 +507,86 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 ---
 
-## 🎬 Phase 6: TMDB API Integration
+## 🎬 Phase 6: TMDB API Integration ✅ COMPLETED
 
 **Goal:** Integrate TMDB API for movie data.
 
-**Estimated Time:** 3-4 days
-
-### **Step 6.1: Retrofit Setup**
-
-**Tasks:**
-
-- [ ] Create TMDB API interface (Retrofit)
-- [ ] Define API endpoints (popular, trending, top-rated)
-- [ ] Set up Retrofit instance with base URL
-- [ ] Configure OkHttp interceptor for auth header
-- [ ] Test API connection
-
-**Files to Create:**
-
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/api/TmdbApi.java`
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/api/ApiClient.java`
-
-**Deliverable:** Working Retrofit setup
+**Status:** Fully implemented. Trending, Top-Rated, and Popular movie lists are live on the Home screen.
 
 ---
 
-### **Step 6.2: API Response Models**
+### **Step 6.1: Retrofit Setup** ✅ Done
 
 **Tasks:**
 
-- [ ] Create MovieResponse model (for API response)
-- [ ] Create MovieListResponse model (for paginated results)
-- [ ] Add Gson annotations for JSON parsing
-- [ ] Test model deserialization
+- [x] Create TMDB API interface (Retrofit)
+- [x] Define API endpoints (popular, trending, top-rated)
+- [x] Set up Retrofit instance with base URL
+- [x] Configure Bearer token auth header (passed per-call via `@Header`)
+- [x] Test API connection
 
-**Files to Create/Modify:**
+**Files Created:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/model/MovieResponse.java`
-- `app/src/main/java/com/example/finalprojectandroiddev2/model/MovieListResponse.java`
+- `data/api/TmdbApiService.java` _(was `TmdbApi.java` in plan — renamed)_
+- `data/api/TmdbApiClient.java` _(was `ApiClient.java` in plan — renamed)_
 
-**Deliverable:** Complete API models
+**Deliverable:** ✅ Working Retrofit setup
 
 ---
 
-### **Step 6.3: Movie Repository**
+### **Step 6.2: API Response Models** ✅ Done
 
 **Tasks:**
 
-- [ ] Create MovieRepository class
-- [ ] Implement fetchPopularMovies()
-- [ ] Implement fetchTrendingMovies()
-- [ ] Implement fetchTopRatedMovies()
-- [ ] Handle API errors
-- [ ] Implement caching (optional)
+- [x] Create Movie model (id, title, overview, poster_path, vote_average, etc.)
+- [x] Create MovieListResponse model (wraps paginated results list)
+- [x] Add Gson annotations for JSON parsing
+- [x] Test model deserialization
 
-**Files to Create:**
+**Files Created:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/MovieRepository.java`
+- `data/model/Movie.java`
+- `data/model/MovieListResponse.java`
 
-**Deliverable:** Movie data fetching ready
+> Note: `MovieResponse` from the plan was not needed — `MovieListResponse` covers all API responses.
+
+**Deliverable:** ✅ Complete API models
 
 ---
 
-### **Step 6.4: Image Loading**
+### **Step 6.3: Movie Data Fetching** ✅ Done
 
 **Tasks:**
 
-- [ ] Add Glide or Picasso dependency
-- [ ] Create ImageLoader utility class
-- [ ] Implement poster image loading
-- [ ] Implement backdrop image loading
-- [ ] Add placeholder and error images
+- [x] Implement fetchPopularMovies()
+- [x] Implement fetchTrendingMovies()
+- [x] Implement fetchTopRatedMovies()
+- [x] Handle API errors (via Retrofit `onFailure` callback)
+- [ ] ~~Implement caching~~ — skipped (optional, not needed for now)
 
-**Files to Create:**
+> Note: A dedicated `MovieRepository.java` class was not created. All three API calls are made directly in `HomeActivity.java` using `TmdbApiClient` + `TmdbApiService`. Functionally equivalent.
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/utils/ImageLoader.java`
+**Deliverable:** ✅ Movie data fetching working
 
-**Deliverable:** Movie poster loading working
+---
+
+### **Step 6.4: Image Loading** ✅ Done
+
+**Tasks:**
+
+- [x] Add Glide dependency (`build.gradle.kts`)
+- [x] Implement poster image loading (all 3 adapters use `Glide.with(context).load(url)`)
+- [x] Add placeholder and error images
+- [ ] ~~Create ImageLoader utility class~~ — skipped (Glide called inline per adapter, sufficient for now)
+- [ ] ~~Implement backdrop image loading~~ — not yet needed (only posters used)
+
+**Files using Glide:**
+
+- `ui/home/TrendingMovieAdapter.java`
+- `ui/home/TopRatedMovieAdapter.java`
+- `ui/home/PopularMovieAdapter.java`
+
+**Deliverable:** ✅ Movie poster loading working
 
 ---
 
