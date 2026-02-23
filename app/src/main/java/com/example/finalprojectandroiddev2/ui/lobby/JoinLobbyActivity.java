@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.TextView;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
@@ -44,7 +43,6 @@ public class JoinLobbyActivity extends BaseActivity {
     // ── Views ──────────────────────────────────────────────────────────────────
     private TextInputLayout         inputRoomCodeLayout;
     private TextInputEditText       editRoomCode;
-    private TextView                textError;
     private MaterialButton          btnJoin;
     private MaterialButton          btnBack;
     private LinearProgressIndicator progressLoading;
@@ -93,7 +91,6 @@ public class JoinLobbyActivity extends BaseActivity {
     private void bindViews() {
         inputRoomCodeLayout = findViewById(R.id.input_room_code);
         editRoomCode        = findViewById(R.id.edit_room_code);
-        textError           = findViewById(R.id.text_error);
         btnJoin             = findViewById(R.id.btn_join);
         btnBack             = findViewById(R.id.btn_back);
         // If the layout has a progress indicator, wire it up; otherwise this will be null
@@ -153,12 +150,13 @@ public class JoinLobbyActivity extends BaseActivity {
     // ── UI helpers ─────────────────────────────────────────────────────────────
 
     private void showError(String message) {
-        textError.setText(message);
-        textError.setVisibility(View.VISIBLE);
+        inputRoomCodeLayout.setErrorEnabled(true);
+        inputRoomCodeLayout.setError(message);
     }
 
     private void hideError() {
-        textError.setVisibility(View.GONE);
+        inputRoomCodeLayout.setErrorEnabled(false);
+        inputRoomCodeLayout.setError(null);
     }
 
     private void setLoading(boolean loading) {
