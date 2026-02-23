@@ -201,7 +201,7 @@ public class HomeActivity extends BaseActivity {
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
 
         TmdbApiService api = TmdbApiClient.getService();
-        api.getTrendingMovies("day", "en-US", bearer)
+        api.getTrendingMovies("day", "en-US", 1, bearer)
                 .enqueue(new Callback<MovieListResponse>() {
                     @Override
                     public void onResponse(Call<MovieListResponse> call,

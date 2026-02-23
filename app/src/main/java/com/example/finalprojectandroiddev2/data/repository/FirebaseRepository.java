@@ -88,6 +88,12 @@ public class FirebaseRepository {
         void onResult(LobbyMember member);
     }
 
+    public interface MovieQueueCallback {
+        /** Called with the full ordered list of movies loaded from Firebase. */
+        void onLoaded(List<com.example.finalprojectandroiddev2.data.model.Movie> movies);
+        void onError(String message);
+    }
+
     // ── Lobby Creation ──────────────────────────────────────────────────────────
 
     /**
@@ -350,6 +356,87 @@ public class FirebaseRepository {
                       } else {
                           callback.onResult(null);
                       }
+                  });
+    }
+
+    // ── Movie Queue ─────────────────────────────────────────────────────────────
+
+    /**
+     * Writes an ordered list of movies to lobbies/{roomCode}/movies/
+     * as a numbered map so Firebase preserves order:
+     *   movies/0/{ id, title, overview, poster_path, backdrop_path, vote_average, release_date, genre_ids }
+     *   movies/1/{ ... }
+     *
+     * Called by the host in LobbyActivity before setting status to "swiping".
+     */
+    public void saveMovieQueue(String roomCode,
+                               List<com.example.finalprojectandroiddev2.data.model.Movie> movies,
+                               SimpleCallback callback) {
+        List<Map<String, Object>> queue = new ArrayList<>();
+        for (com.example.finalprojectandroiddev2.data.model.Movie m : movies) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id",            m.getId());
+            entry.put("title",         m.getTitle() != null        ? m.getTitle()        : "");
+            entry.put("overview",      m.getOverview() != null     ? m.getOverview()     : "");
+            entry.put("poster_path",   m.getPosterPath() != null   ? m.getPosterPath()   : "");
+            entry.put("backdrop_path", m.getBackdropPath() != null ? m.getBackdropPath() : "");
+            entry.put("vote_average",  m.getVoteAverage());
+            entry.put("release_date",  m.getReleaseDate() != null  ? m.getReleaseDate()  : "");
+            entry.put("genre_ids",     m.getGenreIds() != null     ? m.getGenreIds()     : new ArrayList<>());
+            queue.add(entry);
+        }
+
+        lobbiesRef.child(roomCode)
+                  .child(Constants.NODE_MOVIES)
+                  .setValue(queue)
+                  .addOnSuccessListener(u -> {
+                      Logger.d(TAG, "Movie queue saved: " + movies.size() + " movies");
+                      callback.onSuccess();
+                  })
+                  .addOnFailureListener(e -> {
+                      Logger.e(TAG, "saveMovieQueue failed", e);
+                      callback.onFailure(e.getMessage());
+                  });
+    }
+
+    /**
+     * One-shot read of lobbies/{roomCode}/movies/.
+     * Deserialises each child into a Movie object and returns the ordered list.
+     * Called by every member (including host) in SwipingActivity.
+     */
+    public void listenMovieQueue(String roomCode, MovieQueueCallback callback) {
+        lobbiesRef.child(roomCode)
+                  .child(Constants.NODE_MOVIES)
+                  .get()
+                  .addOnCompleteListener(task -> {
+                      if (!task.isSuccessful() || !task.getResult().exists()) {
+                          callback.onError("Movie queue not found.");
+                          return;
+                      }
+                      List<com.example.finalprojectandroiddev2.data.model.Movie> movies = new ArrayList<>();
+                      for (DataSnapshot snap : task.getResult().getChildren()) {
+                          com.example.finalprojectandroiddev2.data.model.Movie m =
+                                  new com.example.finalprojectandroiddev2.data.model.Movie();
+                          m.setId(snap.child("id").getValue(Long.class) != null
+                                  ? snap.child("id").getValue(Long.class).intValue() : 0);
+                          m.setTitle(snap.child("title").getValue(String.class));
+                          m.setOverview(snap.child("overview").getValue(String.class));
+                          m.setPosterPath(snap.child("poster_path").getValue(String.class));
+                          m.setBackdropPath(snap.child("backdrop_path").getValue(String.class));
+                          Double avg = snap.child("vote_average").getValue(Double.class);
+                          m.setVoteAverage(avg != null ? avg : 0.0);
+                          m.setReleaseDate(snap.child("release_date").getValue(String.class));
+                          // genre_ids stored as list of Long in Firebase
+                          List<Integer> genreIds = new ArrayList<>();
+                          for (DataSnapshot gSnap : snap.child("genre_ids").getChildren()) {
+                              Long gId = gSnap.getValue(Long.class);
+                              if (gId != null) genreIds.add(gId.intValue());
+                          }
+                          m.setGenreIds(genreIds);
+                          movies.add(m);
+                      }
+                      Logger.d(TAG, "Movie queue loaded: " + movies.size() + " movies");
+                      callback.onLoaded(movies);
                   });
     }
 

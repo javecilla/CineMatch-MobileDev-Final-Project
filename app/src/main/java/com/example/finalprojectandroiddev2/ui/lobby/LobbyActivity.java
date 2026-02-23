@@ -212,8 +212,11 @@ public class LobbyActivity extends BaseActivity {
 
     private void startSwipingSession() {
         btnStartSwiping.setEnabled(false);
+        // Set lobby status to "swiping" — the status listener fires on all devices
+        // (including this host) and each device navigates to SwipingActivity independently.
+        // Each device fetches TMDB page 1 directly — deterministic, so all users
+        // see identical movies without any Firebase coordination needed.
         firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
-        // Status listener above will fire for all devices (including host)
         sessionStarted = true;
         navigateToSwiping();
     }

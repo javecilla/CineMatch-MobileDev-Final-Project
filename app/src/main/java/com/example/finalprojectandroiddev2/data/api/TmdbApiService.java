@@ -26,8 +26,10 @@ public interface TmdbApiService {
     Call<MovieListResponse> getTrendingMovies(
             @Path("time_window") String timeWindow,
             @Query("language") String language,
+            @Query("page") int page,
             @Header("Authorization") String bearerToken
     );
+
 
     /**
      * GET /movie/popular

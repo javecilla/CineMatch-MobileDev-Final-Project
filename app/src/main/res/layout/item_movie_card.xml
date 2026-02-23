@@ -1,87 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    item_movie_card.xml  — Swiping activity movie card
+    ─────────────────────────────────────────────────
+    ROOT: FrameLayout  (transparent background, blends with black activity background)
+      ├── ImageView                    ← full-bleed backdrop / poster image
+      ├── TextView (rating badge)      ← ⭐ top-right corner, always visible
+      ├── View (gradient_card_overlay) ← black gradient scrim anchored to bottom
+      └── LinearLayout (info block)   ← anchored to bottom of card
+            ├── [ALWAYS VISIBLE]
+            │     ├── TextView  title (white, wrapped, 22sp bold)
+            │     └── LinearLayout  release date row (calendar_icon + color_text_secondary)
+            └── [COLLAPSED — hidden on tap, shown by default]
+                  ├── TextView  overview  (white, 13sp, wrapped)
+                  └── ChipGroup genres   (same style as item_movie_popular)
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
-    app:cardBackgroundColor="@color/color_surface"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="8dp">
+    android:background="@android:color/transparent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Full-bleed backdrop / poster — Glide fills this -->
+    <ImageView
+        android:id="@+id/image_poster"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/cd_movie_backdrop"
+        tools:src="@color/color_surface" />
 
-        <ImageView
-            android:id="@+id/image_poster"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/label_movie_poster"
-            app:layout_constraintDimensionRatio="2:3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@android:drawable/ic_menu_gallery" />
+    <!-- ⭐ Rating badge — top-right corner, always visible -->
+    <TextView
+        android:id="@+id/text_movie_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="12dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        tools:text="⭐ 8.4" />
 
-        <View
-            android:id="@+id/view_poster_overlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_poster_gradient"
-            app:layout_constraintBottom_toBottomOf="@id/image_poster"
-            app:layout_constraintEnd_toEndOf="@id/image_poster"
-            app:layout_constraintStart_toStartOf="@id/image_poster"
-            app:layout_constraintTop_toTopOf="@id/image_poster" />
+    <!-- Black gradient scrim — anchored to the bottom, grows upward.
+         In collapsed state the LinearLayout below is short (~25% of card).
+         In expanded state the LinearLayout grows pushing the scrim taller
+         via the gradient_card_overlay which fills it. -->
+    <View
+        android:id="@+id/view_card_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_card_overlay" />
 
+    <!-- Text info block — anchored bottom of the FrameLayout -->
+    <LinearLayout
+        android:id="@+id/layout_card_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="36dp"
+        android:paddingBottom="16dp">
+
+        <!-- ── Always-visible section ── -->
+
+        <!-- Title -->
         <TextView
             android:id="@+id/text_movie_title"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="8dp"
-            android:textColor="@color/color_text_primary"
-            android:textSize="24sp"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:maxLines="2"
+            android:maxLines="3"
             android:ellipsize="end"
-            app:layout_constraintBottom_toTopOf="@id/text_movie_overview"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image_poster"
-            tools:text="Movie Title" />
+            tools:text="Dune: Part Two" />
 
-        <TextView
-            android:id="@+id/text_movie_rating"
+        <!-- Release date row (calendar icon + date text) -->
+        <LinearLayout
+            android:id="@+id/row_card_release_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="20dp"
-            android:textColor="@color/color_secondary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/image_poster"
-            tools:text="⭐ 8.5" />
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/calendar_icon"
+                android:contentDescription="@null"
+                app:tint="@color/color_text_secondary" />
+
+            <TextView
+                android:id="@+id/text_movie_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="12sp"
+                tools:text="2024-03-01" />
+        </LinearLayout>
+
+        <!-- ── Expanded-only section (GONE by default, shown on tap) ── -->
+
+        <!-- Overview / description -->
         <TextView
             android:id="@+id/text_movie_overview"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:textColor="@color/color_text_secondary"
-            android:textSize="14sp"
-            android:maxLines="5"
-            android:ellipsize="end"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_movie_title"
-            tools:text="Movie overview text goes here. This is a longer description of the movie plot and storyline." />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#CCFFFFFF"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.3"
+            android:visibility="gone"
+            tools:text="Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family."
+            tools:visibility="visible" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+        <!-- Genre chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_card_genres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:singleLine="false"
+            app:chipSpacingVertical="-9dp"
+            app:chipSpacingHorizontal="5dp"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</FrameLayout>
