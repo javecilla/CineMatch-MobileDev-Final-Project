@@ -18,17 +18,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=097955433S106911" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\jerom\.android\avd\Medium_Phone.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
                 <DeviceId pluginId="PhysicalDevice" identifier="serial=R58RA34Z8NP" />
-              </handle>
-            </Target>
-            <Target type="DEFAULT_BOOT">
-              <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\jerom\.android\avd\Medium_Phone.avd" />
               </handle>
             </Target>
           </targets>

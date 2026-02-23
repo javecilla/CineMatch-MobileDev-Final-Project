@@ -208,8 +208,14 @@ public class HomeActivity extends BaseActivity {
                                           Response<MovieListResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             List<Movie> movies = response.body().getResults();
-                            if (movies != null && !movies.isEmpty()) {
-                                trendingAdapter.setMovies(movies);
+                            // if (movies != null && !movies.isEmpty()) {
+                            //     trendingAdapter.setMovies(movies);
+                            // }
+                            if (movies != null && movies.size() > 1) {
+                                // Start with item 2 onward, then append item 1 at the end
+                                List<Movie> reordered = new ArrayList<>(movies.subList(1, movies.size()));
+                                reordered.addAll(movies.subList(0, 1));
+                                trendingAdapter.setMovies(reordered);
                             }
                         }
                     }
@@ -243,10 +249,10 @@ public class HomeActivity extends BaseActivity {
                                           Response<MovieListResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             List<Movie> movies = response.body().getResults();
-                            if (movies != null && movies.size() > 10) {
-                                // Start with item 11 onward, then append items 1–10 at the end
-                                List<Movie> reordered = new ArrayList<>(movies.subList(10, movies.size()));
-                                reordered.addAll(movies.subList(0, 10));
+                            if (movies != null && movies.size() > 9) {
+                                // Start with item 10 onward, then append items 1–9 at the end
+                                List<Movie> reordered = new ArrayList<>(movies.subList(9, movies.size()));
+                                reordered.addAll(movies.subList(0, 9));
                                 topRatedAdapter.setMovies(reordered);
                             }
                         }
@@ -280,10 +286,10 @@ public class HomeActivity extends BaseActivity {
                                           Response<MovieListResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             List<Movie> movies = response.body().getResults();
-                            if (movies != null && movies.size() > 14) {
-                                // Start from item 15 onward, then append items 1–14 at the end
-                                List<Movie> reordered = new ArrayList<>(movies.subList(14, movies.size()));
-                                reordered.addAll(movies.subList(0, 14));
+                            if (movies != null && movies.size() > 15) {
+                                // Start from item 16 onward, then append items 1–15 at the end
+                                List<Movie> reordered = new ArrayList<>(movies.subList(15, movies.size()));
+                                reordered.addAll(movies.subList(0, 15));
                                 popularAdapter.setMovies(reordered);
                             }
                         }
