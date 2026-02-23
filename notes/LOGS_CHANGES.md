@@ -1,5 +1,23 @@
 # CineMatch – Log of Changes
 
+## 2026-02-23 – Fix: "Tap to Return to Lobby" Banner Incorrectly Shown After Session Exit
+
+**What:** The "Tap to return to lobby" banner was appearing on the Home screen after a user clicked "Exit Session" in `SwipingActivity`. This was wrong because once a session has started (host clicked "Start Swiping"), there is no lobby to return to — the user has intentionally left the session.
+
+**Root cause:** `SwipingActivity` did not call `LobbyPrefs.clearActiveRoomCode()` when navigating away. The room code saved during the lobby waiting phase was still in SharedPreferences, so `HomeActivity.checkActiveLobby()` found it and showed the banner.
+
+**Fix — `SwipingActivity.java`:**
+
+- Added `LobbyPrefs.clearActiveRoomCode(this)` in `onCreate()` — clears the room code the moment swiping begins. This ensures the banner never appears even if the user presses Back (instead of using Exit button).
+- Also added the same clear call inside the `btn_exit_session` click listener as a safety guard.
+
+**Behaviour summary:**
+
+- Banner **shows** → only while in the lobby waiting room (session not yet started). Users can press Back to browse the Home screen and tap the banner to jump back in.
+- Banner **hidden** → as soon as `SwipingActivity` starts (host has clicked "Start Swiping"), the room code is cleared for all participants.
+
+---
+
 ## 2026-02-23 – Feature: "Tap to Return to Lobby" Sticky Banner + Back-Press Fix
 
 **What:** A primary-colored sticky banner is now shown at the top of the Home screen whenever the current user is still a member of an active lobby. Tapping it navigates back to `LobbyActivity` with their **live role** (host or member) read from Firebase — so re-joining as the wrong role is no longer possible.
