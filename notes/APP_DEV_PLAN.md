@@ -596,22 +596,24 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 **Estimated Time:** 5-6 days
 
-### **Step 7.1: Movie Card Stack**
+### **Step 7.1: Movie Card Stack** ✅ Done
 
 **Tasks:**
 
-- [ ] Set up ViewPager2 or custom card stack
-- [ ] Create MovieCardAdapter
-- [ ] Display movie data in cards
-- [ ] Load movie images
-- [ ] Implement card animations
+- [x] Set up ViewPager2 with `MovieCardAdapter`
+- [x] Create `MovieCardAdapter` (ViewPager2 `RecyclerView.Adapter`)
+- [x] Display movie data in cards (title, rating, overview)
+- [x] Load movie backdrop/poster images via Glide
+- [x] Implement card animations (`CompositePageTransformer` — scale + alpha + margin gap)
 
-**Files to Create:**
+**Files Created/Modified:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/MovieCardAdapter.java`
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java`
+- `ui/swiping/MovieCardAdapter.java` _(new — ViewPager2 adapter)_
+- `ui/swiping/SwipingActivity.java` _(updated — fetches trending movies, wires adapter)_
 
-**Deliverable:** Movie card stack display
+> Yes/No vote logic is stubbed (`advanceCard()`) — will be wired in Step 7.2.
+
+**Deliverable:** ✅ Movie card stack display
 
 ---
 

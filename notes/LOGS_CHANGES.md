@@ -1,5 +1,117 @@
 # CineMatch – Log of Changes
 
+## 2026-02-24 – SwipingActivity: Lock Swipe to Yes/No Buttons Only
+
+**What:** Users could freely swipe between movie cards on the ViewPager2 without voting. This broke the voting mechanic — skipped cards would have no recorded vote.
+
+**Fix:** Added `viewPagerMovies.setUserInputEnabled(false)` in `setupViewPager()`. Cards now only advance when the **Yes** or **No** button is tapped (via `advanceCard()`). The ViewPager2 still animates programmatically.
+
+**Files changed:**
+
+- **`ui/swiping/SwipingActivity.java`** — added `setUserInputEnabled(false)` after adapter is set.
+
+**Phase 7.2 note:** Swipe-left = No / swipe-right = Yes gesture shortcuts will be added directly to the card view (not ViewPager2) so the vote handler is always invoked.
+
+---
+
+## 2026-02-24 – SwipingActivity: Room-Code-Seeded TMDB Page for Session Variety
+
+**What:** All devices always fetched TMDB trending page 1, which worked but gave the same 20 movies every session with no variety.
+
+**Approach:** The page number (1–100) is now derived deterministically from the room code hash:
+
+```java
+int page = (Math.abs(roomCode.hashCode()) % 100) + 1;
+```
+
+Same lobby = same room code = same hash = same page = **identical ordered movie list on all devices** — no Firebase coordination needed. Different lobbies get different pages automatically.
+
+**Files changed:**
+
+- **`ui/swiping/SwipingActivity.java`** — replaced hardcoded `page=1` with room-code-derived page; falls back to page 1 for solo/test sessions.
+
+---
+
+## 2026-02-24 – Reverted: Firebase Shared Movie Queue (Abandoned)
+
+**What was attempted:** The host would fetch movies from TMDB (random page + shuffle), write them to Firebase `/lobbies/{code}/movies/`, set status to `"swiping"`, and all devices (including host) would read the shared list. This was designed to guarantee identical shuffled decks.
+
+**Why reverted:** Members' `listenMovieQueue()` read arrived before Firebase propagated the host's write — always returning "Movie queue not found". The TMDB-fallback workaround also triggered because the host's `startSwipingSession()` was not wired in time. The Firebase-write approach added unnecessary async complexity for a problem already solved deterministically via room-code-seeded page numbers.
+
+**Files that remain with residual additions (kept for Phase 7.2 use):**
+
+- **`data/repository/FirebaseRepository.java`** — `saveMovieQueue()`, `listenMovieQueue()`, `MovieQueueCallback` retained (needed for vote recording).
+- **`data/model/Movie.java`** — Setters added (needed for Firebase deserialization of votes).
+
+---
+
+## 2026-02-24 – MovieCardAdapter: Release Date Format + Star Rating Badge + Default Expanded State
+
+**What:** Three UI polish changes to the movie swipe card:
+
+1. **Date format** — `formatReleaseDate()` now parses `"YYYY-MM-DD"` from TMDB and reformats to `"MMM yyyy"` (e.g. `"Feb 2026"`) using `SimpleDateFormat`.
+
+2. **Star rating badge** — Added a `text_movie_rating` `TextView` in the top-right corner of `item_movie_card.xml` with a semi-transparent dark background and white text. Adapter binds `⭐ X.X` from `movie.getVoteAverage()`.
+
+3. **Default expanded state** — Card now opens in the **expanded** state (title + date + overview + genres visible). Tapping collapses it; tapping again expands it. Previously the default was collapsed.
+
+**Files changed:**
+
+- **`res/layout/item_movie_card.xml`** — Added `text_movie_rating` `TextView` (top-right, semi-transparent bg, white text).
+- **`ui/swiping/MovieCardAdapter.java`** — `isExpanded = true` default; updated `formatReleaseDate()`; added `tvRating` binding.
+
+---
+
+## 2026-02-24 – TmdbApiService: Added `page` Parameter to `getTrendingMovies`
+
+**What:** `getTrendingMovies()` previously only accepted `timeWindow`, `language`, and the auth header. Added an `int page` `@Query` parameter so callers can specify which result page to fetch.
+
+**Callers updated:**
+
+- **`ui/swiping/SwipingActivity.java`** — passes room-code-derived page.
+- **`ui/home/HomeActivity.java`** — passes `page = 1` (unchanged behaviour).
+
+**Files changed:**
+
+- **`data/api/TmdbApiService.java`** — added `@Query("page") int page` to `getTrendingMovies` signature.
+
+---
+
+**What:** Redesigned the movie swipe card with a transparent background (blends into the black activity background) and a two-state bottom overlay for movie info.
+
+**State 1 — Collapsed (default):** Bottom-quarter black gradient overlay shows movie title (white, wrapped) and release date (📅 calendar icon + `color_text_secondary`).
+
+**State 2 — Expanded (tap to reveal):** Overlay expands to also show the full movie overview (wrapped, semi-transparent white) and genre chips (same `ChipGroup` style as `item_movie_popular`). Tapping again collapses it.
+
+**Files created/modified:**
+
+- **`res/drawable/gradient_card_overlay.xml`** _(new)_ — strong #EE000000 bottom-to-transparent black gradient for the card scrim
+- **`res/layout/item_movie_card.xml`** _(rewritten)_ — transparent `FrameLayout` root, full-bleed backdrop, gradient scrim, `LinearLayout` info block with two-state visibility
+- **`ui/swiping/MovieCardAdapter.java`** _(rewritten)_ — `isExpanded` toggle per `ViewHolder`, full TMDB genre ID→name map (19 genres), chips inflated inline matching `item_movie_popular` style, card resets to collapsed on rebind
+- **`res/values/strings.xml`** — added `cd_movie_backdrop` string for `ImageView` content description
+
+---
+
+## 2026-02-23 – Feature: Phase 7.1 – Movie Card Stack (SwipingActivity)
+
+**What:** Implemented the movie card swipe deck in `SwipingActivity`. The host now sees rich full-screen movie cards when the session starts — each loaded from the TMDB trending endpoint.
+
+**Files created/modified:**
+
+- **`ui/swiping/MovieCardAdapter.java`** _(new)_
+  - `RecyclerView.Adapter` for `ViewPager2`
+  - Loads **backdrop** image via Glide (falls back to poster if null)
+  - Displays title, `⭐ X.X` rating, 3-line overview
+  - `setMovies(List<Movie>)` for live data updates
+
+- **`ui/swiping/SwipingActivity.java`** _(updated)_
+  - Fetches trending-day movies from TMDB on `onCreate` using `TmdbApiClient`
+  - `CompositePageTransformer`: `MarginPageTransformer(24dp)` + custom scale (8%) + alpha (30%) for deck depth effect
+  - Yes/No buttons call `advanceCard()` stub — vote logic comes in Phase 7.2
+  - Exit session still clears `LobbyPrefs` before navigating home
+
+---
+
 ## 2026-02-23 – Fix: "Tap to Return to Lobby" Banner Incorrectly Shown After Session Exit
 
 **What:** The "Tap to return to lobby" banner was appearing on the Home screen after a user clicked "Exit Session" in `SwipingActivity`. This was wrong because once a session has started (host clicked "Start Swiping"), there is no lobby to return to — the user has intentionally left the session.

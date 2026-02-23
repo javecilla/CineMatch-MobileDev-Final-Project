@@ -101,7 +101,9 @@
 
     <!-- Swiping -->
     <string name="label_movie_poster">Movie poster</string>
+    <string name="cd_movie_backdrop">Movie backdrop</string>
     <string name="label_swiping_status">Swiping:</string>
+
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
     <string name="btn_exit_session">Exit Session</string>

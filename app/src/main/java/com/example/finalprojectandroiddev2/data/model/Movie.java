@@ -57,4 +57,16 @@ public class Movie {
     public List<Integer> getGenreIds() { return genreIds; }
 
     public double getPopularity() { return popularity; }
+
+    // ── Setters (used when rebuilding Movie from Firebase) ────────────────────
+
+    public void setId(int id)                        { this.id           = id;          }
+    public void setTitle(String title)               { this.title        = title;       }
+    public void setPosterPath(String posterPath)     { this.posterPath   = posterPath;  }
+    public void setBackdropPath(String backdropPath) { this.backdropPath = backdropPath;}
+    public void setOverview(String overview)         { this.overview     = overview;    }
+    public void setVoteAverage(double voteAverage)   { this.voteAverage  = voteAverage; }
+    public void setReleaseDate(String releaseDate)   { this.releaseDate  = releaseDate; }
+    public void setGenreIds(List<Integer> genreIds)  { this.genreIds     = genreIds;    }
 }
+

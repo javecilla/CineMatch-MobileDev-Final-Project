@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- gradient_card_overlay.xml
+     Full-width black scrim for the movie swipe card overlay.
+     Starts transparent at top, fades to near-opaque black at bottom.
+     Used for the collapsed (1/4) and expanded states of item_movie_card. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:startColor="#00000000"
+        android:centerColor="#99000000"
+        android:endColor="#EE000000" />
+</shape>
