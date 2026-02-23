@@ -617,21 +617,27 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 ---
 
-### **Step 7.2: Swipe Gesture Detection**
+### **Step 7.2: Swipe Gesture Detection** ✅ Done
 
 **Tasks:**
 
-- [ ] Implement swipe left (No) detection
-- [ ] Implement swipe right (Yes) detection
-- [ ] Add visual feedback during swipe
-- [ ] Animate card removal
-- [ ] Load next card after swipe
+- [x] Implement swipe left (No) detection
+- [x] Implement swipe right (Yes) detection
+- [x] Add visual feedback during swipe
+- [x] Animate card removal
+- [x] Load next card after swipe
 
-**Files to Modify:**
+**Files Created/Modified:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java`
+- `res/drawable/bg_swipe_label_yes.xml` _(new — green bordered background for YES label)_
+- `res/drawable/bg_swipe_label_no.xml` _(new — red bordered background for NO label)_
+- `res/layout/item_movie_card.xml` _(updated — added YES/NO overlay TextViews)_
+- `ui/swiping/MovieCardAdapter.java` _(rewritten — OnTouchListener, drag/rotate, flyOff, snapBack, SwipeCallback)_
+- `ui/swiping/SwipingActivity.java` _(updated — registered SwipeCallback routing to handleYes/handleNo)_
 
-**Deliverable:** Working swipe gestures
+> Swipe and Yes/No button both call the same `handleYes()`/`handleNo()` — unified for Step 7.3 vote recording.
+
+**Deliverable:** ✅ Working swipe gestures
 
 ---
 

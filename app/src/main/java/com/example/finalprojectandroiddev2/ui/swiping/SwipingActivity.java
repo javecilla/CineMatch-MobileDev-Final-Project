@@ -71,9 +71,16 @@ public class SwipingActivity extends BaseActivity {
         movieCardAdapter = new MovieCardAdapter();
         viewPagerMovies.setAdapter(movieCardAdapter);
 
-        // Disable free swiping — cards only advance via the Yes / No buttons.
-        // This ensures every card transition is a deliberate vote, not an accidental swipe.
-        // (Phase 7.2 will add swipe-left = No / swipe-right = Yes touch shortcuts on the card itself.)
+        // Route swipe gestures through the same Yes/No handlers as the buttons.
+        // This ensures both input methods (swipe gesture + button tap) are unified
+        // and will both trigger vote recording in Phase 7.2.
+        movieCardAdapter.setSwipeCallback(new MovieCardAdapter.SwipeCallback() {
+            @Override public void onSwipedYes() { handleYes(); }
+            @Override public void onSwipedNo()  { handleNo();  }
+        });
+
+        // Disable ViewPager2's own swipe — cards only advance via gesture on the card
+        // itself (routed through SwipeCallback above) or via the Yes/No buttons.
         viewPagerMovies.setUserInputEnabled(false);
 
         viewPagerMovies.setOffscreenPageLimit(2);

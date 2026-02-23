@@ -135,4 +135,38 @@
 
     </LinearLayout>
 
+    <!-- ✅ YES overlay — shown when swiping right (green tint) -->
+    <TextView
+        android:id="@+id/overlay_swipe_yes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_margin="28dp"
+        android:text="YES ✓"
+        android:textColor="#4CAF50"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
+        android:background="@drawable/bg_swipe_label_yes"
+        android:rotation="-20"
+        android:visibility="invisible" />
+
+    <!-- ❌ NO overlay — shown when swiping left (red tint) -->
+    <TextView
+        android:id="@+id/overlay_swipe_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:layout_margin="28dp"
+        android:text="NO ✗"
+        android:textColor="#F44336"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
+        android:background="@drawable/bg_swipe_label_no"
+        android:rotation="20"
+        android:visibility="invisible" />
+
 </FrameLayout>

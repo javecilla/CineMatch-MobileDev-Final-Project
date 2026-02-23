@@ -1,7 +1,11 @@
 package com.example.finalprojectandroiddev2.ui.swiping;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -26,15 +30,20 @@ import java.util.Map;
 /**
  * ViewPager2 adapter that displays full-screen swipeable movie cards.
  *
- * Each card has two overlay states:
- *   COLLAPSED (default) — shows movie title + release date over a gradient scrim
- *   EXPANDED  (on tap)  — additionally shows overview + genre chips
+ * Step 7.2 — Swipe Gesture Detection:
+ *   • Touch listener on each card detects horizontal drag (left = No, right = Yes)
+ *   • Card translates + rotates proportionally during drag
+ *   • YES (green) / NO (red) overlay labels fade in as the user drags
+ *   • Releasing past the threshold fires SwipeCallback and flies the card off-screen
+ *   • Releasing short of the threshold snaps the card back with a spring animation
  *
- * Tapping the card toggles between the two states.
+ * Each card also has two info states:
+ *   EXPANDED (default) — title, date, overview, genres
+ *   COLLAPSED (on tap)  — title and date only
  */
 public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.MovieCardViewHolder> {
 
-    // ── TMDB Genre ID → Name (standard TMDB movie genre list) ─────────────────
+    // ── TMDB Genre ID → Name ──────────────────────────────────────────────────
     private static final Map<Integer, String> GENRE_MAP = new HashMap<>();
     static {
         GENRE_MAP.put(28,    "Action");
@@ -58,11 +67,32 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         GENRE_MAP.put(37,    "Western");
     }
 
+    // ── Swipe constants ───────────────────────────────────────────────────────
+
+    /** Horizontal drag distance (dp) required to trigger a swipe. */
+    private static final float SWIPE_THRESHOLD_DP = 120f;
+    /** Max rotation angle (degrees) at full swipe threshold. */
+    private static final float MAX_ROTATION_DEG   = 20f;
+    /** Duration (ms) for fly-off and snap-back animations. */
+    private static final int   FLY_DURATION_MS    = 280;
+    private static final int   SNAP_DURATION_MS   = 250;
+
+    // ── Callback ──────────────────────────────────────────────────────────────
+
+    /** Notified when a card is fully swiped left (No) or right (Yes). */
+    public interface SwipeCallback {
+        void onSwipedYes();
+        void onSwipedNo();
+    }
+
+    private SwipeCallback swipeCallback;
+
+    public void setSwipeCallback(SwipeCallback cb) { this.swipeCallback = cb; }
+
     // ── Data ──────────────────────────────────────────────────────────────────
 
     private final List<Movie> movies = new ArrayList<>();
 
-    /** Replace the current list and redraw all cards. */
     public void setMovies(List<Movie> newMovies) {
         movies.clear();
         if (newMovies != null) movies.addAll(newMovies);
@@ -85,24 +115,26 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
     }
 
     @Override
-    public int getItemCount() {
-        return movies.size();
-    }
+    public int getItemCount() { return movies.size(); }
 
     // ── ViewHolder ────────────────────────────────────────────────────────────
 
-    static class MovieCardViewHolder extends RecyclerView.ViewHolder {
+    class MovieCardViewHolder extends RecyclerView.ViewHolder {
 
-        private final ImageView  ivPoster;
-        private final TextView   tvTitle;
-        private final TextView   tvReleaseDate;
-        private final TextView   tvRating;
-        // Expanded-only views
-        private final TextView   tvOverview;
-        private final ChipGroup  chipGroupGenres;
+        private final ImageView ivPoster;
+        private final TextView  tvTitle;
+        private final TextView  tvReleaseDate;
+        private final TextView  tvRating;
+        private final TextView  tvOverview;
+        private final ChipGroup chipGroupGenres;
+        private final TextView  overlayYes;
+        private final TextView  overlayNo;
 
-        /** Tracks whether the card is in its expanded state. Starts true — expanded by default. */
+        /** Tracks whether the card is in its expanded state. */
         private boolean isExpanded = true;
+
+        /** Pixel threshold derived from SWIPE_THRESHOLD_DP at bind time. */
+        private float swipeThresholdPx;
 
         MovieCardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -112,29 +144,31 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
             tvRating        = itemView.findViewById(R.id.text_movie_rating);
             tvOverview      = itemView.findViewById(R.id.text_movie_overview);
             chipGroupGenres = itemView.findViewById(R.id.chip_group_card_genres);
+            overlayYes      = itemView.findViewById(R.id.overlay_swipe_yes);
+            overlayNo       = itemView.findViewById(R.id.overlay_swipe_no);
+
+            // Convert threshold dp → px once
+            float density      = itemView.getContext().getResources().getDisplayMetrics().density;
+            swipeThresholdPx   = SWIPE_THRESHOLD_DP * density;
         }
 
         void bind(Movie movie) {
-            // Default to expanded state whenever card is (re)bound
+            // Reset transform/overlays whenever card is (re)bound
+            resetCard();
+
+            // Default to expanded state
             isExpanded = true;
             setExpandedState(true);
 
-            // Title
+            // Populate text fields
             tvTitle.setText(movie.getTitle() != null ? movie.getTitle() : "");
-
-            // Rating — top-right badge
             tvRating.setText(String.format(Locale.getDefault(), "⭐ %.1f", movie.getVoteAverage()));
-
-            // Release date
             tvReleaseDate.setText(formatReleaseDate(movie.getReleaseDate()));
-
-            // Overview
             tvOverview.setText(movie.getOverview() != null ? movie.getOverview() : "");
 
-            // Genre chips
             buildGenreChips(itemView.getContext(), movie);
 
-            // Image — prefer backdrop (wider aspect ratio), fall back to poster
+            // Load image
             String imagePath;
             if (movie.getBackdropPath() != null && !movie.getBackdropPath().isEmpty()) {
                 imagePath = Constants.TMDB_IMAGE_BASE_URL + movie.getBackdropPath();
@@ -143,7 +177,6 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
             } else {
                 imagePath = null;
             }
-
             Glide.with(itemView.getContext())
                     .load(imagePath)
                     .centerCrop()
@@ -151,29 +184,162 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
                     .error(R.color.color_surface)
                     .into(ivPoster);
 
-            // Toggle expanded / collapsed on card tap
+            // Attach swipe + tap gesture
+            attachTouchListener();
+        }
+
+        // ── Swipe gesture ─────────────────────────────────────────────────────
+
+        /**
+         * Handles the complete swipe lifecycle:
+         *   ACTION_DOWN  — record touch start position
+         *   ACTION_MOVE  — translate/rotate card, fade YES/NO overlays
+         *   ACTION_UP    — commit if past threshold, else snap back
+         *   ACTION_CANCEL— always snap back
+         */
+        private void attachTouchListener() {
+            final float[] startX  = {0f};
+            final float[] startY  = {0f};
+            final boolean[] isDragging = {false};
+
+            itemView.setOnTouchListener((v, event) -> {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startX[0]     = event.getRawX();
+                        startY[0]     = event.getRawY();
+                        isDragging[0] = false;
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE: {
+                        float dx = event.getRawX() - startX[0];
+                        float dy = event.getRawY() - startY[0];
+
+                        // Start drag only after meaningful horizontal movement
+                        if (!isDragging[0] && Math.abs(dx) > 10f) isDragging[0] = true;
+                        if (!isDragging[0]) return true;
+
+                        // Translate card
+                        itemView.setTranslationX(dx);
+                        itemView.setTranslationY(dy * 0.15f); // tiny vertical drift
+
+                        // Rotate proportionally to horizontal drag
+                        float fraction = Math.min(Math.abs(dx) / swipeThresholdPx, 1f);
+                        float rotation = MAX_ROTATION_DEG * fraction * Math.signum(dx);
+                        itemView.setRotation(rotation);
+
+                        // Fade YES / NO labels proportionally
+                        if (dx > 0) {
+                            overlayYes.setVisibility(View.VISIBLE);
+                            overlayYes.setAlpha(fraction);
+                            overlayNo.setVisibility(View.INVISIBLE);
+                        } else {
+                            overlayNo.setVisibility(View.VISIBLE);
+                            overlayNo.setAlpha(fraction);
+                            overlayYes.setVisibility(View.INVISIBLE);
+                        }
+                        return true;
+                    }
+
+                    case MotionEvent.ACTION_UP: {
+                        float dx = event.getRawX() - startX[0];
+
+                        if (!isDragging[0]) {
+                            // Short tap — toggle expand/collapse
+                            v.performClick();
+                            return true;
+                        }
+
+                        if (Math.abs(dx) >= swipeThresholdPx) {
+                            flyOff(dx > 0); // commit swipe
+                        } else {
+                            snapBack();     // not far enough — return card
+                        }
+                        return true;
+                    }
+
+                    case MotionEvent.ACTION_CANCEL:
+                        snapBack();
+                        return true;
+                }
+                return false;
+            });
+
+            // Keep tap-to-expand working (called by performClick above)
             itemView.setOnClickListener(v -> {
                 isExpanded = !isExpanded;
                 setExpandedState(isExpanded);
             });
         }
 
-        /** Show or hide the expanded-only views (overview + genres). */
-        private void setExpandedState(boolean expanded) {
-            int visibility = expanded ? View.VISIBLE : View.GONE;
-            tvOverview.setVisibility(visibility);
-            chipGroupGenres.setVisibility(visibility);
+        /**
+         * Flies the card off-screen in the swipe direction, then fires the callback.
+         * @param isYes true = swiped right (Yes), false = swiped left (No)
+         */
+        private void flyOff(boolean isYes) {
+            float targetX = itemView.getWidth() * (isYes ? 2f : -2f);
+            itemView.animate()
+                    .translationX(targetX)
+                    .translationY(itemView.getTranslationY())
+                    .rotation(isYes ? MAX_ROTATION_DEG * 2 : -MAX_ROTATION_DEG * 2)
+                    .alpha(0f)
+                    .setDuration(FLY_DURATION_MS)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            resetCard();
+                            if (swipeCallback != null) {
+                                if (isYes) swipeCallback.onSwipedYes();
+                                else       swipeCallback.onSwipedNo();
+                            }
+                        }
+                    })
+                    .start();
         }
 
-        /** Populates the ChipGroup with genre names resolved from genreIds. */
+        /** Snaps the card back to its resting position with a spring-like animation. */
+        private void snapBack() {
+            itemView.animate()
+                    .translationX(0f)
+                    .translationY(0f)
+                    .rotation(0f)
+                    .alpha(1f)
+                    .setDuration(SNAP_DURATION_MS)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            overlayYes.setVisibility(View.INVISIBLE);
+                            overlayNo.setVisibility(View.INVISIBLE);
+                        }
+                    })
+                    .start();
+        }
+
+        /** Resets all transform/overlay state (called on bind and after fly-off). */
+        private void resetCard() {
+            itemView.setTranslationX(0f);
+            itemView.setTranslationY(0f);
+            itemView.setRotation(0f);
+            itemView.setAlpha(1f);
+            overlayYes.setVisibility(View.INVISIBLE);
+            overlayNo.setVisibility(View.INVISIBLE);
+        }
+
+        // ── Info panel state ──────────────────────────────────────────────────
+
+        private void setExpandedState(boolean expanded) {
+            int vis = expanded ? View.VISIBLE : View.GONE;
+            tvOverview.setVisibility(vis);
+            chipGroupGenres.setVisibility(vis);
+        }
+
+        // ── Genre chips ───────────────────────────────────────────────────────
+
         private void buildGenreChips(Context ctx, Movie movie) {
             chipGroupGenres.removeAllViews();
             if (movie.getGenreIds() == null) return;
-
             for (int id : movie.getGenreIds()) {
                 String name = GENRE_MAP.get(id);
                 if (name == null) continue;
-
                 Chip chip = new Chip(ctx);
                 chip.setText(name);
                 chip.setClickable(false);
@@ -185,10 +351,8 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
             }
         }
 
-        /**
-         * Converts raw TMDB date "YYYY-MM-DD" to a friendly "MMM yyyy" string.
-         * e.g. "2026-02-25" → "Feb 2026". Returns "—" if null, empty, or unparseable.
-         */
+        // ── Date formatting ───────────────────────────────────────────────────
+
         private String formatReleaseDate(String rawDate) {
             if (rawDate == null || rawDate.isEmpty()) return "—";
             try {
@@ -197,9 +361,8 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
                 java.util.Date date = inputFmt.parse(rawDate);
                 return date != null ? outputFmt.format(date) : rawDate;
             } catch (java.text.ParseException e) {
-                return rawDate; // fallback to raw string
+                return rawDate;
             }
         }
-
     }
 }
