@@ -28,6 +28,9 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
+        <!-- Room Code input — identical structure to login inputs.
+             Errors displayed via TextInputLayout.setError() which turns the
+             outline red automatically, matching the login screen behaviour. -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_room_code"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -38,7 +41,7 @@
             app:counterEnabled="true"
             app:counterMaxLength="6"
             app:endIconMode="none"
-            app:layout_constraintBottom_toTopOf="@id/text_error"
+            app:layout_constraintBottom_toTopOf="@id/card_join"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/image_logo">
@@ -52,45 +55,57 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/text_error"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone"
-            android:textColor="@color/color_error"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@id/btn_join"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/input_room_code"
-            tools:text="Invalid room code"
-            tools:visibility="visible" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_join"
+        <!-- Primary "Join" button — matches Home screen Create Lobby button style -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_join"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/btn_join"
-            app:backgroundTint="@color/color_primary"
-            app:cornerRadius="12dp"
-            app:layout_constraintBottom_toTopOf="@id/btn_back"
+            app:cardBackgroundColor="@color/color_surface"
+            app:cardCornerRadius="50dp"
+            app:cardElevation="4dp"
+            app:layout_constraintBottom_toTopOf="@id/card_back"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_error" />
+            app:layout_constraintTop_toBottomOf="@id/input_room_code">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_back"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_join"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/btn_join"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                app:backgroundTint="@color/color_primary"
+                app:cornerRadius="50dp" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Secondary "Back" button — matches Home screen Join Lobby button style (outlined) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_back"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/btn_back"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@color/color_surface"
+            app:cardCornerRadius="50dp"
+            app:cardElevation="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_join" />
+            app:layout_constraintTop_toBottomOf="@id/card_join">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/btn_back"
+                android:textColor="@color/color_primary"
+                android:textSize="18sp"
+                app:backgroundTint="@color/color_surface"
+                app:cornerRadius="50dp"
+                app:strokeColor="@color/color_primary"
+                app:strokeWidth="2dp" />
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
