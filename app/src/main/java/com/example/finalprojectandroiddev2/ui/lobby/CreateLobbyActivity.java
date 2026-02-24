@@ -223,6 +223,9 @@ public class CreateLobbyActivity extends BaseActivity {
 
     private void startSwipingSession() {
         btnStartSwiping.setEnabled(false);
+        // Clear any stale currentPage from a previous session BEFORE any device
+        // enters SwipingActivity. The host will write the real initialPage there.
+        firebaseRepo.setCurrentPage(roomCode, 0);
         firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
         // Status listener above fires for all devices
     }
@@ -258,7 +261,7 @@ public class CreateLobbyActivity extends BaseActivity {
         if (roomCode != null) {
             firebaseRepo.removeMember(roomCode, currentUserId, null);
         }
-        firebaseRepo.detachListeners();
+        firebaseRepo.detachLobbyListeners();
         startActivity(new Intent(this, HomeActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
@@ -266,7 +269,7 @@ public class CreateLobbyActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        firebaseRepo.detachListeners();
+        firebaseRepo.detachLobbyListeners();
         super.onDestroy();
     }
 }

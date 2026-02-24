@@ -21,6 +21,7 @@ public final class Constants {
     public static final String NODE_MOVIES = "movies";
     public static final String NODE_VOTES = "votes";
     public static final String NODE_MATCHED_MOVIE = "matchedMovie";
+    public static final String NODE_CURRENT_PAGE = "currentPage";
 
     // Lobby status values
     public static final String LOBBY_STATUS_WAITING = "waiting";

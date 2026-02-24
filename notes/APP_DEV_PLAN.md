@@ -690,21 +690,27 @@ No votes are intentionally not written — absence of a user entry means No.
 
 ---
 
-### **Step 7.5: Movie Queue Management**
+### **Step 7.5: Movie Queue Management** ✅ Done
 
 **Tasks:**
 
-- [ ] Fetch initial movie list (20-30 movies)
-- [ ] Load more movies when queue is low
-- [ ] Prevent duplicate movies
-- [ ] Handle API pagination
+- [x] Fetch initial movie list (20-30 movies)
+- [x] Load more movies when queue is low — host-triggered "Load More"
+- [x] Prevent duplicate movies — `appendMovies()` deduplicates by movie ID
+- [x] Handle API pagination — `currentPage` incremented per Load More
 
-**Files to Modify:**
+**Design:** Host-controlled Load More. When the deck runs out, the host sees a **Load More Movies** button; members see **"Waiting for host to load more movies…"** until the host acts. Firebase `currentPage` broadcasts the next page number to all members so every device appends the identical new movies.
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java`
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/MovieRepository.java`
+**Files Created/Modified:**
 
-**Deliverable:** Continuous movie queue
+- `utils/Constants.java` _(updated — `NODE_CURRENT_PAGE`)_
+- `ui/swiping/MovieCardAdapter.java` _(updated — `appendMovies()` with ID-based dedup)_
+- `res/layout/activity_swiping.xml` _(updated — end-of-deck overlay with `btn_load_more` + `text_waiting_host`)_
+- `res/values/strings.xml` _(updated — `btn_load_more`, `label_end_of_deck_title/subtitle`, `label_waiting_host_load_more`)_
+- `data/repository/FirebaseRepository.java` _(updated — `PageCallback`, `setCurrentPage()`, `listenCurrentPage()`, `detachPageListener()`)_
+- `ui/swiping/SwipingActivity.java` _(updated — `isHost` detection, `showEndOfDeck()`, `loadMoreMovies()`, `listenForPageChanges()`)_
+
+**Deliverable:** ✅ Continuous movie queue
 
 ---
 

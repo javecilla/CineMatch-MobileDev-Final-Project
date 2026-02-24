@@ -41,7 +41,7 @@ import java.util.Map;
  *   EXPANDED (default) — title, date, overview, genres
  *   COLLAPSED (on tap)  — title and date only
  */
-public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.MovieCardViewHolder> {
+public class MovieCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // ── TMDB Genre ID → Name ──────────────────────────────────────────────────
     private static final Map<Integer, String> GENRE_MAP = new HashMap<>();
@@ -77,7 +77,12 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
     private static final int   FLY_DURATION_MS    = 280;
     private static final int   SNAP_DURATION_MS   = 250;
 
-    // ── Callback ──────────────────────────────────────────────────────────────
+    // ── View types ──────────────────────────────────────────────────────────────
+
+    private static final int TYPE_MOVIE       = 0;
+    private static final int TYPE_END_OF_DECK = 1;
+
+    // ── Callbacks ─────────────────────────────────────────────────────────────
 
     /** Notified when a card is fully swiped left (No) or right (Yes). */
     public interface SwipeCallback {
@@ -85,9 +90,18 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         void onSwipedNo();
     }
 
-    private SwipeCallback swipeCallback;
+    /** Notified when the host taps "Load More Movies" on the end-of-deck card. */
+    public interface EndOfDeckCallback {
+        void onLoadMoreClicked();
+    }
 
-    public void setSwipeCallback(SwipeCallback cb) { this.swipeCallback = cb; }
+    private SwipeCallback    swipeCallback;
+    private EndOfDeckCallback endOfDeckCallback;
+    private boolean           isHost = false;
+
+    public void setSwipeCallback(SwipeCallback cb)         { this.swipeCallback     = cb; }
+    public void setEndOfDeckCallback(EndOfDeckCallback cb) { this.endOfDeckCallback = cb; }
+    public void setIsHost(boolean host)                    { this.isHost           = host; }
 
     // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -99,23 +113,90 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         notifyDataSetChanged();
     }
 
+    /**
+     * Appends additional movies to the existing deck, skipping any that are already
+     * present (deduplication by TMDB movie ID). Use this for "Load More" pages.
+     *
+     * @return the number of movies actually added after dedup
+     */
+    public int appendMovies(List<Movie> newMovies) {
+        if (newMovies == null || newMovies.isEmpty()) return 0;
+        java.util.Set<Integer> existingIds = new java.util.HashSet<>();
+        for (Movie m : movies) existingIds.add(m.getId());
+
+        List<Movie> toAdd = new ArrayList<>();
+        for (Movie m : newMovies) {
+            if (!existingIds.contains(m.getId())) toAdd.add(m);
+        }
+        if (!toAdd.isEmpty()) {
+            int insertStart = movies.size(); // insert before the end-of-deck slot
+            movies.addAll(toAdd);
+            // insertStart+1 because slot insertStart was the end-of-deck (TYPE_END_OF_DECK)
+            // and it shifts forward; new movie slots are insertStart…insertStart+toAdd.size()-1
+            notifyItemRangeInserted(insertStart, toAdd.size());
+        }
+        return toAdd.size();
+    }
+
+
     // ── Adapter ───────────────────────────────────────────────────────────────
+
+    @Override
+    public int getItemViewType(int position) {
+        // Last slot is always the end-of-deck card (only visible when movies loaded)
+        return (position == movies.size()) ? TYPE_END_OF_DECK : TYPE_MOVIE;
+    }
 
     @NonNull
     @Override
-    public MovieCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_movie_card, parent, false);
-        return new MovieCardViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater li = LayoutInflater.from(parent.getContext());
+        if (viewType == TYPE_END_OF_DECK) {
+            View v = li.inflate(R.layout.item_end_of_deck, parent, false);
+            return new EndOfDeckViewHolder(v);
+        }
+        View v = li.inflate(R.layout.item_movie_card, parent, false);
+        return new MovieCardViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieCardViewHolder holder, int position) {
-        holder.bind(movies.get(position));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof EndOfDeckViewHolder) {
+            ((EndOfDeckViewHolder) holder).bind(isHost, endOfDeckCallback);
+        } else {
+            ((MovieCardViewHolder) holder).bind(movies.get(position));
+        }
     }
 
+    /** movies.size() real cards + 1 virtual end-of-deck card at the tail. */
     @Override
-    public int getItemCount() { return movies.size(); }
+    public int getItemCount() { return movies.isEmpty() ? 0 : movies.size() + 1; }
+
+    // ── EndOfDeckViewHolder ───────────────────────────────────────────────────
+
+    static class EndOfDeckViewHolder extends RecyclerView.ViewHolder {
+        private final View btnLoadMore;
+        private final View textWaitingHost;
+
+        EndOfDeckViewHolder(@NonNull View itemView) {
+            super(itemView);
+            btnLoadMore     = itemView.findViewById(R.id.btn_load_more);
+            textWaitingHost = itemView.findViewById(R.id.text_waiting_host);
+        }
+
+        void bind(boolean isHost, EndOfDeckCallback callback) {
+            if (isHost) {
+                btnLoadMore.setVisibility(View.VISIBLE);
+                textWaitingHost.setVisibility(View.GONE);
+                btnLoadMore.setOnClickListener(v -> {
+                    if (callback != null) callback.onLoadMoreClicked();
+                });
+            } else {
+                btnLoadMore.setVisibility(View.GONE);
+                textWaitingHost.setVisibility(View.VISIBLE);
+            }
+        }
+    }
 
     // ── ViewHolder ────────────────────────────────────────────────────────────
 

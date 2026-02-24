@@ -216,6 +216,10 @@ public class LobbyActivity extends BaseActivity {
         // (including this host) and each device navigates to SwipingActivity independently.
         // Each device fetches TMDB page 1 directly — deterministic, so all users
         // see identical movies without any Firebase coordination needed.
+        // Clear any stale currentPage from a previous session BEFORE any device
+        // enters SwipingActivity. This guarantees the listener fires with 0 first
+        // (which is skipped), then the host writes the real initialPage.
+        firebaseRepo.setCurrentPage(roomCode, 0);
         firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
         sessionStarted = true;
         navigateToSwiping();
@@ -264,7 +268,7 @@ public class LobbyActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        firebaseRepo.detachListeners();
+        firebaseRepo.detachLobbyListeners();
         super.onDestroy();
     }
 }

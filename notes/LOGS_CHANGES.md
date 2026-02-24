@@ -1,5 +1,79 @@
 # CineMatch – Log of Changes
 
+## 2026-02-24 – Redesign: Unified Page Sync Architecture (v5 — final)
+
+**Problem:** Members were stuck on the end-of-deck card after the host loaded more movies. Two root causes:
+
+1. **Two separate fetch paths:** Host fetched locally then broadcast; members listened and fetched separately. Race conditions between async `isHost` resolution and Firebase listener attachment made guards unreliable.
+2. **Singleton listener detachment:** `LobbyActivity.onDestroy()` called `firebaseRepo.detachListeners()` on the singleton `FirebaseRepository`, which killed the page listener that `SwipingActivity` had just attached during the lobby→swiping activity transition.
+
+**Solution:**
+
+- **Hybrid fetch model:** Host fetches movies locally (in `onCreate` + `loadMoreMovies`) and writes `currentPage` to Firebase for member sync. Members react to Firebase `currentPage` changes via `listenForPageChanges()` → `fetchMoviesForPage()`.
+- **`isHost` from Intent:** Read immediately from `EXTRA_IS_HOST` instead of async Firebase `loadAllMembers()` resolution — eliminates timing issues.
+- **Stale page reset:** Both `LobbyActivity` and `CreateLobbyActivity` write `currentPage = 0` before starting the session, clearing stale values from previous sessions.
+- **Scoped listener cleanup:** Added `detachLobbyListeners()` to `FirebaseRepository` — only detaches members + status listeners. Lobby activities now call this instead of `detachListeners()`, preserving SwipingActivity's page + votes listeners across the activity transition.
+
+**Files changed:**
+
+- **`ui/swiping/SwipingActivity.java`** — removed `fetchMovies()`; added `fetchMoviesForPage()` unified TMDB fetch + `initialLoadDone` flag; host fetches locally in `onCreate()` and `loadMoreMovies()` then broadcasts; member fetches via listener; `isHost` from Intent; removed `loadedPages` HashSet
+- **`data/repository/FirebaseRepository.java`** — added `detachLobbyListeners()` (members + status only)
+- **`ui/lobby/LobbyActivity.java`** — `startSwipingSession()` resets `currentPage` to 0; `onDestroy()` calls `detachLobbyListeners()`
+- **`ui/lobby/CreateLobbyActivity.java`** — same `currentPage` reset + `detachLobbyListeners()` in both `leaveLobby()` and `onDestroy()`
+
+---
+
+## 2026-02-24 – Fix: Load More Button Required Multiple Clicks Before New Cards Appeared
+
+**Problem:** Tapping "Load More Movies" required 3–4 clicks before the new cards were displayed. Each click loaded movies and broadcast the page to Firebase (confirmed in logs), but the ViewPager2 never advanced to the new cards on the first click.
+
+**Root cause:** `notifyItemRangeInserted()` schedules a layout pass for the **next frame**, but `setCurrentItem()` was called in the **same frame** before RecyclerView processed the insert. ViewPager2 saw `currentPosition == firstNewPos` (a no-op) because it hadn't shifted its internal position yet.
+
+**Fix:** Wrapped `setCurrentItem(firstNewPos)` in `viewPagerMovies.post(...)` to defer it until after the layout pass completes. Applied to both `loadMoreMovies()` (host) and `listenForPageChanges()` (member).
+
+**Files changed:**
+
+- **`ui/swiping/SwipingActivity.java`** — `loadMoreMovies()` and `listenForPageChanges()` use `viewPagerMovies.post(() -> viewPagerMovies.setCurrentItem(firstNewPos, true))`
+
+---
+
+## 2026-02-24 – Fix: End-of-Deck Shown as ViewPager2 Card Instead of Overlay
+
+**Problem:** End-of-deck message was an overlay on top of the last movie card (visible while the card was still being viewed). Also appeared as soon as user arrived at card 20, not after swiping it.
+
+**Fix:** Removed overlay entirely. End-of-deck is now a real **ViewPager2 card** (last slot in the adapter) that becomes visible only after `advanceCard()` scrolls past the final real movie.
+
+**Changes:**
+
+- **`res/layout/item_end_of_deck.xml`** _(NEW)_ — full-card layout with 🍿 emoji, title, subtitle, host Load More button (`reload_icon`, TextButton style), member waiting text (`color_text_secondary`)
+- **`res/layout/activity_swiping.xml`** — removed `layout_end_of_deck` overlay `LinearLayout`; ViewPager2 is now the only child of its `FrameLayout`
+- **`ui/swiping/MovieCardAdapter.java`** — class now extends `RecyclerView.Adapter<RecyclerView.ViewHolder>`; added `TYPE_MOVIE=0` / `TYPE_END_OF_DECK=1`; added `EndOfDeckCallback` interface; added `isHost` + `setIsHost()` / `setEndOfDeckCallback()`; `getItemCount()` returns `movies.size() + 1`; `onCreateViewHolder` inflates movie or end-of-deck layout; `onBindViewHolder` dispatches to `MovieCardViewHolder` or `EndOfDeckViewHolder`; added `EndOfDeckViewHolder` inner class that shows host button or member text and wires click callback
+- **`ui/swiping/SwipingActivity.java`** — removed `layoutEndOfDeck`, `btnLoadMore`, `textWaitingHost` fields / `bindViews()` / `setupButtons()` references; removed `showEndOfDeck()` method; removed `isLastCard` check from `onPageSelected`; wired `setEndOfDeckCallback(() -> loadMoreMovies())` in `setupViewPager()`; added `movieCardAdapter.setIsHost(isHost)` after member load; cleaned dead `layoutEndOfDeck.setVisibility` / `btnLoadMore.setEnabled` calls from `loadMoreMovies()` and `listenForPageChanges()`
+
+---
+
+## 2026-02-24 – Feature: Phase 7.5 – Movie Queue Management / End-of-Deck + Load More
+
+**What:** When users swipe through all 20 initial movies without a match, an "End of Deck" overlay appears. The host sees a **Load More Movies** button to load the next TMDB page. Members see a waiting hint until the host loads more.
+
+**End-of-deck flow:**
+
+1. `onPageSelected` detects last card → `showEndOfDeck()`
+2. Host: `btn_load_more` visible → tap → `loadMoreMovies()` → TMDB fetch → `appendMovies()` → `setCurrentPage()` in Firebase → overlay hidden
+3. Members: `textWaitingHost` visible → `listenForPageChanges()` fires → fetch same page → `appendMovies()` → overlay hidden
+4. `appendMovies()` deduplicates by movie ID — no repeats even if pages overlap
+
+**Files modified:**
+
+- **`utils/Constants.java`** — added `NODE_CURRENT_PAGE = "currentPage"` for Firebase sync
+- **`ui/swiping/MovieCardAdapter.java`** — added `appendMovies(List<Movie>)` — deduplicates by TMDB ID using a `HashSet`, uses `notifyItemRangeInserted` for efficient update
+- **`res/layout/activity_swiping.xml`** — added `layout_end_of_deck` overlay (GONE by default) with title, subtitle, `btn_load_more` (host, reload_icon, TextButton style), and `text_waiting_host` (member, color_text_secondary)
+- **`res/values/strings.xml`** — added `btn_load_more`, `label_end_of_deck_title` ("That's all for now! 🍿"), `label_end_of_deck_subtitle`, `label_waiting_host_load_more` ("Waiting for the host to load more movies… Hang tight!")
+- **`data/repository/FirebaseRepository.java`** — added `PageCallback` interface; `setCurrentPage(roomCode, page)` — writes `lobbies/{roomCode}/currentPage`; `listenCurrentPage(roomCode, callback)` — ValueEventListener on same node; `detachPageListener()`; `detachListeners()` updated
+- **`ui/swiping/SwipingActivity.java`** — added `isHost`, `currentPage`, overlay view fields; `isHost` set from `memberMap` in `loadMembersAndStartVoteSync()` via `LobbyMember.isHost()`; `showEndOfDeck()` — conditionally shows host or member UI; `loadMoreMovies()` — increments page, fetches TMDB, appends, broadcasts; `listenForPageChanges()` — members react to host's page increment by fetching same page; `setupButtons()` wires `btnLoadMore`; `onPageSelected` detects last card and calls `showEndOfDeck()`; `listenForPageChanges()` called in `onCreate`
+
+---
+
 ## 2026-02-24 – Feature: Phase 7.4 – Real-time Vote Sync (SwipingActivity + FirebaseRepository)
 
 **What:** The status bar at the top of the swiping screen now shows who has voted Yes on the currently visible movie in real-time, across all lobby members.
