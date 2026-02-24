@@ -2,6 +2,7 @@ package com.example.finalprojectandroiddev2.ui.swiping;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -13,11 +14,15 @@ import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.api.TmdbApiClient;
 import com.example.finalprojectandroiddev2.data.model.Movie;
 import com.example.finalprojectandroiddev2.data.model.MovieListResponse;
+import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 import com.example.finalprojectandroiddev2.ui.lobby.LobbyActivity;
+import com.example.finalprojectandroiddev2.ui.match.MatchActivity;
+import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.LobbyPrefs;
 import com.example.finalprojectandroiddev2.utils.Logger;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -37,9 +42,13 @@ public class SwipingActivity extends BaseActivity {
 
     private static final String TAG = "CineMatch.Swiping";
 
-    private ViewPager2       viewPagerMovies;
-    private MovieCardAdapter movieCardAdapter;
-    private String           roomCode;
+    private ViewPager2          viewPagerMovies;
+    private MovieCardAdapter    movieCardAdapter;
+    private View                btnYes;
+    private String              roomCode;
+    private String              currentUserId;
+    private FirebaseRepository  firebaseRepo;
+    private List<Movie>         currentMovies; // reference to the loaded deck
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,18 +60,23 @@ public class SwipingActivity extends BaseActivity {
         // banner never appears on the Home screen while/after swiping.
         LobbyPrefs.clearActiveRoomCode(this);
 
-        roomCode = getIntent().getStringExtra(LobbyActivity.EXTRA_ROOM_CODE);
+        roomCode      = getIntent().getStringExtra(LobbyActivity.EXTRA_ROOM_CODE);
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
+        firebaseRepo  = FirebaseRepository.getInstance();
 
         bindViews();
         setupViewPager();
         setupButtons();
         fetchMovies();
+        listenForMatch();
     }
 
     // ── Views ──────────────────────────────────────────────────────────────────
 
     private void bindViews() {
         viewPagerMovies = findViewById(R.id.viewpager_movies);
+        btnYes          = findViewById(R.id.btn_swipe_yes);
     }
 
     // ── ViewPager2 setup ───────────────────────────────────────────────────────
@@ -111,15 +125,62 @@ public class SwipingActivity extends BaseActivity {
         });
     }
 
-    // ── Yes / No stubs (Phase 7.2) ─────────────────────────────────────────────
+    // ── Yes / No vote logic (Phase 7.3) ──────────────────────────────────────────
 
+    /**
+     * Called when the user votes Yes (button tap OR swipe-right gesture).
+     * Writes the vote to Firebase, then advances to the next card.
+     * If this vote triggers a unanimous match, listenForMatch() handles navigation.
+     */
     private void handleYes() {
-        // TODO Phase 7.2 — save vote to Firebase, then advance card
-        advanceCard();
+        int position = viewPagerMovies.getCurrentItem();
+        if (currentMovies == null || position >= currentMovies.size()) {
+            advanceCard();
+            return;
+        }
+        Movie movie   = currentMovies.get(position);
+        int   movieId = movie.getId();
+
+        // Disable button briefly to prevent duplicate taps
+        btnYes.setEnabled(false);
+
+        if (roomCode != null && !roomCode.isEmpty() && !currentUserId.isEmpty()) {
+            firebaseRepo.recordVote(roomCode, currentUserId, movieId,
+                    new FirebaseRepository.VoteCallback() {
+                        @Override public void onVoteRecorded() {
+                            Logger.d(TAG, "Yes vote written for movie " + movieId);
+                            runOnUiThread(() -> {
+                                btnYes.setEnabled(true);
+                                advanceCard();
+                            });
+                        }
+                        @Override public void onMatchFound(int matchedMovieId) {
+                            // Status listener (listenForMatch) will fire and handle
+                            // navigation for ALL devices — including this one.
+                            Logger.d(TAG, "Match found (via vote): movie " + matchedMovieId);
+                        }
+                        @Override public void onError(String message) {
+                            Logger.e(TAG, "Vote error: " + message);
+                            runOnUiThread(() -> {
+                                btnYes.setEnabled(true);
+                                Toast.makeText(SwipingActivity.this,
+                                        "Vote failed. Try again.", Toast.LENGTH_SHORT).show();
+                                advanceCard(); // still advance so the session isn't stuck
+                            });
+                        }
+                    });
+        } else {
+            // Solo / test session (no room code) — just advance
+            btnYes.setEnabled(true);
+            advanceCard();
+        }
     }
 
+    /**
+     * Called when the user votes No (button tap OR swipe-left gesture).
+     * No votes are intentionally NOT saved to Firebase. Card is simply advanced.
+     */
     private void handleNo() {
-        // TODO Phase 7.2 — discard and advance card
         advanceCard();
     }
 
@@ -131,24 +192,47 @@ public class SwipingActivity extends BaseActivity {
         }
     }
 
+    // ── Match listener ────────────────────────────────────────────────────────────
+
+    /**
+     * Listens to lobbies/{roomCode}/status changes.
+     * When status becomes "matched" → navigates ALL devices to MatchActivity.
+     * Single source of truth for match navigation — every device transitions together.
+     */
+    private void listenForMatch() {
+        if (roomCode == null || roomCode.isEmpty()) return;
+        firebaseRepo.listenLobbyStatus(roomCode, status -> {
+            if (Constants.LOBBY_STATUS_MATCHED.equals(status)) {
+                runOnUiThread(this::navigateToMatch);
+            }
+        });
+    }
+
+    private void navigateToMatch() {
+        if (isFinishing() || isDestroyed()) return;
+        Intent intent = new Intent(this, MatchActivity.class);
+        intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        firebaseRepo.detachListeners();
+    }
+
     // ── TMDB fetch ─────────────────────────────────────────────────────────────
 
     /**
      * Fetches trending movies (day) from TMDB.
-     *
-     * The page number is derived deterministically from the room code so that
-     * every device in the same lobby always hits the same page — guaranteeing
-     * an identical, ordered movie list for all users without any server coordination.
-     *
-     * Different room codes → different pages (1-100) → session variety.
-     * No shuffling — TMDB's ordering is preserved as-is.
+     * Page is seeded by room code for session variety and identical decks.
      */
     private void fetchMovies() {
-        // Derive a stable page number (1–100) from the room code.
-        // Math.abs guards against negative hashCode values.
         int page = (roomCode != null && !roomCode.isEmpty())
                 ? (Math.abs(roomCode.hashCode()) % 100) + 1
-                : 1; // fallback for solo/test sessions
+                : 1;
 
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
 
@@ -161,6 +245,7 @@ public class SwipingActivity extends BaseActivity {
                         if (response.isSuccessful() && response.body() != null) {
                             List<Movie> movies = response.body().getResults();
                             if (movies != null && !movies.isEmpty()) {
+                                currentMovies = movies;
                                 movieCardAdapter.setMovies(movies);
                                 Logger.d(TAG, "Loaded " + movies.size()
                                         + " movies (page " + page + ")");
@@ -183,4 +268,3 @@ public class SwipingActivity extends BaseActivity {
                 });
     }
 }
-
