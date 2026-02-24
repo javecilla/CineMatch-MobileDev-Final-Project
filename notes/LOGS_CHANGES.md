@@ -1,5 +1,29 @@
 # CineMatch – Log of Changes
 
+## 2026-02-24 – Feature: Phase 7.4 – Real-time Vote Sync (SwipingActivity + FirebaseRepository)
+
+**What:** The status bar at the top of the swiping screen now shows who has voted Yes on the currently visible movie in real-time, across all lobby members.
+
+**Status bar format:** `James ✓  ·  You ✓  ·  2/3 voted`
+
+- Current user shown as "You"
+- Names resolved from Firebase member map
+- "Waiting for votes…" shown when no one has voted yet on this movie
+
+**Vote sync flow:**
+
+1. `loadMembersAndStartVoteSync()` — called on `onCreate`, fetches all lobby members once (`loadAllMembers()`) and then starts the vote listener for card 0
+2. `attachVoteSyncForMovie(movieId)` — calls `listenVotesForMovie()` in FirebaseRepository; detaches the previous movie's listener automatically before attaching the new one
+3. `onPageSelected` callback on ViewPager2 — re-attaches vote listener for each new card as user advances
+4. Race condition guard in `fetchMovies()` — if member map is already loaded when movies arrive, kicks off vote sync immediately; similarly `loadMembersAndStartVoteSync()` only starts the listener if `currentMovies` is already set
+
+**Files modified:**
+
+- **`data/repository/FirebaseRepository.java`** — added `VotesCallback` interface (`onVotesUpdated(Set<String>)`); `AllMembersCallback` interface (`onLoaded(Map<String,LobbyMember>)`); `activeVotesListener/Ref` tracking fields; `loadAllMembers()` one-shot read returning userId→LobbyMember map; `listenVotesForMovie()` ChildEventListener on `votes/{movieId}/` maintaining a live `LinkedHashSet<String>` of voter UIDs, firing callback on each add/remove; `detachVotesListener()` cleanup; `detachListeners()` updated to also call `detachVotesListener()`
+- **`ui/swiping/SwipingActivity.java`** — added `TextView tvMemberStatus`, `Map<String,LobbyMember> memberMap` fields; bound `text_member_status` in `bindViews()`; added `loadMembersAndStartVoteSync()`, `attachVoteSyncForMovie()`, `updateVoteStatusBar()`; registered `OnPageChangeCallback` in `setupViewPager()` to re-attach vote listener on page change; race guard in `fetchMovies()` after movies are set
+
+---
+
 ## 2026-02-24 – Feature: Phase 7.3 – Vote Recording (SwipingActivity + FirebaseRepository)
 
 **What:** Yes votes are now persisted to Firebase Realtime Database. No votes are intentionally discarded. After each Yes vote, the app automatically checks for a unanimous match across all lobby members and navigates all devices to `MatchActivity` when one is found.

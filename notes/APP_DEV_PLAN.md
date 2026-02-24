@@ -670,20 +670,23 @@ No votes are intentionally not written — absence of a user entry means No.
 
 ---
 
-### **Step 7.4: Real-time Vote Sync**
+### **Step 7.4: Real-time Vote Sync** ✅ Done
 
 **Tasks:**
 
-- [ ] Listen to votes node in Firebase
-- [ ] Display which members have voted
-- [ ] Show member voting status in UI
-- [ ] Update UI when votes change
+- [x] Listen to votes node in Firebase
+- [x] Display which members have voted
+- [x] Show member voting status in UI
+- [x] Update UI when votes change
 
-**Files to Modify:**
+**Files Created/Modified:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java`
+- `data/repository/FirebaseRepository.java` _(updated — `VotesCallback`, `AllMembersCallback` interfaces; `loadAllMembers()`; `listenVotesForMovie()` with active listener tracking; `detachVotesListener()`)_
+- `ui/swiping/SwipingActivity.java` _(updated — `loadMembersAndStartVoteSync()`, `attachVoteSyncForMovie()`, `updateVoteStatusBar()`, `onPageSelected` re-attach hook, race condition guard)_
 
-**Deliverable:** Real-time vote synchronization
+> Status bar format: `James ✓  ·  You ✓  ·  2/3 voted`. Updates in real-time as members vote.
+
+**Deliverable:** ✅ Real-time vote synchronization
 
 ---
 

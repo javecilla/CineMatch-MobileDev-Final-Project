@@ -3,6 +3,7 @@ package com.example.finalprojectandroiddev2.ui.swiping;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -12,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.finalprojectandroiddev2.BuildConfig;
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.api.TmdbApiClient;
+import com.example.finalprojectandroiddev2.data.model.LobbyMember;
 import com.example.finalprojectandroiddev2.data.model.Movie;
 import com.example.finalprojectandroiddev2.data.model.MovieListResponse;
 import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
@@ -24,7 +26,10 @@ import com.example.finalprojectandroiddev2.utils.LobbyPrefs;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,13 +47,15 @@ public class SwipingActivity extends BaseActivity {
 
     private static final String TAG = "CineMatch.Swiping";
 
-    private ViewPager2          viewPagerMovies;
-    private MovieCardAdapter    movieCardAdapter;
-    private View                btnYes;
-    private String              roomCode;
-    private String              currentUserId;
-    private FirebaseRepository  firebaseRepo;
-    private List<Movie>         currentMovies; // reference to the loaded deck
+    private ViewPager2                       viewPagerMovies;
+    private MovieCardAdapter                 movieCardAdapter;
+    private View                             btnYes;
+    private TextView                         tvMemberStatus;
+    private String                           roomCode;
+    private String                           currentUserId;
+    private FirebaseRepository               firebaseRepo;
+    private List<Movie>                      currentMovies;
+    private Map<String, LobbyMember>         memberMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +77,7 @@ public class SwipingActivity extends BaseActivity {
         setupButtons();
         fetchMovies();
         listenForMatch();
+        loadMembersAndStartVoteSync();
     }
 
     // ── Views ──────────────────────────────────────────────────────────────────
@@ -77,6 +85,7 @@ public class SwipingActivity extends BaseActivity {
     private void bindViews() {
         viewPagerMovies = findViewById(R.id.viewpager_movies);
         btnYes          = findViewById(R.id.btn_swipe_yes);
+        tvMemberStatus  = findViewById(R.id.text_member_status);
     }
 
     // ── ViewPager2 setup ───────────────────────────────────────────────────────
@@ -107,12 +116,24 @@ public class SwipingActivity extends BaseActivity {
             page.setAlpha(1f  - absPos * 0.3f);
         });
         viewPagerMovies.setPageTransformer(transformer);
+
+        // Re-attach the vote listener whenever the user navigates to a new card.
+        viewPagerMovies.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                if (currentMovies != null && position < currentMovies.size()) {
+                    int movieId = currentMovies.get(position).getId();
+                    if (roomCode != null && !roomCode.isEmpty()) {
+                        attachVoteSyncForMovie(movieId);
+                    }
+                }
+            }
+        });
     }
 
     // ── Buttons ────────────────────────────────────────────────────────────────
 
     private void setupButtons() {
-        // Yes / No — vote logic will be wired in Phase 7.2
         findViewById(R.id.btn_swipe_yes).setOnClickListener(v -> handleYes());
         findViewById(R.id.btn_swipe_no).setOnClickListener(v  -> handleNo());
 
@@ -192,6 +213,68 @@ public class SwipingActivity extends BaseActivity {
         }
     }
 
+    // ── Real-time vote sync (Phase 7.4) ──────────────────────────────────────────
+
+    /**
+     * Loads lobby member map (userId→username) once, then attaches the vote listener
+     * for the first card. Called during onCreate so the status bar is ready immediately.
+     */
+    private void loadMembersAndStartVoteSync() {
+        if (roomCode == null || roomCode.isEmpty()) {
+            tvMemberStatus.setText("Solo session");
+            return;
+        }
+        firebaseRepo.loadAllMembers(roomCode, members -> {
+            memberMap = members;
+            // Start listening to votes for card 0 (the first movie shown)
+            if (currentMovies != null && !currentMovies.isEmpty()) {
+                attachVoteSyncForMovie(currentMovies.get(0).getId());
+            }
+        });
+    }
+
+    /**
+     * Attaches (or re-attaches) the real-time vote listener for a specific movie.
+     * Called both after members load and on every onPageSelected event.
+     */
+    private void attachVoteSyncForMovie(int movieId) {
+        if (roomCode == null || roomCode.isEmpty()) return;
+        firebaseRepo.listenVotesForMovie(roomCode, movieId, voterUids ->
+                runOnUiThread(() -> updateVoteStatusBar(voterUids, memberMap.size()))
+        );
+    }
+
+    /**
+     * Updates the member status bar to show who has voted Yes on the current movie.
+     *
+     * Format: "James ✓  · You ✓  ·  1 / 3 voted"
+     * Current user is shown as "You" for clarity. Unvoted members are not shown.
+     * If nobody has voted yet, shows "Waiting for votes…".
+     */
+    private void updateVoteStatusBar(Set<String> voterUids, int totalMembers) {
+        if (voterUids.isEmpty()) {
+            tvMemberStatus.setText("Waiting for votes…");
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String uid : voterUids) {
+            if (sb.length() > 0) sb.append("  ·  ");
+            if (uid.equals(currentUserId)) {
+                sb.append("You ✓");
+            } else {
+                LobbyMember m = memberMap.get(uid);
+                String name = (m != null && m.getUsername() != null)
+                        ? m.getUsername() : "Member";
+                sb.append(name).append(" ✓");
+            }
+        }
+        if (totalMembers > 0) {
+            sb.append("  ·  ").append(voterUids.size()).append("/").append(totalMembers).append(" voted");
+        }
+        tvMemberStatus.setText(sb.toString());
+    }
+
+
     // ── Match listener ────────────────────────────────────────────────────────────
 
     /**
@@ -249,6 +332,11 @@ public class SwipingActivity extends BaseActivity {
                                 movieCardAdapter.setMovies(movies);
                                 Logger.d(TAG, "Loaded " + movies.size()
                                         + " movies (page " + page + ")");
+                                // If member map already loaded, kick off vote sync now.
+                                // (Handles the case where members loaded before movies.)
+                                if (!memberMap.isEmpty()) {
+                                    attachVoteSyncForMovie(movies.get(0).getId());
+                                }
                             }
                         } else {
                             Logger.w(TAG, "TMDB fetch failed: HTTP " + response.code());

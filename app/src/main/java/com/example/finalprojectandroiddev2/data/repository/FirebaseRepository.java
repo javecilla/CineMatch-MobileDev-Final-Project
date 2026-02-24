@@ -53,6 +53,8 @@ public class FirebaseRepository {
     private ValueEventListener  activeStatusListener;
     private DatabaseReference   activeMembersRef;
     private DatabaseReference   activeStatusRef;
+    private ChildEventListener  activeVotesListener;
+    private DatabaseReference   activeVotesRef;
 
     private FirebaseRepository() {
         FirebaseDatabase db = FirebaseDatabase.getInstance(BuildConfig.FB_ROUTE_INSTANCE_URL);
@@ -107,6 +109,19 @@ public class FirebaseRepository {
          */
         void onMatchFound(int movieId);
         void onError(String message);
+    }
+
+    public interface VotesCallback {
+        /**
+         * Called whenever any member casts or removes a vote for the current movie.
+         * @param voterUserIds set of UIDs that have voted Yes on this movie so far.
+         */
+        void onVotesUpdated(java.util.Set<String> voterUserIds);
+    }
+
+    public interface AllMembersCallback {
+        /** Called once with a map of userId → LobbyMember for all current members. */
+        void onLoaded(Map<String, LobbyMember> members);
     }
 
     // ── Lobby Creation ──────────────────────────────────────────────────────────
@@ -532,6 +547,7 @@ public class FirebaseRepository {
     public void detachListeners() {
         detachMembersListener();
         detachStatusListener();
+        detachVotesListener();
     }
 
     private void detachMembersListener() {
@@ -548,5 +564,81 @@ public class FirebaseRepository {
             activeStatusListener = null;
             activeStatusRef      = null;
         }
+    }
+
+    private void detachVotesListener() {
+        if (activeVotesRef != null && activeVotesListener != null) {
+            activeVotesRef.removeEventListener(activeVotesListener);
+            activeVotesListener = null;
+            activeVotesRef      = null;
+        }
+    }
+
+    // ── Vote Sync (real-time per-movie) ─────────────────────────────────────────
+
+    /**
+     * One-shot read of all members in the lobby.
+     * Returns a map userId → LobbyMember so the UI can display usernames.
+     */
+    public void loadAllMembers(String roomCode, AllMembersCallback callback) {
+        lobbiesRef.child(roomCode).child(Constants.NODE_MEMBERS)
+                .get()
+                .addOnCompleteListener(task -> {
+                    Map<String, LobbyMember> result = new HashMap<>();
+                    if (task.isSuccessful() && task.getResult().exists()) {
+                        for (DataSnapshot snap : task.getResult().getChildren()) {
+                            LobbyMember member = snap.getValue(LobbyMember.class);
+                            if (snap.getKey() != null && member != null) {
+                                result.put(snap.getKey(), member);
+                            }
+                        }
+                    }
+                    callback.onLoaded(result);
+                });
+    }
+
+    /**
+     * Attaches a real-time ChildEventListener to
+     *   lobbies/{roomCode}/votes/{movieId}/
+     * and fires onVotesUpdated with the current full set of voterUIDs whenever
+     * any user's vote is added or removed.
+     *
+     * Only one votes listener is active at a time — old ones are detached
+     * automatically when this is called again for a new movie.
+     *
+     * @param roomCode lobby room code
+     * @param movieId  TMDB movie ID (int)
+     * @param callback notified on every change with the live set of voter UIDs
+     */
+    public void listenVotesForMovie(String roomCode, int movieId, VotesCallback callback) {
+        detachVotesListener(); // always clean up the previous movie's listener first
+
+        final java.util.Set<String> voters = new java.util.LinkedHashSet<>();
+        activeVotesRef = lobbiesRef
+                .child(roomCode)
+                .child(Constants.NODE_VOTES)
+                .child(String.valueOf(movieId));
+
+        activeVotesListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snap, String prev) {
+                if (snap.getKey() != null) {
+                    voters.add(snap.getKey());
+                    callback.onVotesUpdated(new java.util.LinkedHashSet<>(voters));
+                }
+            }
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snap) {
+                voters.remove(snap.getKey());
+                callback.onVotesUpdated(new java.util.LinkedHashSet<>(voters));
+            }
+            @Override public void onChildChanged(@NonNull DataSnapshot s, String p) {}
+            @Override public void onChildMoved(@NonNull DataSnapshot s, String p) {}
+            @Override public void onCancelled(@NonNull DatabaseError e) {
+                Logger.e(TAG, "listenVotesForMovie cancelled: " + e.getMessage());
+            }
+        };
+        activeVotesRef.addChildEventListener(activeVotesListener);
+        Logger.d(TAG, "Listening to votes for movie " + movieId);
     }
 }
