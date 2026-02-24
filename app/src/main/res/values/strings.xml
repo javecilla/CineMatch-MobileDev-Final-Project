@@ -113,7 +113,8 @@
     <string name="label_waiting_host_load_more">Waiting for the host to load more movies…\nHang tight!</string>
 
     <!-- Match -->
-    <string name="msg_match_found">🎉 Match Found! 🎉</string>
-    <string name="btn_watch_now">Watch Now</string>
+    <string name="msg_match_found">🎉 It&#8217;s a Match!</string>
+    <string name="msg_match_subtitle">Everyone agreed on this one!</string>
+    <string name="btn_watch_now">Watch on TMDb</string>
     <string name="btn_find_another_match">Find Another Match</string>
 </resources>

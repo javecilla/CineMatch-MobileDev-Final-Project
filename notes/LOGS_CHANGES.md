@@ -1,5 +1,44 @@
 # CineMatch – Log of Changes
 
+## 2026-02-24 – Feature: Phase 8.3 – Match Activity Implementation
+
+**What:** Fully implemented `MatchActivity` — displays the matched movie, plays a Lottie confetti animation, and provides Watch on TMDb / Find Another Match / Leave Lobby actions.
+
+**Files changed:**
+
+- **`ui/match/MatchActivity.java`** — reads `matchedMovieId` from Firebase via `getMatchedMovieId()`, fetches full movie details from TMDB `GET /movie/{id}`, binds poster (Glide), title, `⭐ X.X` rating, release year, and overview; plays Lottie confetti on `onCreate`; "Watch on TMDb" opens browser intent; "Find Another Match" resets Firebase (`currentPage=0`, `status="swiping"`) and starts a new `SwipingActivity`; "Leave Lobby" calls `finishAffinity()` → `HomeActivity`
+- **`res/layout/activity_match.xml`** _(REDESIGNED)_ — `FrameLayout` root with scrollable detail content + full-screen `LottieAnimationView` overlay (touch-passthrough); poster wrapped in `MaterialCardView`, details in a second card
+- **`assets/confetti.json`** _(NEW)_ — hand-crafted Lottie animation: 6 coloured paper pieces falling + fading over 2 s
+- **`data/api/TmdbApiService.java`** — added `getMovieDetails(movieId, language, bearer)` endpoint reusing `Movie` model
+- **`app/build.gradle.kts`** — added `com.airbnb.android:lottie:6.4.1`
+- **`res/values/strings.xml`** — added `msg_match_subtitle`; renamed `btn_watch_now` → "Watch on TMDb"
+
+---
+
+## 2026-02-24 – Feature: Phase 8.2 – Match Event Handling
+
+**What:** Verified full match event pipeline established in Phase 7.3 is complete — no new code required for 8.2.
+
+**Pipeline:** `handleYes()` → `recordVote()` → `checkForMatch()` (via `MatchDetector`) → writes `matchedMovieId` + sets `status = "matched"` → `listenForMatch()` on all devices → `navigateToMatch()` → `MatchActivity` + `finish()`.
+
+**No files changed** (all implemented in Phase 7.3).
+
+---
+
+## 2026-02-24 – Feature: Phase 8.1 – Match Detection Logic
+
+**What:** Extracted match-condition logic into `MatchDetector` utility class; added `getMatchedMovieId()` to `FirebaseRepository` for use by `MatchActivity`.
+
+**Member-leaves edge case:** Handled correctly — `checkForMatch()` performs a live snapshot read at vote time, so departed members are already absent from `members/` and the required vote count naturally drops.
+
+**Files changed:**
+
+- **`utils/MatchDetector.java`** _(NEW)_ — `isMatch(voteCount, memberCount)`, `memberCount(snapshot)`, `voteCount(snapshot, movieId)` static helpers
+- **`utils/Constants.java`** — added `NODE_MATCHED_MOVIE_ID = "matchedMovieId"`
+- **`data/repository/FirebaseRepository.java`** — `checkForMatch()` delegates to `MatchDetector`; raw string literal replaced with `Constants.NODE_MATCHED_MOVIE_ID`; added `getMatchedMovieId(roomCode, callback)` + `MatchedMovieCallback` interface
+
+---
+
 ## 2026-02-24 – Redesign: Unified Page Sync Architecture (v5 — final)
 
 **Problem:** Members were stuck on the end-of-deck card after the host loaded more movies. Two root causes:

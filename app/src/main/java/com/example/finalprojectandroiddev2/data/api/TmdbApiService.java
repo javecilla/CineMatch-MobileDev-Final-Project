@@ -1,5 +1,6 @@
 package com.example.finalprojectandroiddev2.data.api;
 
+import com.example.finalprojectandroiddev2.data.model.Movie;
 import com.example.finalprojectandroiddev2.data.model.MovieListResponse;
 
 import retrofit2.Call;
@@ -48,6 +49,17 @@ public interface TmdbApiService {
     Call<MovieListResponse> getTopRatedMovies(
             @Query("language") String language,
             @Query("page") int page,
+            @Header("Authorization") String bearerToken
+    );
+    /**
+     * GET /movie/{movie_id}
+     * Returns full details for a single movie. Reuses Movie model — all needed fields
+     * (title, overview, posterPath, backdropPath, voteAverage, releaseDate) are present.
+     */
+    @GET("movie/{movie_id}")
+    Call<Movie> getMovieDetails(
+            @Path("movie_id") int movieId,
+            @Query("language") String language,
             @Header("Authorization") String bearerToken
     );
 }

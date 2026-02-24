@@ -6,6 +6,7 @@ import com.example.finalprojectandroiddev2.BuildConfig;
 import com.example.finalprojectandroiddev2.data.model.LobbyMember;
 import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.Logger;
+import com.example.finalprojectandroiddev2.utils.MatchDetector;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -515,30 +516,52 @@ public class FirebaseRepository {
     private void checkForMatch(String roomCode, int movieId, VoteCallback callback) {
         DatabaseReference lobbyRef = lobbiesRef.child(roomCode);
 
-        // Read members and votes in parallel using a single lobby snapshot
+        // Single lobby snapshot → read both members and votes atomically
         lobbyRef.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful() || !task.getResult().exists()) return;
 
-            DataSnapshot lobbySnap  = task.getResult();
-            DataSnapshot membersSnap = lobbySnap.child(Constants.NODE_MEMBERS);
-            DataSnapshot votesSnap   = lobbySnap
-                    .child(Constants.NODE_VOTES)
-                    .child(String.valueOf(movieId));
-
-            long memberCount = membersSnap.getChildrenCount();
-            long voteCount   = votesSnap.getChildrenCount();
+            DataSnapshot lobbySnap = task.getResult();
+            long memberCount = MatchDetector.memberCount(lobbySnap);
+            long voteCount   = MatchDetector.voteCount(lobbySnap, movieId);
 
             Logger.d(TAG, "Match check — movie " + movieId
                     + ": " + voteCount + "/" + memberCount + " votes");
 
-            if (memberCount > 0 && voteCount >= memberCount) {
-                // All members voted Yes → match!
-                lobbyRef.child("matchedMovieId").setValue(String.valueOf(movieId));
+            if (MatchDetector.isMatch(voteCount, memberCount)) {
+                // All current members voted Yes → match!
+                lobbyRef.child(Constants.NODE_MATCHED_MOVIE_ID)
+                        .setValue(String.valueOf(movieId));
                 setLobbyStatus(roomCode, Constants.LOBBY_STATUS_MATCHED);
                 Logger.d(TAG, "Match found! Movie: " + movieId);
                 callback.onMatchFound(movieId);
             }
         });
+    }
+
+    /**
+     * One-shot read of {@code lobbies/{roomCode}/matchedMovieId}.
+     * Used by {@code MatchActivity} on start to retrieve the matched movie's TMDB ID.
+     *
+     * @param roomCode lobby identifier
+     * @param callback receives the movie ID string, or {@code null} if not found
+     */
+    public void getMatchedMovieId(String roomCode, MatchedMovieCallback callback) {
+        lobbiesRef.child(roomCode)
+                .child(Constants.NODE_MATCHED_MOVIE_ID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful() || !task.getResult().exists()) {
+                        callback.onLoaded(null);
+                        return;
+                    }
+                    callback.onLoaded(task.getResult().getValue(String.class));
+                });
+    }
+
+    /** Callback for {@link #getMatchedMovieId}. */
+    public interface MatchedMovieCallback {
+        /** @param movieId TMDB movie ID string, or {@code null} if not found */
+        void onLoaded(String movieId);
     }
 
     // ── Cleanup ─────────────────────────────────────────────────────────────────
