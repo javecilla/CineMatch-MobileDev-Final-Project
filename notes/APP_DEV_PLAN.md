@@ -641,21 +641,32 @@ Splash → **Login** (if not authenticated) | **Home** (Main) (if authenticated)
 
 ---
 
-### **Step 7.3: Vote Recording**
+### **Step 7.3: Vote Recording** ✅ Done
 
 **Tasks:**
 
-- [ ] Record "Yes" votes to Firebase
-- [ ] Discard "No" votes (don't save)
-- [ ] Update user's vote status in Firebase
-- [ ] Show vote confirmation feedback
+- [x] Record "Yes" votes to Firebase
+- [x] Discard "No" votes (don't save)
+- [x] Update user's vote status in Firebase
+- [x] Detect unanimous match and set lobby status to `"matched"`
 
-**Files to Modify:**
+**Firebase schema:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java`
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/FirebaseRepository.java`
+```
+lobbies/{roomCode}/votes/{movieId}/{userId} = true   ← Yes vote
+lobbies/{roomCode}/matchedMovieId = "{movieId}"      ← set on match
+```
 
-**Deliverable:** Votes saved to Firebase
+No votes are intentionally not written — absence of a user entry means No.
+
+**Files Created/Modified:**
+
+- `data/repository/FirebaseRepository.java` _(updated — `VoteCallback` interface, `recordVote()`, `checkForMatch()`)_
+- `ui/swiping/SwipingActivity.java` _(updated — real `handleYes()` with Firebase write, `handleNo()` no-write, `listenForMatch()` status listener, `navigateToMatch()`, `onDestroy()` cleanup)_
+
+> All devices listen to `status` changes — when status becomes `"matched"` every device navigates to `MatchActivity` simultaneously.
+
+**Deliverable:** ✅ Votes saved to Firebase
 
 ---
 

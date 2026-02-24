@@ -33,6 +33,10 @@ import java.util.Map;
  *         gender:    String
  *         joinedAt:  long
  *         host:      boolean  (key is 'host', not 'isHost', to match LobbyMember.isHost() getter)
+ *     votes/
+ *       {movieId}/          ← TMDB movie ID (as String)
+ *         {userId}: true    ← present = this user voted Yes on this movie
+ *     matchedMovieId: String  ← set when all members have voted Yes on the same movie
  */
 public class FirebaseRepository {
 
@@ -91,6 +95,17 @@ public class FirebaseRepository {
     public interface MovieQueueCallback {
         /** Called with the full ordered list of movies loaded from Firebase. */
         void onLoaded(List<com.example.finalprojectandroiddev2.data.model.Movie> movies);
+        void onError(String message);
+    }
+
+    public interface VoteCallback {
+        /** Called when the vote was successfully written to Firebase. */
+        void onVoteRecorded();
+        /**
+         * Called when all lobby members have voted Yes on the same movie.
+         * @param movieId TMDB ID of the matched movie.
+         */
+        void onMatchFound(int movieId);
         void onError(String message);
     }
 
@@ -438,6 +453,77 @@ public class FirebaseRepository {
                       Logger.d(TAG, "Movie queue loaded: " + movies.size() + " movies");
                       callback.onLoaded(movies);
                   });
+    }
+
+    // ── Vote Recording ──────────────────────────────────────────────────────────
+
+    /**
+     * Records a "Yes" vote for the current user on the given movie.
+     *
+     * Path written: lobbies/{roomCode}/votes/{movieId}/{userId} = true
+     *
+     * After writing, reads all votes for this movie and compares to member count.
+     * If every member has voted Yes → sets matchedMovieId on the lobby and fires
+     * onMatchFound so all devices can navigate to MatchActivity.
+     *
+     * "No" votes are intentionally NOT written — a missing user entry means No.
+     *
+     * @param roomCode lobby room code
+     * @param userId   current Firebase Auth UID
+     * @param movieId  TMDB movie ID (int)
+     * @param callback result callback
+     */
+    public void recordVote(String roomCode, String userId, int movieId, VoteCallback callback) {
+        String movieKey = String.valueOf(movieId);
+        DatabaseReference voteRef = lobbiesRef
+                .child(roomCode)
+                .child(Constants.NODE_VOTES)
+                .child(movieKey)
+                .child(userId);
+
+        voteRef.setValue(true)
+                .addOnSuccessListener(unused -> {
+                    Logger.d(TAG, "Vote recorded: " + userId + " → movie " + movieKey);
+                    callback.onVoteRecorded();
+                    checkForMatch(roomCode, movieId, callback);
+                })
+                .addOnFailureListener(e -> {
+                    Logger.e(TAG, "recordVote failed", e);
+                    callback.onError(e.getMessage());
+                });
+    }
+
+    /**
+     * Checks whether all current lobby members have voted Yes on the given movie.
+     * If yes, writes matchedMovieId to the lobby and fires onMatchFound.
+     */
+    private void checkForMatch(String roomCode, int movieId, VoteCallback callback) {
+        DatabaseReference lobbyRef = lobbiesRef.child(roomCode);
+
+        // Read members and votes in parallel using a single lobby snapshot
+        lobbyRef.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful() || !task.getResult().exists()) return;
+
+            DataSnapshot lobbySnap  = task.getResult();
+            DataSnapshot membersSnap = lobbySnap.child(Constants.NODE_MEMBERS);
+            DataSnapshot votesSnap   = lobbySnap
+                    .child(Constants.NODE_VOTES)
+                    .child(String.valueOf(movieId));
+
+            long memberCount = membersSnap.getChildrenCount();
+            long voteCount   = votesSnap.getChildrenCount();
+
+            Logger.d(TAG, "Match check — movie " + movieId
+                    + ": " + voteCount + "/" + memberCount + " votes");
+
+            if (memberCount > 0 && voteCount >= memberCount) {
+                // All members voted Yes → match!
+                lobbyRef.child("matchedMovieId").setValue(String.valueOf(movieId));
+                setLobbyStatus(roomCode, Constants.LOBBY_STATUS_MATCHED);
+                Logger.d(TAG, "Match found! Movie: " + movieId);
+                callback.onMatchFound(movieId);
+            }
+        });
     }
 
     // ── Cleanup ─────────────────────────────────────────────────────────────────

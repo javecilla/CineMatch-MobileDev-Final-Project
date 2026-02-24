@@ -1,5 +1,34 @@
 # CineMatch – Log of Changes
 
+## 2026-02-24 – Feature: Phase 7.3 – Vote Recording (SwipingActivity + FirebaseRepository)
+
+**What:** Yes votes are now persisted to Firebase Realtime Database. No votes are intentionally discarded. After each Yes vote, the app automatically checks for a unanimous match across all lobby members and navigates all devices to `MatchActivity` when one is found.
+
+**Firebase schema additions:**
+
+```
+lobbies/{roomCode}/votes/{movieId}/{userId} = true   ← Yes vote
+lobbies/{roomCode}/matchedMovieId = "{movieId}"      ← written on match
+lobbies/{roomCode}/status = "matched"                ← triggers navigation on all devices
+```
+
+**Vote flow:**
+
+- User swipes right or taps **Yes** → `handleYes()` → `FirebaseRepository.recordVote()` writes `votes/{movieId}/{userId} = true`
+- After write: `checkForMatch()` reads the full lobby snapshot, compares `votes/{movieId}` child count vs `members/` child count
+- If equal → `matchedMovieId` is written + `status` set to `"matched"`
+- All devices listen via `listenForMatch()` → `listenLobbyStatus()` → status becomes `"matched"` → `navigateToMatch()` → `MatchActivity`
+- User swipes left or taps **No** → `handleNo()` → card advances silently (nothing written)
+
+**Duplicate tap guard:** Yes button is disabled before async Firebase write and re-enabled in the callback (success or error), preventing double votes.
+
+**Files modified:**
+
+- **`data/repository/FirebaseRepository.java`** — added `VoteCallback` interface (`onVoteRecorded`, `onMatchFound`, `onError`); `recordVote(roomCode, userId, movieId, callback)` writes the vote then calls `checkForMatch()`; `checkForMatch()` reads lobby snapshot, compares counts, writes `matchedMovieId` + sets status to `"matched"` if all members voted Yes; updated schema Javadoc comment
+- **`ui/swiping/SwipingActivity.java`** — replaced Phase 7.2 stubs: real `handleYes()` with Firebase write + button debounce, `handleNo()` (advance only); added `listenForMatch()` via `listenLobbyStatus()`, `navigateToMatch()` to `MatchActivity` with `EXTRA_ROOM_CODE`; `onDestroy()` now calls `firebaseRepo.detachListeners()`; added `currentMovies` field to resolve movie ID from current card position; added `FirebaseAuth`, `FirebaseRepository`, `MatchActivity`, `Constants` imports
+
+---
+
 ## 2026-02-24 – Feature: Phase 7.2 – Swipe Gesture Detection (SwipingActivity)
 
 **What:** Movie cards now support swipe-left (No) and swipe-right (Yes) gestures directly on the card view, with animated visual feedback and fly-off / snap-back transitions.
