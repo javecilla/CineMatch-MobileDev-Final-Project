@@ -543,11 +543,25 @@ public class FirebaseRepository {
 
     // ── Cleanup ─────────────────────────────────────────────────────────────────
 
-    /** Detaches all active Firebase listeners. Call from onDestroy(). */
+    /**
+     * Detaches ALL active Firebase listeners.
+     * Call from SwipingActivity.onDestroy() — the only place that owns ALL listeners.
+     */
     public void detachListeners() {
         detachMembersListener();
         detachStatusListener();
         detachVotesListener();
+        detachPageListener();
+    }
+
+    /**
+     * Detaches only lobby-specific listeners (members + status).
+     * Call from LobbyActivity / CreateLobbyActivity.onDestroy() so that
+     * page and votes listeners (owned by SwipingActivity) survive the transition.
+     */
+    public void detachLobbyListeners() {
+        detachMembersListener();
+        detachStatusListener();
     }
 
     private void detachMembersListener() {
@@ -640,5 +654,55 @@ public class FirebaseRepository {
         };
         activeVotesRef.addChildEventListener(activeVotesListener);
         Logger.d(TAG, "Listening to votes for movie " + movieId);
+    }
+
+    // ── Load More Page Sync ──────────────────────────────────────────────────────
+
+    public interface PageCallback {
+        /** Called with the new page number whenever the host increments it. */
+        void onPageChanged(int page);
+    }
+
+    private ValueEventListener activePageListener;
+    private DatabaseReference   activePageRef;
+
+    /**
+     * Host calls this to broadcast the new TMDB page number to all lobby members.
+     * Writes lobbies/{roomCode}/currentPage = page.
+     */
+    public void setCurrentPage(String roomCode, int page) {
+        lobbiesRef.child(roomCode).child(Constants.NODE_CURRENT_PAGE).setValue(page);
+        Logger.d(TAG, "Host set currentPage → " + page);
+    }
+
+    /**
+     * All devices call this to listen for page changes pushed by the host.
+     * Fires immediately with the current value, then on every subsequent change.
+     */
+    public void listenCurrentPage(String roomCode, PageCallback callback) {
+        detachPageListener();
+        activePageRef = lobbiesRef.child(roomCode).child(Constants.NODE_CURRENT_PAGE);
+        activePageListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                if (snap.exists()) {
+                    Integer page = snap.getValue(Integer.class);
+                    if (page != null) callback.onPageChanged(page);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError e) {
+                Logger.e(TAG, "listenCurrentPage cancelled: " + e.getMessage());
+            }
+        };
+        activePageRef.addValueEventListener(activePageListener);
+    }
+
+    private void detachPageListener() {
+        if (activePageRef != null && activePageListener != null) {
+            activePageRef.removeEventListener(activePageListener);
+            activePageListener = null;
+            activePageRef      = null;
+        }
     }
 }

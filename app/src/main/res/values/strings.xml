@@ -107,6 +107,10 @@
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
     <string name="btn_exit_session">Exit Session</string>
+    <string name="btn_load_more">Load More Movies</string>
+    <string name="label_end_of_deck_title">That\'s all for now! 🍿</string>
+    <string name="label_end_of_deck_subtitle">You\'ve seen all the movies in this deck.\nNo match yet? Try loading more!</string>
+    <string name="label_waiting_host_load_more">Waiting for the host to load more movies…\nHang tight!</string>
 
     <!-- Match -->
     <string name="msg_match_found">🎉 Match Found! 🎉</string>

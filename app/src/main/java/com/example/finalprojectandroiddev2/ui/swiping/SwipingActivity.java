@@ -56,6 +56,10 @@ public class SwipingActivity extends BaseActivity {
     private FirebaseRepository               firebaseRepo;
     private List<Movie>                      currentMovies;
     private Map<String, LobbyMember>         memberMap = new HashMap<>();
+    private boolean                          isHost    = false;
+    private int                              currentPage = 0;
+    /** Tracks whether the first batch of movies has been loaded (setMovies vs appendMovies). */
+    private boolean                          initialLoadDone = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +76,34 @@ public class SwipingActivity extends BaseActivity {
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
         firebaseRepo  = FirebaseRepository.getInstance();
 
+        // Read isHost from Intent — available immediately, no async wait needed.
+        isHost = getIntent().getBooleanExtra(LobbyActivity.EXTRA_IS_HOST, false);
+
         bindViews();
         setupViewPager();
         setupButtons();
-        fetchMovies();
+
+        // ── Firebase-driven movie loading ────────────────────────────────────
+        // ALL devices listen for currentPage changes via listenForPageChanges().
+        // Members react to every change by fetching the TMDB page.
+        // The HOST fetches locally (in onCreate + loadMoreMovies) and writes to
+        // Firebase so members' listeners fire.
+        if (roomCode != null && !roomCode.isEmpty()) {
+            listenForPageChanges();
+
+            if (isHost) {
+                // Compute the seed page from room code hash.
+                int initialPage = (Math.abs(roomCode.hashCode()) % 100) + 1;
+                currentPage = initialPage;
+
+                // Host fetches movies locally (no dependency on Firebase callback)
+                fetchMoviesForPage(initialPage);
+
+                // Broadcast to Firebase so member listeners fire
+                firebaseRepo.setCurrentPage(roomCode, initialPage);
+            }
+        }
+
         listenForMatch();
         loadMembersAndStartVoteSync();
     }
@@ -95,15 +123,18 @@ public class SwipingActivity extends BaseActivity {
         viewPagerMovies.setAdapter(movieCardAdapter);
 
         // Route swipe gestures through the same Yes/No handlers as the buttons.
-        // This ensures both input methods (swipe gesture + button tap) are unified
-        // and will both trigger vote recording in Phase 7.2.
         movieCardAdapter.setSwipeCallback(new MovieCardAdapter.SwipeCallback() {
             @Override public void onSwipedYes() { handleYes(); }
             @Override public void onSwipedNo()  { handleNo();  }
         });
 
-        // Disable ViewPager2's own swipe — cards only advance via gesture on the card
-        // itself (routed through SwipeCallback above) or via the Yes/No buttons.
+        // End-of-deck card: host gets Load More, members get waiting hint.
+        // The callback wires the button click back to loadMoreMovies().
+        movieCardAdapter.setEndOfDeckCallback(() -> loadMoreMovies());
+        // isHost is set later in loadMembersAndStartVoteSync(); call refreshEndOfDeckCard()
+        // after host status is resolved so the adapter re-binds the end card correctly.
+
+        // Disable ViewPager2's own swipe — cards advance only via gesture on card or buttons.
         viewPagerMovies.setUserInputEnabled(false);
 
         viewPagerMovies.setOffscreenPageLimit(2);
@@ -117,16 +148,20 @@ public class SwipingActivity extends BaseActivity {
         });
         viewPagerMovies.setPageTransformer(transformer);
 
-        // Re-attach the vote listener whenever the user navigates to a new card.
+        // Re-attach the vote listener for the current card on page change.
         viewPagerMovies.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                // Only sync votes for real movie cards (not the end-of-deck card)
                 if (currentMovies != null && position < currentMovies.size()) {
                     int movieId = currentMovies.get(position).getId();
                     if (roomCode != null && !roomCode.isEmpty()) {
                         attachVoteSyncForMovie(movieId);
                     }
                 }
+                // Note: NO showEndOfDeck() call here.
+                // The end-of-deck card appears naturally when advanceCard() moves
+                // past the last real movie to position movies.size().
             }
         });
     }
@@ -134,6 +169,7 @@ public class SwipingActivity extends BaseActivity {
     // ── Buttons ────────────────────────────────────────────────────────────────
 
     private void setupButtons() {
+        // Yes / No buttons
         findViewById(R.id.btn_swipe_yes).setOnClickListener(v -> handleYes());
         findViewById(R.id.btn_swipe_no).setOnClickListener(v  -> handleNo());
 
@@ -213,6 +249,122 @@ public class SwipingActivity extends BaseActivity {
         }
     }
 
+    // ── End of Deck (Phase 7.5) ─ Logic lives in MovieCardAdapter.EndOfDeckViewHolder ──────
+    // The end-of-deck card is always the last slot in the adapter (position = movies.size()).
+    // It becomes accessible once advanceCard() scrolls past the final real movie.
+    // No overlay visibility management is needed here — it’s all in the ViewHolder bind().
+
+    /**
+     * Host-only: fetch the next TMDB page, append unique movies to the adapter,
+     * broadcast the page number via Firebase, and hide the overlay.
+     */
+    private void loadMoreMovies() {
+        currentPage++;
+        Logger.d(TAG, "loadMoreMovies → fetching page " + currentPage);
+
+        // 1. Host fetches movies locally (guaranteed to work — no Firebase dependency)
+        fetchMoviesForPage(currentPage);
+
+        // 2. Broadcast the new page to Firebase so members' listeners fire
+        if (roomCode != null && !roomCode.isEmpty()) {
+            firebaseRepo.setCurrentPage(roomCode, currentPage);
+        }
+    }
+
+    /**
+     * Unified page listener — handles BOTH the initial movie load AND load-more.
+     * Firebase {@code currentPage} is the single source of truth.
+     *
+     * Flow:
+     *  1. LobbyActivity resets currentPage to 0 before starting the session.
+     *  2. Host writes initialPage to Firebase in onCreate().
+     *  3. This listener fires on ALL devices with the new page → TMDB fetch.
+     *  4. Host clicks "Load More" → writes currentPage+1 → listener fires again.
+     *
+     * Guards: page <= 0 (sentinel/invalid) and page == currentPage (echo/duplicate).
+     */
+    private void listenForPageChanges() {
+        if (roomCode == null || roomCode.isEmpty()) return;
+        firebaseRepo.listenCurrentPage(roomCode, page -> {
+            Logger.d(TAG, "listenForPageChanges → received page=" + page
+                    + ", currentPage=" + currentPage + ", isHost=" + isHost);
+
+            // Skip sentinel (0) and any echo of a value we already processed
+            if (page <= 0 || page == currentPage) return;
+
+            // Host already fetched in loadMoreMovies() — just update tracking
+            if (isHost) {
+                currentPage = page;
+                return;
+            }
+
+            // Member: update tracking and fetch movies
+            currentPage = page;
+            fetchMoviesForPage(page);
+        });
+    }
+
+    /**
+     * Fetches trending movies for the given TMDB page.
+     * First call uses setMovies() (replaces adapter); subsequent calls use appendMovies().
+     * Called by listenForPageChanges() on ALL devices (host + member) identically.
+     */
+    private void fetchMoviesForPage(int page) {
+        String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
+        TmdbApiClient.getService()
+                .getTrendingMovies("day", "en-US", page, bearer)
+                .enqueue(new Callback<MovieListResponse>() {
+                    @Override
+                    public void onResponse(Call<MovieListResponse> call,
+                                           Response<MovieListResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Movie> movies = response.body().getResults();
+                            runOnUiThread(() -> {
+                                if (!initialLoadDone) {
+                                    // ── First load: replace the entire adapter ────────
+                                    currentMovies = movies;
+                                    movieCardAdapter.setMovies(movies);
+                                    initialLoadDone = true;
+                                    Logger.d(TAG, "Initial load: " + movies.size()
+                                            + " movies (page " + page + ")");
+                                    // Kick off vote sync if memberMap is ready
+                                    if (!memberMap.isEmpty() && !movies.isEmpty()) {
+                                        attachVoteSyncForMovie(movies.get(0).getId());
+                                    }
+                                } else {
+                                    // ── Load more: append to existing deck ────────────
+                                    int firstNewPos = currentMovies.size();
+                                    int added = movieCardAdapter.appendMovies(movies);
+                                    if (movies != null) currentMovies.addAll(movies);
+                                    Logger.d(TAG, "Appended " + added
+                                            + " movies (page " + page + ")");
+                                    if (added > 0) {
+                                        viewPagerMovies.post(() ->
+                                                viewPagerMovies.setCurrentItem(firstNewPos, true));
+                                    }
+                                }
+                            });
+                        } else {
+                            Logger.w(TAG, "TMDB fetch failed: HTTP " + response.code()
+                                    + " (page " + page + ")");
+                            runOnUiThread(() ->
+                                    Toast.makeText(SwipingActivity.this,
+                                            "Could not load movies. Try again.",
+                                            Toast.LENGTH_SHORT).show());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MovieListResponse> call, Throwable t) {
+                        Logger.e(TAG, "TMDB fetch error (page " + page + "): " + t.getMessage());
+                        runOnUiThread(() ->
+                                Toast.makeText(SwipingActivity.this,
+                                        "Network error. Please try again.",
+                                        Toast.LENGTH_SHORT).show());
+                    }
+                });
+    }
+
     // ── Real-time vote sync (Phase 7.4) ──────────────────────────────────────────
 
     /**
@@ -226,7 +378,9 @@ public class SwipingActivity extends BaseActivity {
         }
         firebaseRepo.loadAllMembers(roomCode, members -> {
             memberMap = members;
-            // Start listening to votes for card 0 (the first movie shown)
+            // isHost is already set from Intent; just update the adapter.
+            movieCardAdapter.setIsHost(isHost);
+            // Start listening to votes for card 0 (if movies are already loaded)
             if (currentMovies != null && !currentMovies.isEmpty()) {
                 attachVoteSyncForMovie(currentMovies.get(0).getId());
             }
@@ -306,53 +460,5 @@ public class SwipingActivity extends BaseActivity {
         firebaseRepo.detachListeners();
     }
 
-    // ── TMDB fetch ─────────────────────────────────────────────────────────────
-
-    /**
-     * Fetches trending movies (day) from TMDB.
-     * Page is seeded by room code for session variety and identical decks.
-     */
-    private void fetchMovies() {
-        int page = (roomCode != null && !roomCode.isEmpty())
-                ? (Math.abs(roomCode.hashCode()) % 100) + 1
-                : 1;
-
-        String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
-
-        TmdbApiClient.getService()
-                .getTrendingMovies("day", "en-US", page, bearer)
-                .enqueue(new Callback<MovieListResponse>() {
-                    @Override
-                    public void onResponse(Call<MovieListResponse> call,
-                                           Response<MovieListResponse> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            List<Movie> movies = response.body().getResults();
-                            if (movies != null && !movies.isEmpty()) {
-                                currentMovies = movies;
-                                movieCardAdapter.setMovies(movies);
-                                Logger.d(TAG, "Loaded " + movies.size()
-                                        + " movies (page " + page + ")");
-                                // If member map already loaded, kick off vote sync now.
-                                // (Handles the case where members loaded before movies.)
-                                if (!memberMap.isEmpty()) {
-                                    attachVoteSyncForMovie(movies.get(0).getId());
-                                }
-                            }
-                        } else {
-                            Logger.w(TAG, "TMDB fetch failed: HTTP " + response.code());
-                            Toast.makeText(SwipingActivity.this,
-                                    "Could not load movies. Check your connection.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<MovieListResponse> call, Throwable t) {
-                        Logger.e(TAG, "TMDB fetch error: " + t.getMessage());
-                        Toast.makeText(SwipingActivity.this,
-                                "Network error. Please check your connection.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
+    // ── TMDB fetch (fetchMoviesForPage) is defined above, near listenForPageChanges ──
 }
