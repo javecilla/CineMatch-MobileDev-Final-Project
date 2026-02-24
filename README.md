@@ -33,18 +33,4 @@ The app utilizes a frictionless **Swipe-to-Match** mechanic designed for modern 
 
 ---
 
-## About the Team
-
-Our squad is composed of five specialists, each ensuring the successful deployment of the CineMatch ecosystem.
-
-| Role | Member | Key Responsibilities |
-| :--- | :--- | :--- |
-| **Project Manager & UI/UX Lead** | Francis V. Palma | - Overall project roadmap and stakeholder management.<br>- Visual identity and Material 3 design system alignment. |
-| **Database & Cloud Architect** | Rensen Israel C. Dela Cruz | - Realtime Database schema design and data normalization.<br>- Performance tuning for cloud sync latency. |
-| **Lead Android Programmer** | Jerome S. Avecilla | - Core logic development, API integration, and networking pipeline.<br>- Secure credential management and build deployment. |
-| **Frontend Developer** | Mico Laurenz D. Oleriana | - XML layout construction and UI state management.<br>- Implementing transitions and navigation components. |
-| **Quality Assurance (QA)** | Ralph Andre F. Giga | - Functional testing across multiple emulator configurations.<br>- Validating API response handling and error edge cases. |
-
----
-
 *Developed for the Final Project in Mobile Application Development 2.*
