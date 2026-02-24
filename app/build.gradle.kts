@@ -80,4 +80,7 @@ dependencies {
     // 6. Glide — image loading for movie posters
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // 7. Lottie — JSON-based animations (confetti on match screen)
+    implementation("com.airbnb.android:lottie:6.4.1")
 }

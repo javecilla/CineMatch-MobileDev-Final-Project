@@ -757,22 +757,27 @@ No votes are intentionally not written — absence of a user entry means No.
 
 ---
 
-### **Step 8.3: Match Activity Implementation**
+### **Step 8.3: Match Activity Implementation** ✅
 
 **Tasks:**
 
-- [ ] Fetch matched movie details
-- [ ] Display movie poster and details
-- [ ] Add celebration animation/confetti
-- [ ] Implement "Watch Now" button (external link)
-- [ ] Implement "Find Another Match" button
-- [ ] Handle "Leave Lobby" action
+- [x] Fetch matched movie details (`getMatchedMovieId()` from Firebase → `getMovieDetails()` from TMDB)
+- [x] Display movie poster and details (Glide poster, title, ⭐ rating, release year, overview)
+- [x] Add celebration animation/confetti (Lottie `confetti.json`, plays on `onCreate`)
+- [x] Implement "Watch on TMDb" button (opens `https://www.themoviedb.org/movie/{id}` in browser)
+- [x] Implement "Find Another Match" button (resets Firebase `currentPage=0` + `status="swiping"`, navigates back to `SwipingActivity`)
+- [x] Handle "Leave Lobby" action (`finishAffinity()` → `HomeActivity`)
 
-**Files to Modify:**
+**Files Modified:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/match/MatchActivity.java`
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/match/MatchActivity.java` — full implementation
+- `app/src/main/res/layout/activity_match.xml` — redesigned with Lottie overlay + detail cards
+- `app/src/main/assets/confetti.json` _(NEW)_ — Lottie confetti animation
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/api/TmdbApiService.java` — added `getMovieDetails()` endpoint
+- `app/build.gradle.kts` — added Lottie `6.4.1` dependency
+- `app/src/main/res/values/strings.xml` — added `msg_match_subtitle`, updated `btn_watch_now` text
 
-**Deliverable:** Complete match screen
+**Deliverable:** Complete match screen ✅
 
 ---
 

@@ -1,160 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Match Found screen.
+  Structure:
+    FrameLayout root (container_match, edge-to-edge)
+    └── ScrollView (all scrollable content)
+        └── ConstraintLayout (poster + details card + buttons)
+    └── LottieAnimationView (confetti — full-screen overlay, pointer-transparent, plays once)
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container_match"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background"
-    android:fillViewport="true"
     tools:context=".ui.match.MatchActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- ── Scrollable content ──────────────────────────────────────── -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/text_celebration"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/msg_match_found"
-            android:textColor="@color/color_primary"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="🎉 Match Found! 🎉" />
+            android:paddingHorizontal="24dp"
+            android:paddingTop="40dp"
+            android:paddingBottom="32dp">
 
-        <ImageView
-            android:id="@+id/image_movie_poster"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="24dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/label_movie_poster"
-            app:layout_constraintDimensionRatio="2:3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_celebration"
-            tools:src="@android:drawable/ic_menu_gallery" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_movie_details"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardBackgroundColor="@color/color_surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image_movie_poster">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- 🎉 Match header -->
+            <TextView
+                android:id="@+id/text_celebration"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:text="@string/msg_match_found"
+                android:textColor="@color/color_primary"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:letterSpacing="0.02"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="🎉 It's a Match!" />
 
-                <TextView
-                    android:id="@+id/text_movie_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:maxLines="2"
-                    android:ellipsize="end"
-                    tools:text="Matched Movie Title" />
+            <!-- Subtitle / sub-header -->
+            <TextView
+                android:id="@+id/text_match_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/msg_match_subtitle"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_celebration"
+                tools:text="Everyone agreed on this one!" />
+
+            <!-- Movie poster -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_poster"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                app:layout_constraintDimensionRatio="2:3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_match_subtitle"
+                app:layout_constraintWidth_percent="0.65">
+
+                <ImageView
+                    android:id="@+id/image_movie_poster"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/label_movie_poster"
+                    tools:src="@android:drawable/ic_menu_gallery" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Details card (title, rating, year, overview) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_movie_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="@color/color_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_poster">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/text_movie_rating"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/color_secondary"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginEnd="16dp"
-                        tools:text="⭐ 8.5" />
-
-                    <TextView
-                        android:id="@+id/text_movie_release_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/color_text_secondary"
-                        android:textSize="14sp"
-                        tools:text="2024" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/text_movie_overview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:lineSpacingMultiplier="1.2"
-                    tools:text="This is the matched movie overview. It describes the plot and storyline of the movie that everyone in the lobby voted Yes for." />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_watch_now"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/btn_watch_now"
-            android:textSize="16sp"
-            app:backgroundTint="@color/color_primary"
-            app:cornerRadius="12dp"
-            app:icon="@android:drawable/ic_media_play"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            app:iconTint="@color/black"
-            app:layout_constraintBottom_toTopOf="@id/btn_find_another"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_movie_details" />
+                    <TextView
+                        android:id="@+id/text_movie_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        tools:text="Inception" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_find_another"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/btn_find_another_match"
-            android:textSize="16sp"
-            app:strokeColor="@color/color_primary"
-            app:strokeWidth="2dp"
-            app:cornerRadius="12dp"
-            android:textColor="@color/color_primary"
-            app:layout_constraintBottom_toTopOf="@id/btn_leave_lobby"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_watch_now" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_leave_lobby"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/btn_leave_lobby"
-            android:textColor="@color/color_text_secondary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_find_another" />
+                        <TextView
+                            android:id="@+id/text_movie_rating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/color_secondary"
+                            android:textSize="17sp"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="14dp"
+                            tools:text="⭐ 8.4" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+                        <TextView
+                            android:id="@+id/text_movie_release_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="14sp"
+                            tools:text="2010" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_movie_overview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="14sp"
+                        android:lineSpacingMultiplier="1.4"
+                        tools:text="A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O." />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Watch on TMDb button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_watch_now"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/btn_watch_now"
+                android:textSize="15sp"
+                app:backgroundTint="@color/color_primary"
+                app:cornerRadius="12dp"
+                app:icon="@android:drawable/ic_media_play"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_movie_details" />
+
+            <!-- Find Another Match button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_find_another"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/btn_find_another_match"
+                android:textSize="15sp"
+                android:textColor="@color/color_primary"
+                app:strokeColor="@color/color_primary"
+                app:strokeWidth="2dp"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_watch_now" />
+
+            <!-- Leave Lobby text button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_leave_lobby"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_leave_lobby"
+                android:textColor="@color/color_text_secondary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_find_another" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <!-- ── Confetti — full-screen overlay, plays once, touch-passthrough ── -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_confetti"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        app:lottie_fileName="confetti.json"
+        app:lottie_loop="false"
+        app:lottie_autoPlay="false" />
+
+</FrameLayout>
