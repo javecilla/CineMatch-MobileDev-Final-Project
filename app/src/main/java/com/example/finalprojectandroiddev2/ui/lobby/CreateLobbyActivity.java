@@ -269,7 +269,9 @@ public class CreateLobbyActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        firebaseRepo.detachLobbyListeners();
+        if (!sessionStarted) {
+            firebaseRepo.detachLobbyListeners();
+        }
         super.onDestroy();
     }
 }
