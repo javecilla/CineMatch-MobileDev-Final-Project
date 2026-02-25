@@ -169,7 +169,7 @@ public class MatchActivity extends BaseActivity {
 
     private void setupButtons() {
         if (isHost) {
-            // Host sees: Leave | Watch Now row + Find Another Match
+            // Host: Watch Now (full-width) + Find Another Match link
             layoutHostActions.setVisibility(View.VISIBLE);
             layoutMemberActions.setVisibility(View.GONE);
 
@@ -184,24 +184,20 @@ public class MatchActivity extends BaseActivity {
             // Find Another Match
             btnFindAnother.setOnClickListener(v -> restartSwipingSession());
 
-            // Host Leave button
-            findViewById(R.id.btn_leave_lobby).setOnClickListener(v -> leaveLobby());
-
         } else {
-            // Member sees: full-width Leave + wait info text
+            // Member: wait info text only — no buttons
             layoutHostActions.setVisibility(View.GONE);
             layoutMemberActions.setVisibility(View.VISIBLE);
-
-            // Member Leave button
-            findViewById(R.id.btn_leave_member).setOnClickListener(v -> leaveLobby());
         }
     }
 
-    /** Navigates to HomeActivity and clears the activity stack. */
-    private void leaveLobby() {
-        startActivity(new Intent(this, HomeActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
-        finishAffinity();
+    /**
+     * Disables the Android back button. Users should not be able to accidentally
+     * leave the Match screen — they committed to this movie by voting!
+     */
+    @Override
+    public void onBackPressed() {
+        // Intentionally disabled — no accidental back navigation from Match screen
     }
 
     /**

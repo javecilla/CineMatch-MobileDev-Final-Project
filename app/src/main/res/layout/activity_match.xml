@@ -230,9 +230,8 @@
                         android:textColor="#CCFFFFFF"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.4"
-                        android:maxLines="4"
-                        android:ellipsize="end"
                         tools:text="Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a warpath of revenge." />
+
 
                     <!-- Genre chips -->
                     <com.google.android.material.chip.ChipGroup
@@ -246,7 +245,7 @@
 
                 </LinearLayout>
 
-                <!-- ── HOST actions (Leave + Watch Now + Find Another Match) ── -->
+                <!-- ── HOST actions: Watch Now (full-width) + Find Another Match ── -->
                 <LinearLayout
                     android:id="@+id/layout_host_actions"
                     android:layout_width="match_parent"
@@ -254,61 +253,26 @@
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <!-- Leave (left) | Watch Now (right) -->
-                    <LinearLayout
+                    <!-- Watch Now — full-width filled teal pill -->
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center">
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:cardCornerRadius="50dp"
+                        app:cardElevation="4dp">
 
-                        <!-- Leave — outlined red pill -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="50dp"
-                            app:cardElevation="4dp">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_watch_now"
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:text="Watch Now"
+                            android:textColor="@color/black"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/color_primary"
+                            app:cornerRadius="50dp" />
 
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btn_leave_lobby"
-                                android:layout_width="match_parent"
-                                android:layout_height="64dp"
-                                android:text="Leave"
-                                android:textColor="@color/color_error"
-                                android:textSize="16sp"
-                                app:backgroundTint="@color/color_surface"
-                                app:cornerRadius="50dp"
-                                app:strokeColor="@color/color_error"
-                                app:strokeWidth="2dp" />
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <!-- Watch Now — filled teal pill -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="50dp"
-                            app:cardElevation="4dp">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btn_watch_now"
-                                android:layout_width="match_parent"
-                                android:layout_height="64dp"
-                                android:text="Watch Now"
-                                android:textColor="@color/black"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                app:backgroundTint="@color/color_primary"
-                                app:cornerRadius="50dp" />
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                    </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Find Another Match — text link -->
                     <com.google.android.material.button.MaterialButton
@@ -325,52 +289,27 @@
 
                 </LinearLayout>
 
-                <!-- ── MEMBER actions (full-width Leave + wait info) ── -->
+                <!-- ── MEMBER: wait info text only (no buttons) ── -->
                 <LinearLayout
                     android:id="@+id/layout_member_actions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:gravity="center_horizontal"
                     android:visibility="gone">
 
-                    <!-- Leave — full-width outlined red pill -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:cardBackgroundColor="@color/color_surface"
-                        app:cardCornerRadius="50dp"
-                        app:cardElevation="4dp">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_leave_member"
-                            android:layout_width="match_parent"
-                            android:layout_height="64dp"
-                            android:text="Leave"
-                            android:textColor="@color/color_error"
-                            android:textSize="16sp"
-                            app:backgroundTint="@color/color_surface"
-                            app:cornerRadius="50dp"
-                            app:strokeColor="@color/color_error"
-                            app:strokeWidth="2dp" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Wait info — only visible for members -->
                     <TextView
                         android:id="@+id/text_member_wait_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="4dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
                         android:text="Wait for the host to start watch the movie"
                         android:textColor="@color/color_text_secondary"
                         android:textSize="13sp"
                         android:gravity="center" />
 
                 </LinearLayout>
-
-
 
             </LinearLayout>
 
