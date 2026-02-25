@@ -1,5 +1,31 @@
 # CineMatch – Log of Changes
 
+## 2026-02-25 – UI Tweak: Make Movie Overview Fully Scrollable in MatchActivity
+
+**What:** Removed the 4-line cap (`maxLines="4"`, `ellipsize="end"`) from the overview `TextView` in `activity_match.xml`. The bottom info panel is already inside a `ScrollView`, so the full overview text now displays in its entirety and the user can scroll the panel naturally to read it — no ellipsis cutoff.
+
+**Files changed:**
+
+- **`res/layout/activity_match.xml`** — removed `android:maxLines="4"` and `android:ellipsize="end"` from `text_movie_overview`
+
+---
+
+## 2026-02-25 – UI Decision: Remove Leave Button from MatchActivity
+
+**What:** Removed the Leave button from both host and member action sections in `MatchActivity`. The rationale: users arrive at the match screen because they actively voted for the movie — a Leave button at this point is semantically wrong and creates data-integrity questions (does leaving remove votes/members?). The match screen is now a commitment screen.
+
+**Host layout** (after): Full-width **Watch Now** pill → **Find Another Match** text link below.
+**Member layout** (after): **"Wait for the host to start watch the movie"** info text only — no buttons.
+
+**Back press disabled:** Added `onBackPressed()` override (no-op) so users cannot accidentally navigate away from the match screen.
+
+**Files changed:**
+
+- **`res/layout/activity_match.xml`** — removed `btn_leave_lobby` card+button from `layout_host_actions`; removed `btn_leave_member` card+button from `layout_member_actions`; `Watch Now` now occupies full width; member section is text-only
+- **`ui/match/MatchActivity.java`** — removed all `btn_leave_lobby` / `btn_leave_member` click listeners; deleted `leaveLobby()` helper; added `@Override onBackPressed()` no-op
+
+---
+
 ## 2026-02-25 – UI Enhancement: Match Activity Redesign
 
 **What:** Overhauled the entire `MatchActivity` UI to match the cinematic aesthetic of the swiping card and lobby screens.
