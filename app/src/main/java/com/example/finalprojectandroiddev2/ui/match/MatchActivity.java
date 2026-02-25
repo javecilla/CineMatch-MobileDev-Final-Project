@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -89,6 +91,16 @@ public class MatchActivity extends BaseActivity {
         roomCode     = getIntent().getStringExtra(EXTRA_ROOM_CODE);
         isHost       = getIntent().getBooleanExtra(EXTRA_IS_HOST, false);
         firebaseRepo = FirebaseRepository.getInstance();
+
+        // Disable back navigation for all users — the match screen is a commitment.
+        // Using OnBackPressedDispatcher (works on all API levels including Android 13+
+        // predictive back gestures, unlike the deprecated onBackPressed() override).
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Intentionally empty — back is disabled on the Match screen.
+            }
+        });
 
         bindViews();
         setupButtons();
@@ -189,15 +201,6 @@ public class MatchActivity extends BaseActivity {
             layoutHostActions.setVisibility(View.GONE);
             layoutMemberActions.setVisibility(View.VISIBLE);
         }
-    }
-
-    /**
-     * Disables the Android back button. Users should not be able to accidentally
-     * leave the Match screen — they committed to this movie by voting!
-     */
-    @Override
-    public void onBackPressed() {
-        // Intentionally disabled — no accidental back navigation from Match screen
     }
 
     /**

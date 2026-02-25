@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
@@ -78,6 +79,16 @@ public class SwipingActivity extends BaseActivity {
 
         // Read isHost from Intent — available immediately, no async wait needed.
         isHost = getIntent().getBooleanExtra(LobbyActivity.EXTRA_IS_HOST, false);
+
+        // Disable back press during a swiping session — users should not be able to
+        // accidentally abandon an active lobby. Works on all API levels including
+        // Android 13+ predictive back gestures.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Intentionally empty — back is disabled during an active swiping session.
+            }
+        });
 
         bindViews();
         setupViewPager();
