@@ -5,11 +5,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.finalprojectandroiddev2.BuildConfig;
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.api.TmdbApiClient;
@@ -22,6 +24,8 @@ import com.example.finalprojectandroiddev2.ui.swiping.SwipingActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,16 +60,23 @@ public class MatchActivity extends BaseActivity {
     private TextView             tvRating;
     private TextView             tvReleaseDate;
     private TextView             tvOverview;
+    private TextView             tvMemberCount;
+    private ChipGroup            chipGroupGenres;
     private MaterialButton       btnWatchNow;
     private MaterialButton       btnFindAnother;
     private LottieAnimationView  lottieConfetti;
+    // Role-based action groups
+    private LinearLayout         layoutHostActions;
+    private LinearLayout         layoutMemberActions;
 
     // ── State ────────────────────────────────────────────────────────────────
 
     private FirebaseRepository firebaseRepo;
     private String             roomCode;
     private boolean            isHost;
-    private String             tmdbUrl; // built once movie details arrive
+    private String             tmdbUrl;      // built once movie details arrive
+    private int                liveCount = 0; // current members in lobby
+    private int                maxCount  = 0; // snapshot size at load time
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -81,11 +92,12 @@ public class MatchActivity extends BaseActivity {
 
         bindViews();
         setupButtons();
+        startMemberCountListener();
 
-        // Start confetti immediately — it plays while movie data loads
+        // Start confetti immediately
         lottieConfetti.playAnimation();
 
-        // 1. Fetch matched movie ID from Firebase, then load TMDB details
+        // Fetch matched movie ID then load TMDB details
         if (roomCode != null && !roomCode.isEmpty()) {
             firebaseRepo.getMatchedMovieId(roomCode, movieIdStr -> {
                 if (movieIdStr == null) {
@@ -105,35 +117,91 @@ public class MatchActivity extends BaseActivity {
     // ── Private helpers ───────────────────────────────────────────────────────
 
     private void bindViews() {
-        imgPoster      = findViewById(R.id.image_movie_poster);
-        tvTitle        = findViewById(R.id.text_movie_title);
-        tvRating       = findViewById(R.id.text_movie_rating);
-        tvReleaseDate  = findViewById(R.id.text_movie_release_date);
-        tvOverview     = findViewById(R.id.text_movie_overview);
-        btnWatchNow    = findViewById(R.id.btn_watch_now);
-        btnFindAnother = findViewById(R.id.btn_find_another);
-        lottieConfetti = findViewById(R.id.lottie_confetti);
+        imgPoster           = findViewById(R.id.image_movie_poster);
+        tvTitle             = findViewById(R.id.text_movie_title);
+        tvRating            = findViewById(R.id.text_movie_rating);
+        tvReleaseDate       = findViewById(R.id.text_movie_release_date);
+        tvOverview          = findViewById(R.id.text_movie_overview);
+        tvMemberCount       = findViewById(R.id.text_member_count);
+        chipGroupGenres     = findViewById(R.id.chip_group_genres);
+        btnWatchNow         = findViewById(R.id.btn_watch_now);
+        btnFindAnother      = findViewById(R.id.btn_find_another);
+        lottieConfetti      = findViewById(R.id.lottie_confetti);
+        layoutHostActions   = findViewById(R.id.layout_host_actions);
+        layoutMemberActions = findViewById(R.id.layout_member_actions);
+    }
+
+    /**
+     * Loads the initial member count then attaches a live listener.
+     * Displays as "current/max" in text_member_count.
+     */
+    private void startMemberCountListener() {
+        if (roomCode == null || roomCode.isEmpty()) return;
+
+        // One-shot read to establish the initial count (= max for this session)
+        firebaseRepo.loadAllMembers(roomCode, members -> {
+            maxCount = members != null ? members.size() : 0;
+            liveCount = maxCount;
+            updateMemberCountUi();
+        });
+
+        // Live updates: track members joining / leaving
+        firebaseRepo.listenMembers(roomCode, new FirebaseRepository.MembersCallback() {
+            @Override public void onMemberAdded(String userId, com.example.finalprojectandroiddev2.data.model.LobbyMember member) {
+                // Only increment if already past the initial load
+                if (maxCount > 0) { liveCount = Math.min(liveCount + 1, maxCount); updateMemberCountUi(); }
+            }
+            @Override public void onMemberRemoved(String userId) {
+                liveCount = Math.max(0, liveCount - 1);
+                updateMemberCountUi();
+            }
+            @Override public void onMemberChanged(String userId, com.example.finalprojectandroiddev2.data.model.LobbyMember member) { /* no-op */ }
+        });
+    }
+
+    private void updateMemberCountUi() {
+        runOnUiThread(() -> {
+            if (tvMemberCount != null) {
+                tvMemberCount.setText(liveCount + "/" + maxCount);
+            }
+        });
     }
 
     private void setupButtons() {
-        // Watch on TMDb button — opens TMDB movie page in browser
-        // URL is populated once movie details arrive; button is disabled until then
-        btnWatchNow.setEnabled(false);
-        btnWatchNow.setOnClickListener(v -> {
-            if (tmdbUrl != null) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(tmdbUrl)));
-            }
-        });
+        if (isHost) {
+            // Host sees: Leave | Watch Now row + Find Another Match
+            layoutHostActions.setVisibility(View.VISIBLE);
+            layoutMemberActions.setVisibility(View.GONE);
 
-        // Find Another Match — reset session and restart swiping
-        findViewById(R.id.btn_find_another).setOnClickListener(v -> restartSwipingSession());
+            // Watch Now — disabled until TMDB details load
+            btnWatchNow.setEnabled(false);
+            btnWatchNow.setOnClickListener(v -> {
+                if (tmdbUrl != null) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(tmdbUrl)));
+                }
+            });
 
-        // Leave Lobby — go home and clear activity stack
-        findViewById(R.id.btn_leave_lobby).setOnClickListener(v -> {
-            startActivity(new Intent(this, HomeActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
-            finishAffinity();
-        });
+            // Find Another Match
+            btnFindAnother.setOnClickListener(v -> restartSwipingSession());
+
+            // Host Leave button
+            findViewById(R.id.btn_leave_lobby).setOnClickListener(v -> leaveLobby());
+
+        } else {
+            // Member sees: full-width Leave + wait info text
+            layoutHostActions.setVisibility(View.GONE);
+            layoutMemberActions.setVisibility(View.VISIBLE);
+
+            // Member Leave button
+            findViewById(R.id.btn_leave_member).setOnClickListener(v -> leaveLobby());
+        }
+    }
+
+    /** Navigates to HomeActivity and clears the activity stack. */
+    private void leaveLobby() {
+        startActivity(new Intent(this, HomeActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+        finishAffinity();
     }
 
     /**
@@ -164,23 +232,50 @@ public class MatchActivity extends BaseActivity {
      * Populates all UI views with movie data.
      */
     private void bindMovie(Movie movie) {
-        // Poster
-        String posterUrl = movie.getPosterPath() != null
-                ? Constants.TMDB_IMAGE_BASE_URL + movie.getPosterPath()
-                : null;
-        if (posterUrl != null) {
+        // Poster — use backdrop for full-screen hero; fall back to poster path
+        String imageUrl = movie.getBackdropPath() != null
+                ? Constants.TMDB_IMAGE_BASE_URL + movie.getBackdropPath()
+                : (movie.getPosterPath() != null
+                        ? Constants.TMDB_IMAGE_BASE_URL + movie.getPosterPath()
+                        : null);
+        if (imageUrl != null) {
+            int radiusPx = Math.round(16 * getResources().getDisplayMetrics().density);
             Glide.with(this)
-                    .load(posterUrl)
+                    .load(imageUrl)
+                    .transform(new RoundedCorners(radiusPx))
                     .placeholder(R.drawable.ic_launcher_background)
                     .centerCrop()
                     .into(imgPoster);
         }
 
-        // Text fields
+        // Title
         tvTitle.setText(movie.getTitle() != null ? movie.getTitle() : "—");
-        tvRating.setText(String.format("⭐ %.1f", movie.getVoteAverage()));
-        tvReleaseDate.setText(formatYear(movie.getReleaseDate()));
+
+        // Rating — plain number, icon is in the layout
+        tvRating.setText(String.format("%.1f", movie.getVoteAverage()));
+
+        // Release date formatted as "Feb 2025"
+        tvReleaseDate.setText(formatReleaseDate(movie.getReleaseDate()));
+
+        // Overview
         tvOverview.setText(movie.getOverview() != null ? movie.getOverview() : "");
+
+        // Genre chips — style matches MovieCardAdapter
+        chipGroupGenres.removeAllViews();
+        if (movie.getGenres() != null) {
+            for (Movie.Genre genre : movie.getGenres()) {
+                Chip chip = new Chip(this);
+                chip.setText(genre.getName());
+                chip.setClickable(false);
+                chip.setCheckable(false);
+                chip.setChipBackgroundColorResource(android.R.color.transparent);
+                chip.setTextColor(getColor(R.color.white));
+                chip.setChipStrokeColorResource(R.color.color_text_secondary);
+                chip.setChipStrokeWidth(1.5f);
+                chip.setTextSize(11f);
+                chipGroupGenres.addView(chip);
+            }
+        }
 
         // Build TMDb URL and enable watch button
         tmdbUrl = "https://www.themoviedb.org/movie/" + movie.getId();
@@ -204,9 +299,19 @@ public class MatchActivity extends BaseActivity {
         finish();
     }
 
-    /** Extracts the 4-digit year from a "YYYY-MM-DD" string. */
-    private String formatYear(String releaseDate) {
-        if (releaseDate == null || releaseDate.length() < 4) return "—";
-        return releaseDate.substring(0, 4);
+    /**
+     * Formats a "YYYY-MM-DD" release date string into "MMM yyyy" (e.g. "Feb 2025").
+     * Falls back to "—" for null / too-short strings.
+     */
+    private String formatReleaseDate(String releaseDate) {
+        if (releaseDate == null || releaseDate.length() < 7) return "—";
+        try {
+            java.text.SimpleDateFormat inputFmt  = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);
+            java.text.SimpleDateFormat outputFmt = new java.text.SimpleDateFormat("MMM yyyy",   java.util.Locale.US);
+            java.util.Date date = inputFmt.parse(releaseDate);
+            return date != null ? outputFmt.format(date) : releaseDate.substring(0, 7);
+        } catch (java.text.ParseException e) {
+            return releaseDate.substring(0, 4); // best-effort year fallback
+        }
     }
 }

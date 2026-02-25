@@ -449,6 +449,7 @@ public class SwipingActivity extends BaseActivity {
         if (isFinishing() || isDestroyed()) return;
         Intent intent = new Intent(this, MatchActivity.class);
         intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
+        intent.putExtra(LobbyActivity.EXTRA_IS_HOST, isHost);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

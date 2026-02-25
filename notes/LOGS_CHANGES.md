@@ -1,5 +1,40 @@
 # CineMatch – Log of Changes
 
+## 2026-02-25 – UI Enhancement: Match Activity Redesign
+
+**What:** Overhauled the entire `MatchActivity` UI to match the cinematic aesthetic of the swiping card and lobby screens.
+
+**Files changed:**
+
+- **`res/layout/activity_match.xml`** _(REDESIGNED)_ — restructured root from `FrameLayout` to vertical `LinearLayout` so the celebration card sits physically **above** the movie image; image area uses `layout_weight=1` inside a `FrameLayout` with a darker `gradient_match_overlay` scrim; bottom info panel (title, date, rating, overview, genre chips) overlays the image at the bottom; removed all emojis; replaced emoji icons with `calendar_icon` and `star_icon` drawables; genre chips match the swiping card style; added two role-based action groups:
+  - `layout_host_actions` — side-by-side Leave (outlined red) + Watch Now (filled teal) pill buttons + "Find Another Match" text link
+  - `layout_member_actions` — full-width Leave pill + "Wait for the host to start watch the movie" info text
+- **`res/layout/activity_match.xml` — celebration card** — replaced plain `TextView` with `MaterialCardView` (`color_surface`, 16dp radius); header row has "It's a Match!" start-aligned on the left and `users_icon` + live member count (`2/2`) on the right; subtitle "Everyone agreed on this one!" below, start-aligned
+- **`res/drawable/gradient_match_overlay.xml`** _(NEW)_ — darker gradient scrim variant (`#55` top → `#CC` center → `#F2` bottom) dedicated to MatchActivity so movie backdrops with logo text don't bleed through the overlay
+- **`res/drawable/bg_rounded_poster.xml`** _(NEW)_ — placeholder shape drawable for the poster ImageView
+- **`res/drawable/users_icon.xml`** — fixed invalid XML comment (`--` inside block comment) that caused `parseDebugLocalResources` build failure
+- **`ui/match/MatchActivity.java`** — applied Glide `RoundedCorners(16dp)` transform for poster rounding; date formatter changed from year-only to `"MMM yyyy"` (e.g. "Feb 2025"); rating text is now a plain number (icon in layout); `setupButtons()` branches on `isHost` to show/hide the correct action group and wire all four buttons (host Leave, Watch Now, Find Another Match, member Leave); added `startMemberCountListener()` which does a one-shot `loadAllMembers` then a live `listenMembers` callback to display and update the member count in real-time
+
+---
+
+## 2026-02-25 – Bug Fix: MatchActivity Showed Member UI for All Users (Issue #45)
+
+**Problem:** After a match was detected, `SwipingActivity` navigated all devices to `MatchActivity` but did **not** pass `EXTRA_IS_HOST` in the Intent. As a result, `MatchActivity.isHost` defaulted to `false` on every device, and both the host and members saw the member-only UI (full-width Leave button + "Wait for the host…" text). The host's Watch Now and Find Another Match buttons were never shown.
+
+**Root cause:** `SwipingActivity.navigateToMatch()` only passed `EXTRA_ROOM_CODE`; `EXTRA_IS_HOST` was omitted.
+
+**Fix:** Added one line to `navigateToMatch()`:
+
+```java
+intent.putExtra(LobbyActivity.EXTRA_IS_HOST, isHost);
+```
+
+**Files changed:**
+
+- **`ui/swiping/SwipingActivity.java`** — added `intent.putExtra(LobbyActivity.EXTRA_IS_HOST, isHost)` to `navigateToMatch()`
+
+---
+
 ## 2026-02-24 – Feature: Phase 8.3 – Match Activity Implementation
 
 **What:** Fully implemented `MatchActivity` — displays the matched movie, plays a Lottie confetti animation, and provides Watch on TMDb / Find Another Match / Leave Lobby actions.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- gradient_match_overlay.xml
+     Darker variant used only for MatchActivity — stronger black at top
+     so movie backdrop text / noise doesn't bleed through. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:startColor="#55000000"
+        android:centerColor="#CC000000"
+        android:endColor="#F2000000" />
+</shape>
