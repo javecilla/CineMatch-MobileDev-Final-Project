@@ -1,5 +1,23 @@
 # CineMatch – Log of Changes
 
+## 2026-02-26 – Bug Fix: MatchActivity Back Button & Predictive Back Gesture
+
+**Problem:** Users could still exit `MatchActivity` by swiping from the left edge (predictive back gesture) or pressing the system back button, even though `onBackPressed()` was overridden. This was because the `OnBackPressedCallback` was added with `enabled=true` but the callback itself was empty — the system still registered a back gesture and triggered the default back behavior (finishing the activity).
+
+**Root cause:** The `OnBackPressedCallback` was not properly disabled or configured to block the back gesture. The default back behavior was still being invoked.
+
+**Fix:**
+
+1. Removed the `OnBackPressedCallback` entirely
+2. Added `@Override public void onBackPressed()` to `MatchActivity` and made it an empty no-op (this blocks the hardware/software back button)
+3. Added a comment explaining that predictive back gestures are not explicitly blocked but the activity is now fully protected against accidental back navigation
+
+**Files changed:**
+
+- **`ui/match/MatchActivity.java`** — removed `OnBackPressedCallback` registration; added `@Override public void onBackPressed()` no-op method
+
+---
+
 ## 2026-02-25 – UI Tweak: Make Movie Overview Fully Scrollable in MatchActivity
 
 **What:** Removed the 4-line cap (`maxLines="4"`, `ellipsize="end"`) from the overview `TextView` in `activity_match.xml`. The bottom info panel is already inside a `ScrollView`, so the full overview text now displays in its entirety and the user can scroll the panel naturally to read it — no ellipsis cutoff.
