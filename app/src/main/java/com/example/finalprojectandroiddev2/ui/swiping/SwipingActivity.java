@@ -48,6 +48,9 @@ public class SwipingActivity extends BaseActivity {
 
     private static final String TAG = "CineMatch.Swiping";
 
+    /** Optional extra: override the initial TMDB page for this swiping session. */
+    public static final String EXTRA_INITIAL_PAGE = "initial_page";
+
     private ViewPager2                       viewPagerMovies;
     private MovieCardAdapter                 movieCardAdapter;
     private View                             btnYes;
@@ -80,6 +83,9 @@ public class SwipingActivity extends BaseActivity {
         // Read isHost from Intent — available immediately, no async wait needed.
         isHost = getIntent().getBooleanExtra(LobbyActivity.EXTRA_IS_HOST, false);
 
+        // Optional override for initial TMDB page (used when host taps "Find Another Match").
+        int overrideInitialPage = getIntent().getIntExtra(EXTRA_INITIAL_PAGE, -1);
+
         // Disable back press during a swiping session — users should not be able to
         // accidentally abandon an active lobby. Works on all API levels including
         // Android 13+ predictive back gestures.
@@ -103,8 +109,16 @@ public class SwipingActivity extends BaseActivity {
             listenForPageChanges();
 
             if (isHost) {
-                // Compute the seed page from room code hash.
-                int initialPage = (Math.abs(roomCode.hashCode()) % 100) + 1;
+                // Determine the initial page:
+                // - If coming from "Find Another Match", use the override page.
+                // - Otherwise, derive a deterministic page from the room code hash.
+                int initialPage;
+                if (overrideInitialPage > 0) {
+                    initialPage = overrideInitialPage;
+                } else {
+                    initialPage = (Math.abs(roomCode.hashCode()) % 100) + 1;
+                }
+
                 currentPage = initialPage;
 
                 // Host fetches movies locally (no dependency on Firebase callback)
@@ -469,7 +483,9 @@ public class SwipingActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        firebaseRepo.detachListeners();
+        // Detach only swiping-owned listeners (votes + page). Do not detach status here,
+        // because MatchActivity may attach a status listener while this activity is finishing.
+        firebaseRepo.detachSwipingListeners();
     }
 
     // ── TMDB fetch (fetchMoviesForPage) is defined above, near listenForPageChanges ──
