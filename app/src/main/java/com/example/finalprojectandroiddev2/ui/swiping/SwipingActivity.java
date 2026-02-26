@@ -186,10 +186,14 @@ public class SwipingActivity extends BaseActivity {
                     int movieId = currentMovies.get(position).getId();
                     if (roomCode != null && !roomCode.isEmpty()) {
                         attachVoteSyncForMovie(movieId);
+                        firebaseRepo.markEndOfDeck(roomCode, currentPage, currentUserId, false);
                     }
                     layoutSwipeControls.setVisibility(View.VISIBLE);
                     btnExitSession.setVisibility(View.VISIBLE);
-                } else {
+                } else if (currentMovies != null && position >= currentMovies.size()) {
+                    if (roomCode != null && !roomCode.isEmpty()) {
+                        firebaseRepo.markEndOfDeck(roomCode, currentPage, currentUserId, true);
+                    }
                     layoutSwipeControls.setVisibility(View.INVISIBLE);
                     btnExitSession.setVisibility(View.INVISIBLE);
                 }
@@ -344,6 +348,16 @@ public class SwipingActivity extends BaseActivity {
      * Called by listenForPageChanges() on ALL devices (host + member) identically.
      */
     private void fetchMoviesForPage(int page) {
+        if (roomCode != null && !roomCode.isEmpty()) {
+            firebaseRepo.listenEndOfDeckForPage(roomCode, page, voterUids -> {
+                int doneCount = voterUids.size();
+                int totalCount = memberMap != null ? memberMap.size() : 0;
+                runOnUiThread(() -> {
+                    movieCardAdapter.setEndOfDeckProgress(doneCount, totalCount);
+                });
+            });
+        }
+        
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
         TmdbApiClient.getService()
                 .getTrendingMovies("day", "en-US", page, bearer)

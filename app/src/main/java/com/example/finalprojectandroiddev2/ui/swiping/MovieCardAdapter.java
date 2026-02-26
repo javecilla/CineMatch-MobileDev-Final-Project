@@ -98,10 +98,21 @@ public class MovieCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private SwipeCallback    swipeCallback;
     private EndOfDeckCallback endOfDeckCallback;
     private boolean           isHost = false;
+    private int               usersDoneCount = 0;
+    private int               totalUsersCount = 0;
 
     public void setSwipeCallback(SwipeCallback cb)         { this.swipeCallback     = cb; }
     public void setEndOfDeckCallback(EndOfDeckCallback cb) { this.endOfDeckCallback = cb; }
     public void setIsHost(boolean host)                    { this.isHost           = host; }
+    
+    public void setEndOfDeckProgress(int done, int total) {
+        this.usersDoneCount  = done;
+        this.totalUsersCount = total;
+        // The last item is the end-of-deck card, so notify it specifically if movies are loaded
+        if (!movies.isEmpty()) {
+            notifyItemChanged(movies.size());
+        }
+    }
 
     // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -162,7 +173,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof EndOfDeckViewHolder) {
-            ((EndOfDeckViewHolder) holder).bind(isHost, endOfDeckCallback);
+            ((EndOfDeckViewHolder) holder).bind(isHost, endOfDeckCallback, usersDoneCount, totalUsersCount);
         } else {
             ((MovieCardViewHolder) holder).bind(movies.get(position));
         }
@@ -176,20 +187,48 @@ public class MovieCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class EndOfDeckViewHolder extends RecyclerView.ViewHolder {
         private final View btnLoadMore;
-        private final View textWaitingHost;
+        private final TextView textWaitingHost;
+        private final TextView textProgressCount;
+        private final com.google.android.material.button.MaterialButton mBtnLoadMore;
 
         EndOfDeckViewHolder(@NonNull View itemView) {
             super(itemView);
-            btnLoadMore     = itemView.findViewById(R.id.btn_load_more);
-            textWaitingHost = itemView.findViewById(R.id.text_waiting_host);
+            btnLoadMore       = itemView.findViewById(R.id.btn_load_more);
+            textWaitingHost   = itemView.findViewById(R.id.text_waiting_host);
+            textProgressCount = itemView.findViewById(R.id.text_end_of_deck_count);
+            mBtnLoadMore      = itemView.findViewById(R.id.btn_load_more);
         }
 
-        void bind(boolean isHost, EndOfDeckCallback callback) {
+        void bind(boolean isHost, EndOfDeckCallback callback, int doneCount, int totalCount) {
+            Context ctx = itemView.getContext();
+            
+            // Format "2 users already done out of 3"
+            String progressText = ctx.getString(R.string.label_end_of_deck_count, doneCount, totalCount);
+            if (totalCount > 0) {
+                textProgressCount.setVisibility(View.VISIBLE);
+                textProgressCount.setText(progressText);
+            } else {
+                textProgressCount.setVisibility(View.GONE);
+            }
+
+            boolean allDone = (totalCount > 0 && doneCount >= totalCount);
+
             if (isHost) {
                 btnLoadMore.setVisibility(View.VISIBLE);
                 textWaitingHost.setVisibility(View.GONE);
+                
+                if (allDone) {
+                    btnLoadMore.setEnabled(true);
+                    mBtnLoadMore.setText(R.string.btn_load_more);
+                } else {
+                    btnLoadMore.setEnabled(false);
+                    mBtnLoadMore.setText(R.string.btn_waiting_others_vote);
+                }
+                
                 btnLoadMore.setOnClickListener(v -> {
-                    if (callback != null) callback.onLoadMoreClicked();
+                    if (allDone && callback != null) {
+                        callback.onLoadMoreClicked();
+                    }
                 });
             } else {
                 btnLoadMore.setVisibility(View.GONE);
