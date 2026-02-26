@@ -1,5 +1,24 @@
 # CineMatch – Log of Changes
 
+## 2026-02-26 – Feature/Fix: End of Deck Synchronization and User Progress Counter
+
+**What:** Disabled the "Load More Movies" button for the host until all lobby members have reached the end of the deck, ensuring fairness and preventing the host from skipping ahead. Also added a real-time progress counter displaying how many users have finished voting.
+
+- **Firebase Tracking:** Added a new `endOfDeck` node to Firebase to track which users have reached the end of the deck for a specific page.
+- **UI Progress Counter:** Added a `TextView` to the end-of-deck card that displays the count of users who have reached the end of the deck compared to the total members in the lobby (e.g., "3 users already done out of 7").
+- **Host Button State:** The "Load More Movies" button for the host is now disabled and displays "Wait for others to finish vote" until all members have reached the end of the deck. Once all members finish, it becomes enabled with the original text.
+
+**Files changed:**
+
+- **`utils/Constants.java`** — Added `NODE_END_OF_DECK`.
+- **`res/values/strings.xml`** — Added `btn_waiting_others_vote` and `label_end_of_deck_count`.
+- **`data/repository/FirebaseRepository.java`** — Added `markEndOfDeck()` to set/remove user completion status and `listenEndOfDeckForPage()` to track real-time completion. Updated `detachLobbyListeners()`.
+- **`res/layout/item_end_of_deck.xml`** — Added `text_end_of_deck_count` `TextView` to display the progress ratio beneath the buttons.
+- **`ui/swiping/MovieCardAdapter.java`** — Added tracking for `usersDoneCount` and `totalUsersCount`. Updated `EndOfDeckViewHolder.bind()` to format the progress string, update visibility, and toggle the host's "Load More" button state.
+- **`ui/swiping/SwipingActivity.java`** — Updated `fetchMoviesForPage()` to listen to the end-of-deck completion status and update the adapter. Updated `ViewPager2.OnPageChangeCallback` to correctly call `markEndOfDeck(..., true)` when reaching the end of the deck and `markEndOfDeck(..., false)` when swiping back to a movie card.
+
+---
+
 ## 2026-02-26 – Fix: SwipingActivity Buttons Visible at End of Deck
 
 **What:** Resolved a UX issue where the "Yes", "No", and "Exit Session" buttons remained visible when the user reached the end of the movie deck (where no voting actions apply).

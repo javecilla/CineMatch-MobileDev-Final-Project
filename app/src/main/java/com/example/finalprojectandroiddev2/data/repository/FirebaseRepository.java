@@ -721,6 +721,66 @@ public class FirebaseRepository {
         /** Called with the new page number whenever the host increments it. */
         void onPageChanged(int page);
     }
+    
+    // ── End of Deck Sync ─────────────────────────────────────────────────────────
+
+    private ValueEventListener activeEndOfDeckListener;
+    private DatabaseReference  activeEndOfDeckRef;
+
+    /**
+     * Marks whether a user has reached the end of the deck for a specific page.
+     * Writes true or null to lobbies/{roomCode}/endOfDeck/{page}/{userId}.
+     */
+    public void markEndOfDeck(String roomCode, int page, String userId, boolean reached) {
+        DatabaseReference ref = lobbiesRef.child(roomCode)
+                .child(Constants.NODE_END_OF_DECK)
+                .child(String.valueOf(page))
+                .child(userId);
+        if (reached) {
+            ref.setValue(true);
+        } else {
+            ref.removeValue();
+        }
+    }
+
+    /**
+     * Listens to the endOfDeck node for a specific page to know how many users have finished.
+     */
+    public void listenEndOfDeckForPage(String roomCode, int page, VotesCallback callback) {
+        detachEndOfDeckListener();
+        activeEndOfDeckRef = lobbiesRef.child(roomCode)
+                .child(Constants.NODE_END_OF_DECK)
+                .child(String.valueOf(page));
+
+        activeEndOfDeckListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                java.util.Set<String> finishedUsers = new java.util.LinkedHashSet<>();
+                if (snap.exists()) {
+                    for (DataSnapshot child : snap.getChildren()) {
+                        if (child.getKey() != null) {
+                            finishedUsers.add(child.getKey());
+                        }
+                    }
+                }
+                callback.onVotesUpdated(finishedUsers);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Logger.e(TAG, "listenEndOfDeckForPage cancelled: " + error.getMessage());
+            }
+        };
+        activeEndOfDeckRef.addValueEventListener(activeEndOfDeckListener);
+    }
+
+    private void detachEndOfDeckListener() {
+        if (activeEndOfDeckRef != null && activeEndOfDeckListener != null) {
+            activeEndOfDeckRef.removeEventListener(activeEndOfDeckListener);
+            activeEndOfDeckListener = null;
+            activeEndOfDeckRef = null;
+        }
+    }
 
     private ValueEventListener activePageListener;
     private DatabaseReference   activePageRef;

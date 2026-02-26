@@ -2,6 +2,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardBackgroundColor="@color/color_surface"
@@ -59,6 +60,17 @@
             app:iconGravity="textStart"
             app:iconPadding="8dp"
             app:iconTint="@color/color_primary" />
+
+        <!-- Progress Counter -->
+        <TextView
+            android:id="@+id/text_end_of_deck_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_text_secondary"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            tools:text="3 users already done out of 7" />
 
         <!-- Member only: waiting hint -->
         <TextView
