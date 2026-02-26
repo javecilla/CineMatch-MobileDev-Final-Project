@@ -578,6 +578,19 @@ public class FirebaseRepository {
     }
 
     /**
+     * Detaches only swiping-owned listeners (votes + currentPage).
+     *
+     * IMPORTANT: Do NOT detach the lobby status listener here.
+     * MatchActivity may attach a status listener while SwipingActivity is finishing,
+     * and detaching status in SwipingActivity.onDestroy() would remove the MatchActivity
+     * listener (shared singleton), causing members to get stuck on the match screen.
+     */
+    public void detachSwipingListeners() {
+        detachVotesListener();
+        detachPageListener();
+    }
+
+    /**
      * Detaches only lobby-specific listeners (members + status).
      * Call from LobbyActivity / CreateLobbyActivity.onDestroy() so that
      * page and votes listeners (owned by SwipingActivity) survive the transition.
@@ -696,6 +709,24 @@ public class FirebaseRepository {
     public void setCurrentPage(String roomCode, int page) {
         lobbiesRef.child(roomCode).child(Constants.NODE_CURRENT_PAGE).setValue(page);
         Logger.d(TAG, "Host set currentPage → " + page);
+    }
+
+    /**
+     * One-shot read of the current TMDB page number for a lobby.
+     * Returns 0 if the node is missing or an error occurs.
+     */
+    public void getCurrentPage(String roomCode, PageCallback callback) {
+        lobbiesRef.child(roomCode)
+                .child(Constants.NODE_CURRENT_PAGE)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful() || !task.getResult().exists()) {
+                        callback.onPageChanged(0);
+                        return;
+                    }
+                    Integer page = task.getResult().getValue(Integer.class);
+                    callback.onPageChanged(page != null ? page : 0);
+                });
     }
 
     /**

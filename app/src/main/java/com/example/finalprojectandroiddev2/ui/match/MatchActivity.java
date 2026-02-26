@@ -111,6 +111,16 @@ public class MatchActivity extends BaseActivity {
 
         // Fetch matched movie ID then load TMDB details
         if (roomCode != null && !roomCode.isEmpty()) {
+            // Non-host members listen for the host restarting the session (status → "swiping")
+            // so they can automatically return to SwipingActivity for the next round.
+            if (!isHost) {
+                firebaseRepo.listenLobbyStatus(roomCode, status -> {
+                    if (Constants.LOBBY_STATUS_SWIPING.equals(status)) {
+                        runOnUiThread(this::navigateBackToSwipingAsMember);
+                    }
+                });
+            }
+
             firebaseRepo.getMatchedMovieId(roomCode, movieIdStr -> {
                 if (movieIdStr == null) {
                     Logger.d(TAG, "matchedMovieId not found in Firebase");
@@ -124,6 +134,22 @@ public class MatchActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    /**
+     * For non-host members: navigate back to SwipingActivity when the host
+     * starts a new round (status set to "swiping").
+     */
+    private void navigateBackToSwipingAsMember() {
+        if (isFinishing() || isDestroyed()) return;
+        // Clean up MatchActivity listeners before leaving (members + status).
+        firebaseRepo.detachLobbyListeners();
+        Intent intent = new Intent(this, SwipingActivity.class);
+        intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
+        intent.putExtra(LobbyActivity.EXTRA_IS_HOST, false);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -285,17 +311,31 @@ public class MatchActivity extends BaseActivity {
      * Resets Firebase state and navigates back to SwipingActivity for a new round.
      */
     private void restartSwipingSession() {
-        if (roomCode == null) return;
-        // Reset page + status so all devices re-enter swiping
-        firebaseRepo.setCurrentPage(roomCode, 0);
-        firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
+        if (!isHost || roomCode == null || roomCode.isEmpty()) return;
 
-        Intent intent = new Intent(this, SwipingActivity.class);
-        intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
-        intent.putExtra(LobbyActivity.EXTRA_IS_HOST, isHost);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        // Disable to prevent double-taps while we read/update Firebase.
+        btnFindAnother.setEnabled(false);
+
+        // Read the last used TMDB page and start the next session on page+1
+        // so the new deck shows a fresh set of movies.
+        firebaseRepo.getCurrentPage(roomCode, page -> {
+            int nextPage = (page <= 0) ? 1 : page + 1;
+
+            // Broadcast the new starting page and switch lobby status back to "swiping".
+            firebaseRepo.setCurrentPage(roomCode, nextPage);
+            firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
+
+            // Clean up MatchActivity listeners before leaving (members + status).
+            firebaseRepo.detachLobbyListeners();
+
+            Intent intent = new Intent(this, SwipingActivity.class);
+            intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
+            intent.putExtra(LobbyActivity.EXTRA_IS_HOST, true);
+            intent.putExtra(SwipingActivity.EXTRA_INITIAL_PAGE, nextPage);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        });
     }
 
     /**

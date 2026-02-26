@@ -1,5 +1,85 @@
 # CineMatch – Log of Changes
 
+## 2026-02-26 – Fix: Members Stuck on Match After Host Starts New Round
+
+**Problem:** After the host tapped **Find Another Match**, only the host was redirected back to `SwipingActivity`. Members remained stuck on `MatchActivity` even though Firebase showed `status: "swiping"` and `currentPage` had advanced.
+
+**Root cause:**  
+`FirebaseRepository` is a singleton. `SwipingActivity.onDestroy()` was calling `firebaseRepo.detachListeners()`, which detached **all** active Firebase listeners, including the lobby `status` listener that **MatchActivity** had just attached for members. As a result, members never received the `"swiping"` status change needed to navigate back to swiping.
+
+**Fix:**
+
+1. **Scoped listener cleanup:**
+   - Added `detachSwipingListeners()` in `FirebaseRepository` that only detaches:
+     - Vote listener (`votes/{movieId}`)
+     - Page listener (`currentPage`)
+   - Updated `detachListeners()` Javadoc and left it for rare full cleanups.
+
+2. **SwipingActivity:**
+   - `onDestroy()` now calls:
+     - `firebaseRepo.detachSwipingListeners();`
+   - This ensures page/vote listeners are cleaned up when leaving swiping, **without** touching the lobby `status` listener that other activities may own.
+
+3. **MatchActivity:**
+   - When members auto-navigate back to swiping on `status = "swiping"`:
+     - `navigateBackToSwipingAsMember()` now calls `firebaseRepo.detachLobbyListeners()` before starting `SwipingActivity`.
+   - When the host taps **Find Another Match**:
+     - `restartSwipingSession()` now calls `firebaseRepo.detachLobbyListeners()` just before starting `SwipingActivity`.
+   - This keeps MatchActivity's own `members + status` listeners tidy without interfering with swiping-owned listeners.
+
+**Files changed:**
+
+- **`data/repository/FirebaseRepository.java`**
+  - Added `detachSwipingListeners()` and documented why status must not be detached there.
+
+- **`ui/swiping/SwipingActivity.java`**
+  - `onDestroy()` now calls `detachSwipingListeners()` instead of `detachListeners()`.
+
+- **`ui/match/MatchActivity.java`**
+  - `navigateBackToSwipingAsMember()` and `restartSwipingSession()` call `detachLobbyListeners()` before starting `SwipingActivity`.
+
+**Result:** When the host starts a new round from the match screen, **all members** reliably receive the `"swiping"` status update and are redirected back to `SwipingActivity` in sync with the host. No one gets stuck on `MatchActivity` anymore.
+
+---
+
+## 2026-02-26 – Feature: Find Another Match → New Swiping Round (Page +1)
+
+**What:** Implemented full **Find Another Match** behaviour so the host can start a **new swiping round** from `MatchActivity` and automatically bring all members back into `SwipingActivity` with a **fresh deck** of movies based on the **next TMDB page**.
+
+**Behaviour:**
+
+1. Host taps **Find Another Match** on the match screen.
+2. App reads `lobbies/{roomCode}/currentPage` from Firebase to determine the last TMDB page used in the previous round.
+3. Computes `nextPage = (currentPage <= 0 ? 1 : currentPage + 1)` so the next round starts on the **next** page (new movies).
+4. Writes `currentPage = nextPage` and sets `status = "swiping"` for the lobby.
+5. Host navigates to `SwipingActivity` with an explicit `EXTRA_INITIAL_PAGE = nextPage`.
+6. All members currently on `MatchActivity` listen for `status = "swiping"` and automatically navigate back to `SwipingActivity`.
+7. In `SwipingActivity`, if the user is host and `EXTRA_INITIAL_PAGE` is present, that page is used as the initial TMDB page instead of the room-code hash; the host fetches `nextPage` and broadcasts it to Firebase so all members fetch the same page via `listenForPageChanges()`.
+
+**Files changed:**
+
+- **`data/repository/FirebaseRepository.java`**
+  - Added `getCurrentPage(String roomCode, PageCallback)` — one-shot read of `lobbies/{roomCode}/currentPage` (returns 0 if missing).
+
+- **`ui/swiping/SwipingActivity.java`**
+  - Added `EXTRA_INITIAL_PAGE` constant.
+  - Updated `onCreate()` so that for hosts:
+    - If `EXTRA_INITIAL_PAGE > 0`, uses this as the initial TMDB page.
+    - Otherwise, falls back to the room-code hash–derived page.
+  - Host still calls `fetchMoviesForPage(initialPage)` and `setCurrentPage(roomCode, initialPage)` so members receive the page change through the existing `listenForPageChanges()` path.
+
+- **`ui/match/MatchActivity.java`**
+  - Updated **Find Another Match** click handler:
+    - Reads `currentPage` via `firebaseRepo.getCurrentPage(roomCode, callback)`.
+    - Computes `nextPage`, writes it back to `currentPage`, and sets lobby `status` to `"swiping"`.
+    - Starts `SwipingActivity` for the host with `EXTRA_ROOM_CODE`, `EXTRA_IS_HOST = true`, and `EXTRA_INITIAL_PAGE = nextPage`.
+  - Added a **status listener for members**:
+    - Non-host devices on `MatchActivity` call `listenLobbyStatus()` and, when status becomes `"swiping"`, automatically start `SwipingActivity` with the same `roomCode` and `EXTRA_IS_HOST = false`.
+
+**Result:** After a match is found and everyone lands on the match screen, the host can tap **Find Another Match** to seamlessly start a new voting round on the next TMDB page. All members are pulled back into `SwipingActivity` automatically, and all devices see the same new deck of movies.
+
+---
+
 ## 2026-02-26 – Bug Fix: MatchActivity Back Button & Predictive Back Gesture
 
 **Problem:** Users could still exit `MatchActivity` by swiping from the left edge (predictive back gesture) or pressing the system back button, even though `onBackPressed()` was overridden. This was because the `OnBackPressedCallback` was added with `enabled=true` but the callback itself was empty — the system still registered a back gesture and triggered the default back behavior (finishing the activity).
