@@ -1,5 +1,18 @@
 # CineMatch – Log of Changes
 
+## 2026-02-26 – Fix: SwipingActivity Buttons Visible at End of Deck
+
+**What:** Resolved a UX issue where the "Yes", "No", and "Exit Session" buttons remained visible when the user reached the end of the movie deck (where no voting actions apply).
+
+- **Button Visibility Controller:** Added logic to the `ViewPager2.OnPageChangeCallback` in `SwipingActivity`. When the user swipes to the end-of-deck placeholder card, the bottom controls (`layout_swipe_controls`) and the Exit button (`btn_exit_session`) are set to `View.INVISIBLE` to hide them while preserving layout sizing.
+- **Button Restoration:** When real movies are loaded (via the host selecting "Load More") or users swipe back to real movies, the buttons are set back to `View.VISIBLE`.
+
+**Files changed:**
+
+- **`ui/swiping/SwipingActivity.java`** — Bound `layout_swipe_controls` and `btn_exit_session`, and updated visibility conditionally in `onPageSelected()`.
+
+---
+
 ## 2026-02-26 – Fix: "Find Another Match" Second Round Sync Bug
 
 **What:** Resolved an issue where tapping "Find Another Match" would successfully restart the swiping session, but an old match would be immediately erroneously detected (showing the previous movie) because old votes and match state persisted in Firebase.
