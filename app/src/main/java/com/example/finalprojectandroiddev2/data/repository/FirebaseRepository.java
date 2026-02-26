@@ -564,6 +564,29 @@ public class FirebaseRepository {
         void onLoaded(String movieId);
     }
 
+    /**
+     * Clears the match state for a lobby (matchedMovieId and votes nodes) when starting a new round.
+     */
+    public void clearMatchState(String roomCode, SimpleCallback callback) {
+        DatabaseReference lobbyRef = lobbiesRef.child(roomCode);
+        
+        // Remove both matchedMovieId and all votes atomically-ish using an updateMap
+        // or by just calling removeValue on the separate nodes.
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(Constants.NODE_MATCHED_MOVIE_ID, null);
+        updates.put(Constants.NODE_VOTES, null);
+        
+        lobbyRef.updateChildren(updates).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Logger.d(TAG, "Cleared match state (matchedMovieId and votes) for lobby " + roomCode);
+                if (callback != null) callback.onSuccess();
+            } else {
+                Logger.e(TAG, "Failed to clear match state for lobby " + roomCode, task.getException());
+                if (callback != null) callback.onFailure(task.getException() != null ? task.getException().getMessage() : "Unknown error");
+            }
+        });
+    }
+
     // ── Cleanup ─────────────────────────────────────────────────────────────────
 
     /**
