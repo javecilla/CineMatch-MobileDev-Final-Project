@@ -115,6 +115,14 @@
     <!-- Match -->
     <string name="msg_match_found">It&#8217;s a Match!</string>
     <string name="msg_match_subtitle">Everyone agreed on this one!</string>
-    <string name="btn_watch_now">Watch on TMDb</string>
+    <string name="btn_watch_now">Watch Now</string>
     <string name="btn_find_another_match">Find Another Match</string>
+
+    <!-- Watch -->
+    <string name="watch_info_alone">You are watching.</string>
+    <string name="watch_info_others">You, and %1$d others are watching!</string>
+    <string name="btn_play">Play</string>
+    <string name="btn_done_watching">Done Watching</string>
+    <string name="msg_wait_host_play">Wait for the host to play the movie</string>
+    <string name="msg_movie_is_playing">Movie is playing</string>
 </resources>
