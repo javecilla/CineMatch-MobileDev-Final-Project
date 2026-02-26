@@ -1,5 +1,38 @@
 # CineMatch – Log of Changes
 
+## 2026-02-26 – Feature: WatchActivity Synchronized Play and Done Navigation
+
+**What:** Implemented synchronized logic for `WatchActivity` so that the host's actions apply to all members in the lobby.
+
+- **Member UI Adjustment:** Removed the "Done Watching" button for members. They now see a waiting message ("Wait for the host to play the movie").
+- **Play Synchronization:** When the host clicks **Play**, the lobby status is updated to `playing`. Members' UI updates to "Movie is playing" and the intro video begins playing for them as well.
+- **Done Watching Synchronization:** When the host clicks **Done Watching**, the lobby status is updated to `completed` in Firebase, rather than leaving the room stuck in "watching". All members' screens react to this state change and automatically navigate back to the `HomeActivity`, closing out the session properly for everyone.
+
+**Files changed:**
+
+- **`utils/Constants.java`** — Added `LOBBY_STATUS_PLAYING` and `LOBBY_STATUS_COMPLETED`.
+- **`res/values/strings.xml`** — Added `msg_wait_host_play` and `msg_movie_is_playing`.
+- **`res/layout/activity_watch.xml`** — Placed host actions inside `layout_host_actions` and added `text_member_status` for members.
+- **`ui/watch/WatchActivity.java`** — Updated `setupButtons()` for host/member layout split. Add `listenForStatusChanges()` to monitor Firebase status and update UI/navigate to HomeActivity simultaneously for all members.
+
+---
+
+## 2026-02-26 – Feature: Watch Activity + Synchronized "Watch Now" Navigation
+
+**What:** Implemented `WatchActivity` where users arrive after the host clicks "Watch Now" on the Match screen. The screen shows a mock intro video using `VideoView` referencing a raw resource.
+
+**Files changed:**
+
+- **`utils/Constants.java`** — Added `LOBBY_STATUS_WATCHING = "watching"`
+- **`ui/watch/WatchActivity.java`** _(NEW)_ — Handles `VideoView` playback of raw MP4, sets up host controls (Play / Done Watching) and member info text. Syncs movie info layout pattern.
+- **`res/layout/activity_watch.xml`** _(NEW)_ — Video layout and movie details, reusing styles from Match screen.
+- **`ui/match/MatchActivity.java`** — Updated `setupButtons` so "Watch Now" changes lobby status to `watching` and calls `navigateToWatch(true)`. Added status listener for members to call `navigateToWatch(false)`.
+- **`AndroidManifest.xml`** — Registered `.ui.watch.WatchActivity`
+- **`res/values/strings.xml`** — Added `watch_info_alone`, `watch_info_others`, `btn_play`, `btn_done_watching`.
+- **`res/raw/cinematch_default_intro_video.mp4`** _(MOVED)_ — Moved from `drawable/` because it's a binary media resource, to prevent AAPT bundle merge errors.
+
+---
+
 ## 2026-02-26 – Fix: Members Stuck on Match After Host Starts New Round
 
 **Problem:** After the host tapped **Find Another Match**, only the host was redirected back to `SwipingActivity`. Members remained stuck on `MatchActivity` even though Firebase showed `status: "swiping"` and `currentPage` had advanced.

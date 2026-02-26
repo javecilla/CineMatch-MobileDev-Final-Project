@@ -1,7 +1,6 @@
 package com.example.finalprojectandroiddev2.ui.match;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,9 +19,9 @@ import com.example.finalprojectandroiddev2.data.api.TmdbApiClient;
 import com.example.finalprojectandroiddev2.data.model.Movie;
 import com.example.finalprojectandroiddev2.data.repository.FirebaseRepository;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
-import com.example.finalprojectandroiddev2.ui.home.HomeActivity;
 import com.example.finalprojectandroiddev2.ui.lobby.LobbyActivity;
 import com.example.finalprojectandroiddev2.ui.swiping.SwipingActivity;
+import com.example.finalprojectandroiddev2.ui.watch.WatchActivity;
 import com.example.finalprojectandroiddev2.utils.Constants;
 import com.example.finalprojectandroiddev2.utils.Logger;
 import com.google.android.material.button.MaterialButton;
@@ -111,12 +110,15 @@ public class MatchActivity extends BaseActivity {
 
         // Fetch matched movie ID then load TMDB details
         if (roomCode != null && !roomCode.isEmpty()) {
-            // Non-host members listen for the host restarting the session (status → "swiping")
-            // so they can automatically return to SwipingActivity for the next round.
+            // Non-host members listen for the host restarting the session:
+            // - status = "swiping"  → back to SwipingActivity
+            // - status = "watching" → forward to WatchActivity
             if (!isHost) {
                 firebaseRepo.listenLobbyStatus(roomCode, status -> {
                     if (Constants.LOBBY_STATUS_SWIPING.equals(status)) {
                         runOnUiThread(this::navigateBackToSwipingAsMember);
+                    } else if (Constants.LOBBY_STATUS_WATCHING.equals(status)) {
+                        runOnUiThread(() -> navigateToWatch(false));
                     }
                 });
             }
@@ -214,9 +216,12 @@ public class MatchActivity extends BaseActivity {
             // Watch Now — disabled until TMDB details load
             btnWatchNow.setEnabled(false);
             btnWatchNow.setOnClickListener(v -> {
-                if (tmdbUrl != null) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(tmdbUrl)));
+                // When host starts watching, flip status so all members
+                // can react and navigate to WatchActivity.
+                if (roomCode != null && !roomCode.isEmpty()) {
+                    firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_WATCHING);
                 }
+                navigateToWatch(true);
             });
 
             // Find Another Match
@@ -336,6 +341,22 @@ public class MatchActivity extends BaseActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    /**
+     * Navigates to the WatchActivity for the matched movie.
+     */
+    private void navigateToWatch(boolean asHost) {
+        if (isFinishing() || isDestroyed()) return;
+        // Clean up MatchActivity listeners before leaving (members + status).
+        firebaseRepo.detachLobbyListeners();
+
+        Intent intent = new Intent(this, WatchActivity.class);
+        intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
+        intent.putExtra(LobbyActivity.EXTRA_IS_HOST, asHost);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     /**
