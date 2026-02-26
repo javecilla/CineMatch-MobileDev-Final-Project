@@ -321,25 +321,39 @@ public class MatchActivity extends BaseActivity {
         // Disable to prevent double-taps while we read/update Firebase.
         btnFindAnother.setEnabled(false);
 
-        // Read the last used TMDB page and start the next session on page+1
-        // so the new deck shows a fresh set of movies.
-        firebaseRepo.getCurrentPage(roomCode, page -> {
-            int nextPage = (page <= 0) ? 1 : page + 1;
+        // First clear the old match and votes.
+        firebaseRepo.clearMatchState(roomCode, new FirebaseRepository.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                // Read the last used TMDB page and start the next session on page+1
+                // so the new deck shows a fresh set of movies.
+                firebaseRepo.getCurrentPage(roomCode, page -> {
+                    int nextPage = (page <= 0) ? 1 : page + 1;
 
-            // Broadcast the new starting page and switch lobby status back to "swiping".
-            firebaseRepo.setCurrentPage(roomCode, nextPage);
-            firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
+                    // Broadcast the new starting page and switch lobby status back to "swiping".
+                    firebaseRepo.setCurrentPage(roomCode, nextPage);
+                    firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_SWIPING);
 
-            // Clean up MatchActivity listeners before leaving (members + status).
-            firebaseRepo.detachLobbyListeners();
+                    // Clean up MatchActivity listeners before leaving (members + status).
+                    firebaseRepo.detachLobbyListeners();
 
-            Intent intent = new Intent(this, SwipingActivity.class);
-            intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
-            intent.putExtra(LobbyActivity.EXTRA_IS_HOST, true);
-            intent.putExtra(SwipingActivity.EXTRA_INITIAL_PAGE, nextPage);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
+                    Intent intent = new Intent(MatchActivity.this, SwipingActivity.class);
+                    intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, roomCode);
+                    intent.putExtra(LobbyActivity.EXTRA_IS_HOST, true);
+                    intent.putExtra(SwipingActivity.EXTRA_INITIAL_PAGE, nextPage);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onFailure(String message) {
+                runOnUiThread(() -> {
+                    btnFindAnother.setEnabled(true);
+                    Toast.makeText(MatchActivity.this, "Failed to start new round. Try again.", Toast.LENGTH_SHORT).show();
+                });
+            }
         });
     }
 

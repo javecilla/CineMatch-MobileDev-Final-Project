@@ -1,5 +1,36 @@
 # CineMatch – Log of Changes
 
+## 2026-02-26 – Fix: "Find Another Match" Second Round Sync Bug
+
+**What:** Resolved an issue where tapping "Find Another Match" would successfully restart the swiping session, but an old match would be immediately erroneously detected (showing the previous movie) because old votes and match state persisted in Firebase.
+
+- **Match State Cleared:** Added `clearMatchState()` to `FirebaseRepository`.
+- **Session Restart Updated:** When the host clicks "Find Another Match", the app now properly deletes the old `matchedMovieId` and clears all past votes from the `votes` node _before_ advancing the TMDB page and resetting the lobby status to `"swiping"`.
+
+**Files changed:**
+
+- **`data/repository/FirebaseRepository.java`** — Added `clearMatchState(String roomCode, SimpleCallback callback)`.
+- **`ui/match/MatchActivity.java`** — Updated `restartSwipingSession()` to asynchronously call `clearMatchState` before pushing the page update and navigating.
+
+---
+
+## 2026-02-26 – Feature/Fix: WatchActivity Play/Pause Toggle and Sync Fix
+
+**What:** Implemented Play/Pause button state toggling for the host in `WatchActivity` and resolved an issue where subsequent plays only worked on the host device.
+
+- **UI Button States:** The host's Watch button now dynamically toggles between "Play" and "Pause" states, complete with corresponding icons (`play_icon`, `pause_icon`).
+- **Sync Fix:** Added `LOBBY_STATUS_PAUSED` to Firebase lobby states. When the host toggles playback, it accurately updates the lobby status to `"playing"` or `"paused"`.
+- **Member UI Update:** Members see real-time status updates ("Movie is playing" / "Movie is paused") and their `VideoView` correctly starts/pauses in sync with the host for every play attempt, not just the first.
+
+**Files changed:**
+
+- **`utils/Constants.java`** — Added `LOBBY_STATUS_PAUSED`.
+- **`res/values/strings.xml`** — Added `btn_pause` and `msg_movie_is_paused`.
+- **`res/layout/activity_watch.xml`** — Renamed `btn_play` to `btn_toggle_playback`, added `play_icon`.
+- **`ui/watch/WatchActivity.java`** — Added `isPlaying` state toggle, updated click listener to pause/resume `videoIntro` and broadcast status, updated member status listener to handle `LOBBY_STATUS_PAUSED`.
+
+---
+
 ## 2026-02-26 – Feature: WatchActivity Synchronized Play and Done Navigation
 
 **What:** Implemented synchronized logic for `WatchActivity` so that the host's actions apply to all members in the lobby.
