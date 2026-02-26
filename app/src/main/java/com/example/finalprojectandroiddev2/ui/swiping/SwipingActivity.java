@@ -55,6 +55,8 @@ public class SwipingActivity extends BaseActivity {
     private MovieCardAdapter                 movieCardAdapter;
     private View                             btnYes;
     private TextView                         tvMemberStatus;
+    private View                             layoutSwipeControls;
+    private View                             btnExitSession;
     private String                           roomCode;
     private String                           currentUserId;
     private FirebaseRepository               firebaseRepo;
@@ -136,9 +138,11 @@ public class SwipingActivity extends BaseActivity {
     // ── Views ──────────────────────────────────────────────────────────────────
 
     private void bindViews() {
-        viewPagerMovies = findViewById(R.id.viewpager_movies);
-        btnYes          = findViewById(R.id.btn_swipe_yes);
-        tvMemberStatus  = findViewById(R.id.text_member_status);
+        viewPagerMovies     = findViewById(R.id.viewpager_movies);
+        btnYes              = findViewById(R.id.btn_swipe_yes);
+        tvMemberStatus      = findViewById(R.id.text_member_status);
+        layoutSwipeControls = findViewById(R.id.layout_swipe_controls);
+        btnExitSession      = findViewById(R.id.btn_exit_session);
     }
 
     // ── ViewPager2 setup ───────────────────────────────────────────────────────
@@ -183,6 +187,11 @@ public class SwipingActivity extends BaseActivity {
                     if (roomCode != null && !roomCode.isEmpty()) {
                         attachVoteSyncForMovie(movieId);
                     }
+                    layoutSwipeControls.setVisibility(View.VISIBLE);
+                    btnExitSession.setVisibility(View.VISIBLE);
+                } else {
+                    layoutSwipeControls.setVisibility(View.INVISIBLE);
+                    btnExitSession.setVisibility(View.INVISIBLE);
                 }
                 // Note: NO showEndOfDeck() call here.
                 // The end-of-deck card appears naturally when advanceCard() moves
@@ -199,7 +208,7 @@ public class SwipingActivity extends BaseActivity {
         findViewById(R.id.btn_swipe_no).setOnClickListener(v  -> handleNo());
 
         // Exit session
-        findViewById(R.id.btn_exit_session).setOnClickListener(v -> {
+        btnExitSession.setOnClickListener(v -> {
             LobbyPrefs.clearActiveRoomCode(this);
             startActivity(new Intent(this, HomeActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
