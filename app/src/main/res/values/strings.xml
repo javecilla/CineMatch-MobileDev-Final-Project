@@ -122,7 +122,9 @@
     <string name="watch_info_alone">You are watching.</string>
     <string name="watch_info_others">You, and %1$d others are watching!</string>
     <string name="btn_play">Play</string>
+    <string name="btn_pause">Pause</string>
     <string name="btn_done_watching">Done Watching</string>
     <string name="msg_wait_host_play">Wait for the host to play the movie</string>
     <string name="msg_movie_is_playing">Movie is playing</string>
+    <string name="msg_movie_is_paused">Movie is paused</string>
 </resources>

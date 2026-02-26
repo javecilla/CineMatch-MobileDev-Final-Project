@@ -102,13 +102,16 @@
                             app:cardElevation="4dp">
 
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btn_play"
+                                android:id="@+id/btn_toggle_playback"
                                 android:layout_width="match_parent"
                                 android:layout_height="64dp"
                                 android:text="@string/btn_play"
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
+                                app:icon="@drawable/play_icon"
+                                app:iconTint="@color/black"
+                                app:iconGravity="textStart"
                                 app:backgroundTint="@color/color_primary"
                                 app:cornerRadius="50dp" />
 

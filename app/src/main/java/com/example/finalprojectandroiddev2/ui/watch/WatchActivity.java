@@ -47,10 +47,12 @@ public class WatchActivity extends BaseActivity {
     private TextView    tvWatchInfo;
     private VideoView   videoIntro;
     private android.widget.LinearLayout layoutHostActions;
-    private MaterialButton btnPlay;
+    private MaterialButton btnTogglePlayback;
     private MaterialButton btnDone;
     private TextView    tvMemberStatus;
     private ImageView   imgPoster;
+
+    private boolean isPlaying = false;
 
     // Movie info views (mirrors MatchActivity)
     private TextView   tvTitle;
@@ -89,7 +91,7 @@ public class WatchActivity extends BaseActivity {
         tvWatchInfo       = findViewById(R.id.text_watch_info);
         videoIntro        = findViewById(R.id.video_intro);
         layoutHostActions = findViewById(R.id.layout_host_actions);
-        btnPlay           = findViewById(R.id.btn_play);
+        btnTogglePlayback = findViewById(R.id.btn_toggle_playback);
         btnDone           = findViewById(R.id.btn_done_watching);
         tvMemberStatus    = findViewById(R.id.text_member_status);
         imgPoster         = findViewById(R.id.image_movie_poster);
@@ -119,10 +121,23 @@ public class WatchActivity extends BaseActivity {
             layoutHostActions.setVisibility(View.VISIBLE);
             tvMemberStatus.setVisibility(View.GONE);
 
-            btnPlay.setOnClickListener(v -> {
+            btnTogglePlayback.setOnClickListener(v -> {
                 if (videoIntro != null && roomCode != null) {
-                    firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_PLAYING);
-                    videoIntro.start();
+                    if (isPlaying) {
+                        // Pause the video
+                        isPlaying = false;
+                        btnTogglePlayback.setText(R.string.btn_play);
+                        btnTogglePlayback.setIconResource(R.drawable.play_icon);
+                        firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_PAUSED);
+                        videoIntro.pause();
+                    } else {
+                        // Play the video
+                        isPlaying = true;
+                        btnTogglePlayback.setText(R.string.btn_pause);
+                        btnTogglePlayback.setIconResource(R.drawable.pause_icon);
+                        firebaseRepo.setLobbyStatus(roomCode, Constants.LOBBY_STATUS_PLAYING);
+                        videoIntro.start();
+                    }
                 }
             });
 
@@ -149,6 +164,15 @@ public class WatchActivity extends BaseActivity {
                         tvMemberStatus.setText(getString(R.string.msg_movie_is_playing));
                         if (videoIntro != null) {
                             videoIntro.start();
+                        }
+                    }
+                });
+            } else if (Constants.LOBBY_STATUS_PAUSED.equals(status)) {
+                runOnUiThread(() -> {
+                    if (!isHost) {
+                        tvMemberStatus.setText(getString(R.string.msg_movie_is_paused));
+                        if (videoIntro != null) {
+                            videoIntro.pause();
                         }
                     }
                 });
