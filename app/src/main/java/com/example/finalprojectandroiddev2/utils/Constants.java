@@ -30,6 +30,7 @@ public final class Constants {
     public static final String LOBBY_STATUS_MATCHED = "matched";
     public static final String LOBBY_STATUS_WATCHING = "watching";
     public static final String LOBBY_STATUS_PLAYING = "playing";
+    public static final String LOBBY_STATUS_PAUSED = "paused";
     public static final String LOBBY_STATUS_COMPLETED = "completed";
 
     // TMDB API (base URL and paths; token from BuildConfig)
