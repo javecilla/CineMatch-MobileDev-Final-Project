@@ -7,6 +7,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import android.content.res.ColorStateList;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.model.LobbyMember;
@@ -111,6 +113,10 @@ public class LobbyActivity extends BaseActivity {
         if (isHost) {
             cardStartSwiping.setVisibility(View.VISIBLE);
             btnStartSwiping.setEnabled(false); // enabled once >= 2 members
+            btnStartSwiping.setText(R.string.btn_waiting_more_users);
+            btnStartSwiping.setTextColor(ContextCompat.getColor(this, R.color.color_text_secondary));
+            btnStartSwiping.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.color_text_secondary)));
+            btnStartSwiping.setAlpha(0.5f);
             btnStartSwiping.setOnClickListener(v -> startSwipingSession());
         } else {
             cardStartSwiping.setVisibility(View.GONE);
@@ -204,7 +210,19 @@ public class LobbyActivity extends BaseActivity {
 
     private void updateStartButton() {
         if (isHost) {
-            btnStartSwiping.setEnabled(memberMap.size() >= 2);
+            boolean canStart = memberMap.size() >= 2;
+            btnStartSwiping.setEnabled(canStart);
+            if (canStart) {
+                btnStartSwiping.setText(R.string.btn_start_swiping);
+                btnStartSwiping.setTextColor(ContextCompat.getColor(this, R.color.black));
+                btnStartSwiping.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.black)));
+                btnStartSwiping.setAlpha(1.0f);
+            } else {
+                btnStartSwiping.setText(R.string.btn_waiting_more_users);
+                btnStartSwiping.setTextColor(ContextCompat.getColor(this, R.color.color_text_secondary));
+                btnStartSwiping.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.color_text_secondary)));
+                btnStartSwiping.setAlpha(0.5f);
+            }
         }
     }
 

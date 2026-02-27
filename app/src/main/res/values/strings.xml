@@ -97,6 +97,7 @@
     <string name="msg_leave_lobby_confirm">Leave this lobby?</string>
     <string name="share_room_code_message">Join my CineMatch lobby! Room code: %s</string>
     <string name="banner_return_lobby">↩  Tap to return to lobby</string>
+    <string name="btn_waiting_more_users">Waiting for more users…</string>
 
 
     <!-- Swiping -->
