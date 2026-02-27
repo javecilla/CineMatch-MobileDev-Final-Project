@@ -1,5 +1,21 @@
 # CineMatch – Log of Changes
 
+## 2026-02-27 – UI/UX: Rebrand Application Logo
+
+**What:** Replace the legacy application logo with the newly designed CineMatch branding. This update secures our visual identity across all Android system contexts, including the launcher, task switcher, and splash screens. Optimized all density buckets (hdpi to xxhdpi) to ensure crisp rendering on all physical test devices.
+
+**Files changed:**
+
+- **`app/src/main/res/drawable/app_logo_*.png`** — Deployed new branding assets including banners and named logo variants for diverse UI contexts.
+- **`app/src/main/res/layout/activity_home.xml`** — Updated `iv_navbar_brand` to use the new `app_logo_banner_orig`.
+- **`app/src/main/res/layout/activity_join_lobby.xml`** — Updated `iv_navbar_brand` to use the new `app_logo_banner_orig`.
+- **`app/src/main/res/layout/activity_login.xml`** — Updated `iv_navbar_brand` to use the new `app_logo_banner_orig`.
+- **`app/src/main/res/layout/activity_onboarding.xml`** — Updated `iv_navbar_brand` to use the new `app_logo_banner_orig`.
+- **`app/src/main/res/layout/activity_registration.xml`** — Updated `iv_navbar_brand` to use the new `app_logo_banner_orig`.
+- **`app/src/main/res/layout/activity_splash.xml`** — Updated `iv_navbar_brand` to use the new `app_logo_banner_orig`.
+
+---
+
 ## 2026-02-27 – Feature/UX: Enhance Lobby "Start Swiping" Button
 
 **What:** Improved the UX for the host in the `LobbyActivity` to clearly indicate when the session can be started. Before, the button was disabled but showed "Start Swiping" with a full active finish. Now, it reads "Waiting for more users…", reduces its opacity to 50%, and sets the text and icon color to `color_text_secondary` when disabled (fewer than 2 members). It restores full opacity, original colors, and "Start Swiping" text once another member joins.
@@ -859,9 +875,9 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 
 **Changes:**
 
-- **activity_splash.xml** – ConstraintLayout with dark background, centered logo (app_logo_black_transparent.png), Material3 CircularProgressIndicator at bottom. IDs: container_splash, image_logo, progress_loading.
+- **activity_splash.xml** – ConstraintLayout with dark background, centered logo (app_logo_named.png), Material3 CircularProgressIndicator at bottom. IDs: container_splash, image_logo, progress_loading.
 - **SplashActivity.java** – Extends BaseActivity, sets splash layout, applies edge-to-edge insets. Empty of navigation logic (per plan).
-- **Logo** – Copied app_logo_black_transparent.png to drawable (best for dark theme: transparent, vibrant gradients).
+- **Logo** – Copied app_logo_named.png to drawable (best for dark theme: transparent, vibrant gradients).
 - **Colors** – Added dark theme palette: color_background (#050509), color_surface (#171923), color_primary (#39E1C6), etc. (APP_FLOW).
 - **Themes** – Switched to Theme.Material3.Dark.NoActionBar, applied dark palette.
 - **Manifest** – SplashActivity set as launcher; MainActivity no longer launcher.
@@ -870,7 +886,7 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 **Files created/updated:**
 
 - `app/src/main/res/layout/activity_splash.xml` (new)
-- `app/src/main/res/drawable/app_logo_black_transparent.png` (copied)
+- `app/src/main/res/drawable/app_logo_named.png` (copied)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/splash/SplashActivity.java` (new)
 - `app/src/main/res/values/colors.xml`, `themes.xml`, `strings.xml` (updated)
 - `app/src/main/res/values-night/themes.xml` (updated)
