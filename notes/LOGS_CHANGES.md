@@ -1,5 +1,19 @@
 # CineMatch – Log of Changes
 
+## 2026-02-27 – Feature/UX: Block Creating or Joining Multiple Lobbies
+
+**What:** Prevented an edge case where a user already in an active lobby could navigate back to `HomeActivity` and unintentionally create or join a new lobby. This overrides their host status and creates phantom lobby states for other members.
+
+- Added a check for `activeBannerRoomCode` (which determines if the user is in a lobby).
+- If the user is in a lobby, tapping Create or Join now surfaces an `AlertDialog` titled "Lobby Action Blocked", informing them they must leave their current lobby first. A "Go to Lobby" button is provided in the dialog.
+
+**Files changed:**
+
+- **`res/values/strings.xml`** — Added `msg_already_in_lobby_title`, `msg_already_in_lobby`, and `btn_go_to_lobby`.
+- **`ui/home/HomeActivity.java`** — Updated `btn_create_lobby` and `btn_join_lobby` click listeners to conditionally show the `AlertDialog` instead of navigating. Added `showAlreadyInLobbyDialog()` method.
+
+---
+
 ## 2026-02-27 – UI/UX: Rebrand Application Logo
 
 **What:** Replace the legacy application logo with the newly designed CineMatch branding. This update secures our visual identity across all Android system contexts, including the launcher, task switcher, and splash screens. Optimized all density buckets (hdpi to xxhdpi) to ensure crisp rendering on all physical test devices.
