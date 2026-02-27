@@ -133,4 +133,7 @@
     <string name="msg_wait_host_play">Wait for the host to play the movie</string>
     <string name="msg_movie_is_playing">Movie is playing</string>
     <string name="msg_movie_is_paused">Movie is paused</string>
+    <string name="title_session_ended">Session Ended</string>
+    <string name="msg_not_enough_members">Not enough users remain to continue swiping. The session has been canceled.</string>
+
 </resources>

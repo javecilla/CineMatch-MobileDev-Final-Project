@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
@@ -213,11 +214,31 @@ public class SwipingActivity extends BaseActivity {
 
         // Exit session
         btnExitSession.setOnClickListener(v -> {
-            LobbyPrefs.clearActiveRoomCode(this);
-            startActivity(new Intent(this, HomeActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            finish();
+            if (roomCode != null && !currentUserId.isEmpty()) {
+                btnExitSession.setEnabled(false);
+                firebaseRepo.removeMember(roomCode, currentUserId, new FirebaseRepository.SimpleCallback() {
+                    @Override
+                    public void onSuccess() {
+                        exitToHome();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        btnExitSession.setEnabled(true);
+                        Toast.makeText(SwipingActivity.this, "Failed to exit lobby", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                exitToHome();
+            }
         });
+    }
+
+    private void exitToHome() {
+        LobbyPrefs.clearActiveRoomCode(this);
+        startActivity(new Intent(this, HomeActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        finish();
     }
 
     // ── Yes / No vote logic (Phase 7.3) ──────────────────────────────────────────
@@ -424,15 +445,53 @@ public class SwipingActivity extends BaseActivity {
             tvMemberStatus.setText("Solo session");
             return;
         }
-        firebaseRepo.loadAllMembers(roomCode, members -> {
-            memberMap = members;
-            // isHost is already set from Intent; just update the adapter.
-            movieCardAdapter.setIsHost(isHost);
-            // Start listening to votes for card 0 (if movies are already loaded)
-            if (currentMovies != null && !currentMovies.isEmpty()) {
-                attachVoteSyncForMovie(currentMovies.get(0).getId());
+
+        // Live updates: track members via listenMembers to detect if count drops < 2
+        firebaseRepo.listenMembers(roomCode, new FirebaseRepository.MembersCallback() {
+            @Override
+            public void onMemberAdded(String userId, LobbyMember member) {
+                memberMap.put(userId, member);
+                movieCardAdapter.setIsHost(isHost);
+                // On initial load, start listening to votes for card 0
+                if (currentMovies != null && !currentMovies.isEmpty()) {
+                    attachVoteSyncForMovie(currentMovies.get(0).getId());
+                }
+            }
+
+            @Override
+            public void onMemberChanged(String userId, LobbyMember member) {
+                memberMap.put(userId, member);
+            }
+
+            @Override
+            public void onMemberRemoved(String userId) {
+                memberMap.remove(userId);
+                // If this device isn't the one that left, and members drop below 2, abort session.
+                if (!userId.equals(currentUserId) && memberMap.size() < 2) {
+                    runOnUiThread(SwipingActivity.this::handleNotEnoughMembers);
+                }
             }
         });
+    }
+
+    /**
+     * Shows an un-cancelable dialog when member count drops below 2,
+     * forcing the remaining user to leave the broken session.
+     */
+    private void handleNotEnoughMembers() {
+        if (isFinishing() || isDestroyed()) return;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_session_ended)
+                .setMessage(R.string.msg_not_enough_members)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    // Remove the last remaining member from Firebase so it cleans up the lobby
+                    if (roomCode != null && !currentUserId.isEmpty()) {
+                        firebaseRepo.removeMember(roomCode, currentUserId, null);
+                    }
+                    exitToHome();
+                })
+                .show();
     }
 
     /**
