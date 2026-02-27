@@ -1,5 +1,16 @@
 # CineMatch – Log of Changes
 
+## 2026-02-27 – Feature/UX: Enhance Lobby "Start Swiping" Button
+
+**What:** Improved the UX for the host in the `LobbyActivity` to clearly indicate when the session can be started. Before, the button was disabled but showed "Start Swiping" with a full active finish. Now, it reads "Waiting for more users…", reduces its opacity to 50%, and sets the text and icon color to `color_text_secondary` when disabled (fewer than 2 members). It restores full opacity, original colors, and "Start Swiping" text once another member joins.
+
+**Files changed:**
+
+- **`res/values/strings.xml`** — Added `btn_waiting_more_users`.
+- **`ui/lobby/LobbyActivity.java`** — Updated `setupButtons()` and `updateStartButton()` to dynamically manage the enabled state and text of the `btnStartSwiping` button based on `memberMap.size()`.
+
+---
+
 ## 2026-02-26 – Feature/Fix: End of Deck Synchronization and User Progress Counter
 
 **What:** Disabled the "Load More Movies" button for the host until all lobby members have reached the end of the deck, ensuring fairness and preventing the host from skipping ahead. Also added a real-time progress counter displaying how many users have finished voting.
