@@ -1,5 +1,20 @@
 # CineMatch – Log of Changes
 
+## 2026-02-27 – Feature/UX: Enforce Minimum Members During Swiping Session
+
+**What:** Ensured that a swiping session terminates properly if the lobby member count drops below 2. Previously, if one user left a 2-person lobby, the remaining user would be stuck swiping infinitely with no way to trigger a match since 2 votes are required.
+
+- Fixed the "Exit Session" button in `SwipingActivity` to explicitly call `removeMember` in Firebase before leaving the screen.
+- Set up a live listener on the lobby members. If the count ever drops below 2 during an active session, an un-dismissible `AlertDialog` is shown to the remaining user.
+- When the remaining user taps "OK" on the alert, they are backed out to the Home screen and removed from the lobby, which triggers Firebase to delete the dead lobby node automatically.
+
+**Files changed:**
+
+- **`res/values/strings.xml`** — Added `title_session_ended` and `msg_not_enough_members`.
+- **`ui/swiping/SwipingActivity.java`** — Updated `btnExitSession` to unregister the user, attached the `firebaseRepo.listenMembers` hook to track the active count, and added the `handleNotEnoughMembers()` bailout dialog.
+
+---
+
 ## 2026-02-27 – Feature/UX: Block Creating or Joining Multiple Lobbies
 
 **What:** Prevented an edge case where a user already in an active lobby could navigate back to `HomeActivity` and unintentionally create or join a new lobby. This overrides their host status and creates phantom lobby states for other members.
