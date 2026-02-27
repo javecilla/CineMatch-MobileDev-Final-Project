@@ -98,6 +98,9 @@
     <string name="share_room_code_message">Join my CineMatch lobby! Room code: %s</string>
     <string name="banner_return_lobby">↩  Tap to return to lobby</string>
     <string name="btn_waiting_more_users">Waiting for more users…</string>
+    <string name="msg_already_in_lobby_title">Lobby Action Blocked</string>
+    <string name="msg_already_in_lobby">You are currently in an active lobby. Please return to your lobby and leave it before creating or joining a new one.</string>
+    <string name="btn_go_to_lobby">Go to Lobby</string>
 
 
     <!-- Swiping -->

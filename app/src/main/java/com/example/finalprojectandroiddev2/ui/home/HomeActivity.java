@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -73,11 +74,21 @@ public class HomeActivity extends BaseActivity {
         findViewById(R.id.btn_menu).setOnClickListener(v -> openSidebar());
 
         // ── Main content ──────────────────────────────────────────────────────
-        findViewById(R.id.btn_create_lobby).setOnClickListener(v ->
-                startActivity(new Intent(this, CreateLobbyActivity.class)));
+        findViewById(R.id.btn_create_lobby).setOnClickListener(v -> {
+            if (activeBannerRoomCode != null) {
+                showAlreadyInLobbyDialog();
+            } else {
+                startActivity(new Intent(this, CreateLobbyActivity.class));
+            }
+        });
 
-        findViewById(R.id.btn_join_lobby).setOnClickListener(v ->
-                startActivity(new Intent(this, JoinLobbyActivity.class)));
+        findViewById(R.id.btn_join_lobby).setOnClickListener(v -> {
+            if (activeBannerRoomCode != null) {
+                showAlreadyInLobbyDialog();
+            } else {
+                startActivity(new Intent(this, JoinLobbyActivity.class));
+            }
+        });
 
         // ── Sidebar buttons ───────────────────────────────────────────────────
         findViewById(R.id.sidebar_btn_close).setOnClickListener(v -> closeSidebar());
@@ -182,6 +193,15 @@ public class HomeActivity extends BaseActivity {
         intent.putExtra(LobbyActivity.EXTRA_ROOM_CODE, activeBannerRoomCode);
         intent.putExtra(LobbyActivity.EXTRA_IS_HOST,   activeBannerIsHost);
         startActivity(intent);
+    }
+
+    private void showAlreadyInLobbyDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.msg_already_in_lobby_title)
+                .setMessage(R.string.msg_already_in_lobby)
+                .setPositiveButton(R.string.btn_go_to_lobby, (d, w) -> returnToLobby())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     // ── Trending Movies ───────────────────────────────────────────────────────
