@@ -25,6 +25,11 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import android.widget.ScrollView;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -58,7 +63,20 @@ public class OnboardingActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onboarding);
-        applyEdgeToEdgeInsets(R.id.container_onboarding);
+
+        // We override edge-to-edge logic to specifically include the software keyboard (IME)
+        View container = findViewById(R.id.container_onboarding);
+        ScrollView scrollOnboarding = findViewById(R.id.scroll_onboarding);
+        ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            int bottomInset = Math.max(systemBars.bottom, ime.bottom);
+
+            // Pad the ScrollView directly so the background image remains fullscreen
+            // but the form content is pushed upward nicely when keyboard shows.
+            scrollOnboarding.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomInset);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         authRepository = AuthRepository.getInstance();
         userRepository = UserRepository.getInstance();
