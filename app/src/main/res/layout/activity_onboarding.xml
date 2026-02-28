@@ -36,6 +36,7 @@
                 android:layout_weight="1" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="24dp"
