@@ -1,5 +1,22 @@
 # CineMatch – Log of Changes
 
+## 2026-02-28 – Feature/UX: Enhance Onboarding Activity UI with Background
+
+**What:** Upgraded the `OnboardingActivity` UI to match the premium "movie night" visual aesthetic established in `WatchActivity`, `LoginActivity`, and `RegistrationActivity`.
+
+- Added the `movie_onboarding_bg.jpg` as a full-screen background image.
+- Applied a fade-to-dark `gradient_signup_overlay` to darken the lower half of the screen. The higher transition point (`centerY="0.1"`) perfectly accommodates the three onboarding input fields.
+- Restructured the onboarding form, ensuring it stays firmly parked at the bottom of the screen against the dark gradient.
+- Added explicit window inset handling in `OnboardingActivity.java` targeting `WindowInsetsCompat.Type.ime()`. The ScrollView gracefully shrinks and pushes the form above the virtual keyboard without distorting the background image.
+- **Button Styling:** Restyled the "Continue" button to match the primary application button design (found in HomeActivity) by wrapping it in a `MaterialCardView` with a 50dp corner radius and standardizing the height to 64dp.
+
+**Files changed:**
+
+- **`res/layout/activity_onboarding.xml`** — Converted root to `FrameLayout`, added the background and reused `gradient_signup_overlay`. Pushed constraints to the lower section. Wrapped `btn_continue` in `MaterialCardView` with a 50dp corner radius.
+- **`ui/onboarding/OnboardingActivity.java`** — Replaced `BaseActivity` default padding with a custom `WindowInsetsListener` targeting the `ScrollView` to respond to the software keyboard.
+
+---
+
 ## 2026-02-28 – Feature/UX: Enhance Registration Activity UI with Background
 
 **What:** Upgraded the `RegistrationActivity` UI to match the premium "movie night" visual aesthetic established in `WatchActivity` and `LoginActivity`.

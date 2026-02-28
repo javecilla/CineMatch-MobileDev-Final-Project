@@ -1,18 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container_onboarding"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background"
-    android:fillViewport="true"
     tools:context=".ui.onboarding.OnboardingActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Background Image -->
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/movie_onboarding_bg"
+        android:contentDescription="@null" />
+
+    <ScrollView
+        android:id="@+id/scroll_onboarding"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="bottom">
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="48dp"
+                android:paddingTop="90dp"
+                android:background="@drawable/gradient_signup_overlay">
 
         <ImageView
             android:id="@+id/image_logo"
@@ -129,18 +159,31 @@
             tools:text="Please fill all required fields"
             tools:visibility="visible" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_continue"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_continue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/onboarding_btn_continue"
-            android:textColor="@color/button_text_on_primary"
-            app:backgroundTint="@color/color_primary"
-            app:cornerRadius="12dp"
+            app:cardBackgroundColor="@color/color_surface"
+            app:cardCornerRadius="50dp"
+            app:cardElevation="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_error" />
+            app:layout_constraintTop_toBottomOf="@id/text_error">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_continue"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/onboarding_btn_continue"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@color/color_primary"
+                app:cornerRadius="50dp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
