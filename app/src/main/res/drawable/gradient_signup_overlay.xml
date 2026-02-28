@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- gradient_signup_overlay.xml
+     Attached to the registration form container so it moves upwards alongside the form
+     when the software keyboard appears. Stronger dark tones shifted even higher
+     because the registration form is taller than the login form. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:startColor="#00000000"
+        android:centerColor="#D9000000"
+        android:endColor="#FA000000"
+        android:centerY="0.1" />
+</shape>
