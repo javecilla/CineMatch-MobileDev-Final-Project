@@ -1,5 +1,23 @@
 # CineMatch – Log of Changes
 
+## 2026-02-28 – Feature/UX: Enhance Login Activity UI with Background
+
+**What:** Upgraded the `LoginActivity` UI to match the premium "movie night" visual aesthetic established in `WatchActivity`.
+
+- Added the `movies_masonry.jpg` as a full-screen background image.
+- Applied a fade-to-dark `gradient_login_overlay` to darken the lower half of the screen. The gradient covers the form container rather than the screen, ensuring that the dark area travels up with the form when the software keyboard appears.
+- Restructured the login form placing the logo, inputs, and buttons in a clean stack parked firmly at the bottom of the screen against the dark gradient.
+- Added explicit window inset handling in `LoginActivity.java` targeting `WindowInsetsCompat.Type.ime()`. The ScrollView now gracefully shrinks and pushes the form above the virtual keyboard without distorting the background image.
+- **Button Styling:** Restyled the "Sign In" button to match the primary application button design (found in HomeActivity) by wrapping it in a `MaterialCardView` with a 50dp corner radius and standardizing the height to 64dp.
+
+**Files changed:**
+
+- **`res/layout/activity_login.xml`** — Converted root to `FrameLayout`, added the background and new gradient. Pushed constraints to the lower section. Wrapped `btn_sign_in` in `MaterialCardView` with a 50dp corner radius and updated constraints for `btn_register` to pin to the card.
+- **`res/drawable/gradient_login_overlay.xml`** — _(NEW)_ Extracted stronger, high-starting gradient specifically to frame the login fields.
+- **`ui/auth/LoginActivity.java`** — Replaced `BaseActivity` default padding with a custom `WindowInsetsListener` targeting the `ScrollView` to respond to the software keyboard.
+
+---
+
 ## 2026-02-27 – Feature/UX: Enforce Minimum Members During Swiping Session
 
 **What:** Ensured that a swiping session terminates properly if the lobby member count drops below 2. Previously, if one user left a 2-person lobby, the remaining user would be stuck swiping infinitely with no way to trigger a match since 2 votes are required.
