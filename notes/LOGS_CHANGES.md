@@ -8,10 +8,11 @@
 - Applied a fade-to-dark `gradient_login_overlay` to darken the lower half of the screen. The gradient covers the form container rather than the screen, ensuring that the dark area travels up with the form when the software keyboard appears.
 - Restructured the login form placing the logo, inputs, and buttons in a clean stack parked firmly at the bottom of the screen against the dark gradient.
 - Added explicit window inset handling in `LoginActivity.java` targeting `WindowInsetsCompat.Type.ime()`. The ScrollView now gracefully shrinks and pushes the form above the virtual keyboard without distorting the background image.
+- **Button Styling:** Restyled the "Sign In" button to match the primary application button design (found in HomeActivity) by wrapping it in a `MaterialCardView` with a 50dp corner radius and standardizing the height to 64dp.
 
 **Files changed:**
 
-- **`res/layout/activity_login.xml`** — Converted root to a `FrameLayout`, inserted the background imagery, attached the new overlay to the form container, and dynamically pushed constraints into the dark lower section.
+- **`res/layout/activity_login.xml`** — Converted root to `FrameLayout`, added the background and new gradient. Pushed constraints to the lower section. Wrapped `btn_sign_in` in `MaterialCardView` with a 50dp corner radius and updated constraints for `btn_register` to pin to the card.
 - **`res/drawable/gradient_login_overlay.xml`** — _(NEW)_ Extracted stronger, high-starting gradient specifically to frame the login fields.
 - **`ui/auth/LoginActivity.java`** — Replaced `BaseActivity` default padding with a custom `WindowInsetsListener` targeting the `ScrollView` to respond to the software keyboard.
 

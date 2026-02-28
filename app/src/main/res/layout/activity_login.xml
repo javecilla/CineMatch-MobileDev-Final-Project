@@ -115,19 +115,30 @@
                     tools:text="Invalid email or password"
                     tools:visibility="visible" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_sign_in"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_sign_in"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="@string/btn_sign_in"
-                    android:textColor="@color/button_text_on_primary"
-                    app:backgroundTint="@color/color_primary"
-                    app:cornerRadius="12dp"
+                    app:cardBackgroundColor="@color/color_surface"
+                    app:cardCornerRadius="50dp"
+                    app:cardElevation="4dp"
                     app:layout_constraintBottom_toTopOf="@id/btn_register"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/text_error" />
+                    app:layout_constraintTop_toBottomOf="@id/text_error">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_sign_in"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:text="@string/btn_sign_in"
+                        android:textSize="18sp"
+                        android:textColor="@color/black"
+                        app:backgroundTint="@color/color_primary"
+                        app:cornerRadius="50dp" />
+
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:id="@+id/btn_register"
@@ -141,7 +152,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/btn_sign_in" />
+                    app:layout_constraintTop_toBottomOf="@id/card_sign_in" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
