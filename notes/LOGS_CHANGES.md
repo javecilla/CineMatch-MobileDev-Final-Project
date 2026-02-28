@@ -1,5 +1,20 @@
 # CineMatch – Log of Changes
 
+## 2026-02-28 – Bug/UI: Fix Bottom Gradient Gap on Auth & Onboarding Screens
+
+**What:** Resolved an issue where the dark gradient overlay did not extend all the way to the bottom of the screen, leaving a visible gap behind the navigation bar or virtual keyboard.
+
+- Adjusted the edge-to-edge window inset logic in all three authentication activities (`LoginActivity`, `RegistrationActivity`, `OnboardingActivity`).
+- Instead of padding the `ScrollView` itself (which truncated the background drawing), the internal form `ConstraintLayout` container is now padded by the `bottomInset`.
+- This safely pushes the input fields and buttons above the keyboard while ensuring the surrounding gradient stretches seamlessly to the true bottom edge of the display.
+
+**Files changed:**
+
+- **`res/layout/activity_login.xml`**, **`res/layout/activity_registration.xml`**, **`res/layout/activity_onboarding.xml`** — Added `android:id="@+id/layout_form"` to the inner `ConstraintLayout`.
+- **`ui/auth/LoginActivity.java`**, **`ui/auth/RegistrationActivity.java`**, **`ui/onboarding/OnboardingActivity.java`** — Refactored `ViewCompat.setOnApplyWindowInsetsListener` to apply `bottomInset` dynamically to `layoutForm` while keeping `ScrollView` padding at 0.
+
+---
+
 ## 2026-02-28 – Feature/UX: Enhance Onboarding Activity UI with Background
 
 **What:** Upgraded the `OnboardingActivity` UI to match the premium "movie night" visual aesthetic established in `WatchActivity`, `LoginActivity`, and `RegistrationActivity`.

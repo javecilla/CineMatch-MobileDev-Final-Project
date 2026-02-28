@@ -67,14 +67,27 @@ public class OnboardingActivity extends BaseActivity {
         // We override edge-to-edge logic to specifically include the software keyboard (IME)
         View container = findViewById(R.id.container_onboarding);
         ScrollView scrollOnboarding = findViewById(R.id.scroll_onboarding);
+        View layoutForm = findViewById(R.id.layout_form);
+        
+        // 48dp is the baseline bottom padding defined in XML
+        final int basePaddingBottom = (int) (48 * getResources().getDisplayMetrics().density);
+
         ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             int bottomInset = Math.max(systemBars.bottom, ime.bottom);
 
-            // Pad the ScrollView directly so the background image remains fullscreen
-            // but the form content is pushed upward nicely when keyboard shows.
-            scrollOnboarding.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomInset);
+            // Do not pad ScrollView at bottom so its background stays fullscreen
+            scrollOnboarding.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            
+            // Pad the inner form layout at bottom so its gradient extends through the nav bar/keyboard
+            // while content is pushed upwards perfectly.
+            layoutForm.setPadding(
+                    layoutForm.getPaddingLeft(),
+                    layoutForm.getPaddingTop(),
+                    layoutForm.getPaddingRight(),
+                    basePaddingBottom + bottomInset
+            );
             return WindowInsetsCompat.CONSUMED;
         });
 
