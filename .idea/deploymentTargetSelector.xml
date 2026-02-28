@@ -6,7 +6,7 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="FinalProjectAndroidDev2">
-        <option name="selectionMode" value="DROPDOWN" />
+        <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2026-02-27T07:13:45.745361600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -18,12 +18,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\jerom\.android\avd\Medium_Phone.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=R58RA34Z8NP" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=R58RA34Z8NP" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\jerom\.android\avd\Medium_Phone.avd" />
               </handle>
             </Target>
           </targets>

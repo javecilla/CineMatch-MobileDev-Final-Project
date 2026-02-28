@@ -9,6 +9,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import android.widget.ScrollView;
 
 import com.example.finalprojectandroiddev2.R;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
@@ -55,7 +59,20 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        applyEdgeToEdgeInsets(R.id.container_login);
+
+        // We override edge-to-edge logic to specifically include the software keyboard (IME)
+        View container = findViewById(R.id.container_login);
+        ScrollView scrollLogin = findViewById(R.id.scroll_login);
+        ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            int bottomInset = Math.max(systemBars.bottom, ime.bottom);
+
+            // Pad the ScrollView directly so the background image remains fullscreen
+            // but the form content is pushed upward nicely when keyboard shows.
+            scrollLogin.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomInset);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         authRepository = AuthRepository.getInstance();
 
