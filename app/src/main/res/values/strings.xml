@@ -138,5 +138,11 @@
 
     <!-- Movies -->
     <string name="hint_search_movies">Type movie name…</string>
+    <string name="error_search_query_required">Please enter a movie name to search</string>
+
+    <!-- Search Results -->
+    <string name="title_search_results">Search Result</string>
+    <string name="text_search_context">%1$d result for query "%2$s"</string>
+    <string name="text_pagination_info">Showing %1$d out of %2$d results</string>
 
 </resources>

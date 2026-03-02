@@ -78,6 +78,10 @@ public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapte
         notifyDataSetChanged();
     }
 
+    public List<Movie> getMovies() {
+        return movies;
+    }
+
     // ── RecyclerView.Adapter overrides ────────────────────────────────────────
 
     @NonNull
