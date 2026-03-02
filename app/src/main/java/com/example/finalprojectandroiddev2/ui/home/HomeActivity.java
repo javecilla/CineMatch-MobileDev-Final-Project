@@ -107,7 +107,7 @@ public class HomeActivity extends BaseActivity {
 
         findViewById(R.id.sidebar_btn_movies).setOnClickListener(v -> {
             closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_movies_coming_soon, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, com.example.finalprojectandroiddev2.ui.movies.MoviesActivity.class));
         });
 
         findViewById(R.id.sidebar_btn_signout).setOnClickListener(v -> logout());

@@ -136,4 +136,7 @@
     <string name="title_session_ended">Session Ended</string>
     <string name="msg_not_enough_members">Not enough users remain to continue swiping. The session has been canceled.</string>
 
+    <!-- Movies -->
+    <string name="hint_search_movies">Type movie name…</string>
+
 </resources>

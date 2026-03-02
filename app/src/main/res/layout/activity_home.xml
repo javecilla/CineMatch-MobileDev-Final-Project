@@ -64,50 +64,7 @@
             android:paddingBottom="32dp">
 
             <!-- ── Navbar ── -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingEnd="8dp">
-
-                <ImageView
-                    android:id="@+id/iv_navbar_brand"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:adjustViewBounds="true"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/app_logo_banner_orig"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btn_menu"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_menu"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="8dp"
-                    app:backgroundTint="@android:color/transparent"
-                    app:cornerRadius="8dp"
-                    app:icon="@drawable/menu_deep_icon"
-                    app:iconGravity="textStart"
-                    app:iconSize="28dp"
-                    app:iconTint="@color/color_text_primary"
-                    app:layout_constraintBottom_toBottomOf="@id/iv_navbar_brand"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/iv_navbar_brand" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Divider below navbar -->
-            <View
-                android:id="@+id/divider_header"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:alpha="0.5"
-                android:background="@color/color_text_secondary" />
+            <include layout="@layout/layout_navbar" />
 
             <!-- "What would you like to do?" -->
             <TextView
