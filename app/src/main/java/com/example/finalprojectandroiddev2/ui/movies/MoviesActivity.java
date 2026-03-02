@@ -1,7 +1,9 @@
 package com.example.finalprojectandroiddev2.ui.movies;
 
 import android.content.Intent;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,14 +22,15 @@ import com.example.finalprojectandroiddev2.data.api.TmdbApiClient;
 import com.example.finalprojectandroiddev2.data.api.TmdbApiService;
 import com.example.finalprojectandroiddev2.data.model.Movie;
 import com.example.finalprojectandroiddev2.data.model.MovieListResponse;
-import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.data.repository.AuthRepository;
 import com.example.finalprojectandroiddev2.data.repository.UserRepository;
+import com.example.finalprojectandroiddev2.model.UserProfile;
 import com.example.finalprojectandroiddev2.ui.auth.LoginActivity;
 import com.example.finalprojectandroiddev2.ui.base.BaseActivity;
 import com.example.finalprojectandroiddev2.ui.home.PopularMovieAdapter;
 import com.example.finalprojectandroiddev2.ui.home.TopRatedMovieAdapter;
 import com.example.finalprojectandroiddev2.ui.home.TrendingMovieAdapter;
+import com.google.android.material.textfield.TextInputLayout;
 
 import com.google.firebase.auth.FirebaseUser;
 
@@ -116,19 +119,47 @@ public class MoviesActivity extends BaseActivity {
         findViewById(R.id.btn_popular_see_more_page).setOnClickListener(v -> showComingSoon());
 
         // Search field
+        TextInputLayout inputLayoutSearch = findViewById(R.id.input_search_movies);
         EditText searchEdit = findViewById(R.id.edit_search_movies);
+        TextView textSearchError = findViewById(R.id.text_search_error);
+
+        // Handle keyboard enter / search action
         searchEdit.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                // TODO: Phase 10 — implement TMDB search API call
-                Toast.makeText(this, "Search coming soon", Toast.LENGTH_SHORT).show();
+                performSearch(searchEdit.getText().toString().trim(), textSearchError);
                 return true;
             }
             return false;
         });
 
+        // Handle end icon click (the search icon)
+        inputLayoutSearch.setEndIconOnClickListener(v -> {
+            performSearch(searchEdit.getText().toString().trim(), textSearchError);
+        });
+
         setupTrendingMovies();
         setupTopRatedMovies();
         setupPopularMovies();
+    }
+
+    private long lastSearchTime = 0;
+
+    private void performSearch(String query, TextView errorText) {
+        if (query.isEmpty()) {
+            errorText.setText(R.string.error_search_query_required);
+            errorText.setVisibility(View.VISIBLE);
+        } else {
+            // Prevent double-launching the activity if triggered rapidly (e.g., keyboard ACTION_DOWN / ACTION_UP)
+            if (System.currentTimeMillis() - lastSearchTime < 1000) {
+                return;
+            }
+            lastSearchTime = System.currentTimeMillis();
+
+            errorText.setVisibility(View.GONE);
+            Intent intent = new Intent(this, SearchedMovieResultActivity.class);
+            intent.putExtra(SearchedMovieResultActivity.EXTRA_QUERY, query);
+            startActivity(intent);
+        }
     }
 
     private void showComingSoon() {
@@ -175,7 +206,7 @@ public class MoviesActivity extends BaseActivity {
         rv.setAdapter(topRatedAdapter);
 
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
-        TmdbApiClient.getService().getTopRatedMovies("en-US", 58, bearer)
+        TmdbApiClient.getService().getTopRatedMovies("en-US", 48, bearer)
                 .enqueue(new Callback<MovieListResponse>() {
                     @Override
                     public void onResponse(Call<MovieListResponse> call, Response<MovieListResponse> response) {

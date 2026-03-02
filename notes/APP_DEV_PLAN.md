@@ -897,3 +897,104 @@ Wire up `activity_movies.xml` with Java. The API call pattern is identical to `H
 - Search and "See More" are intentionally deferred — mark with `// TODO: Phase 10` comments.
 
 **Deliverable:** Fully functional Movies Activity displaying all three movie sections from TMDB, navigable from the sidebar "Movies" item.
+
+---
+
+## 🔍 Phase 10: Search Result Activity
+
+**Goal:** Create a dedicated **Search Results** screen that takes a query from the Movies Activity, calls the TMDB Search API, and displays the matching movies using the popular movie layout design. The screen will also include pagination controls to navigate through the result pages.
+
+**Estimated Time:** 2-3 days
+
+---
+
+### **Step 10.1: Search Result Activity Layout (`activity_searched_movie_result.xml`)**
+
+**Context:**
+The layout will reuse the navbar and the popular movie item design, while introducing a unique header and pagination footer.
+
+**Tasks:**
+
+- [x] Create `activity_searched_movie_result.xml`:
+  - Root: `ConstraintLayout` (`background="@color/color_background"`).
+  - Include `<include layout="@layout/layout_navbar" />` at the top.
+  - **Header Row** (Below Navbar):
+    - Left side: Back Button (`MaterialButton` using style `Widget.Material3.Button.OutlinedButton`, `app:icon="@drawable/arrow_back_icon"`, no text, same colors/radius as "See More" button).
+    - Right side: Title `TextView` (text="Search Result", `textSize="26sp"`, `textStyle="bold"`, `textColor="@color/color_text_primary"`).
+  - **Context Text**: `TextView` (e.g., "28 result for query 'Avengers end game'", `textSize="14sp"`, `textColor="@color/color_text_secondary"`).
+  - **Movie List**: `RecyclerView` (`id="rv_searched_movies"`, vertical `LinearLayoutManager`, `tools:listitem="@layout/item_movie_popular"`). The list uses the exact same design/layout as the Popular movies section but represents search results.
+  - **Pagination Footer** (Bottom of screen):
+    - Left side: Info `TextView` (e.g., "Showing 20 out of 91 results", `textSize="12sp"`, `textColor="@color/color_text_secondary"`).
+    - Right side: Two `MaterialButton`s for Previous (`@drawable/pagination_chevron_left_icon`) and Next (`@drawable/pagination_chevron_right_icon`). Outlined style.
+
+**Files to Create:**
+
+- `app/src/main/res/layout/activity_searched_movie_result.xml` _(NEW)_
+
+**Deliverable:** ✅
+
+---
+
+### **Step 10.2: Configure TMDB Search API**
+
+**Context:**
+Add the TMDB Search endpoint to `TmdbApiService.java` to fetch movies based on a user's text query.
+
+**Tasks:**
+
+- [x] Update `TmdbApiService.java`:
+  - Add `@GET("search/movie")` method.
+  - Parameters: `@Query("query") String query`, `@Query("include_adult") boolean includeAdult` (default false), `@Query("language") String language` (default "en-US"), `@Query("page") int page`, and `@Header("Authorization") String bearerToken`.
+  - Return type: `Call<MovieListResponse>`.
+
+**Deliverable:** ✅
+
+---
+
+### **Step 10.3: Search Result Activity Logic (`SearchedMovieResultActivity.java`)**
+
+**Context:**
+Implement the Java logic to handle incoming search queries, fetch data from the API, populate the RecyclerView, and handle pagination state.
+
+**Tasks:**
+
+- [x] Create `SearchedMovieResultActivity.java` extending `BaseActivity`:
+  - Retrieve the search `query` string passed via `Intent` extras from `MoviesActivity`.
+  - **State tracking**: Maintain `currentPage` (starts at 1), `totalPages`, and `totalResults`.
+  - **UI wiring**:
+    - Back button: calls `finish()`.
+    - Setup `RecyclerView` with `PopularMovieAdapter` (reused).
+  - **API Integration**: Create `performSearch(int page)` method that calls the new TMDB search endpoint.
+    - On success: Update the adapter, update the Context Text (total results and query), update Pagination Info Text (e.g., "Showing 20 out of 91 results"), and toggle Next/Prev button enabled states (Prev disabled on page 1).
+  - **Pagination Logic**:
+    - Next button: Increment `currentPage`, call `performSearch(currentPage)`, disable if `currentPage == totalPages`.
+    - Prev button: Decrement `currentPage`, call `performSearch(currentPage)`, disable if `currentPage == 1`.
+- [x] Update `AndroidManifest.xml` to register `SearchedMovieResultActivity`.
+
+**Files to Create/Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/SearchedMovieResultActivity.java` _(NEW)_
+- `app/src/main/AndroidManifest.xml` _(MODIFY)_
+
+**Deliverable:** ✅
+
+---
+
+### **Step 10.4: Triggering Search from Movies Activity**
+
+**Context:**
+Wire the search input field in `MoviesActivity` to initiate the search and navigate to `SearchedMovieResultActivity`.
+
+**Tasks:**
+
+- [x] Update `MoviesActivity.java`:
+  - Handle the search action on `edit_search_movies` when the user presses keyboard Enter (`IME_ACTION_SEARCH`).
+  - Handle clicking the custom end icon in `input_search_movies` (`setEndIconOnClickListener`).
+  - Validation: Ensure the query is not empty before searching. Display an error in `text_search_error` if empty.
+  - Action: Create an `Intent`, put the search text as an extra (`EXTRA_QUERY`), and start `SearchedMovieResultActivity`.
+
+**Files to Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(MODIFY)_
+
+**Deliverable:** ✅ Fully functional Search Results screen with pagination, navigable directly from the search bar in the Movies Activity.

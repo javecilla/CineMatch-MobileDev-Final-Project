@@ -52,6 +52,19 @@ public interface TmdbApiService {
             @Header("Authorization") String bearerToken
     );
     /**
+     * GET /search/movie
+     * Searches for movies by title.
+     */
+    @GET("search/movie")
+    Call<MovieListResponse> searchMovies(
+            @Query("query") String query,
+            @Query("include_adult") boolean includeAdult,
+            @Query("language") String language,
+            @Query("page") int page,
+            @Header("Authorization") String bearerToken
+    );
+
+    /**
      * GET /movie/{movie_id}
      * Returns full details for a single movie. Reuses Movie model — all needed fields
      * (title, overview, posterPath, backdropPath, voteAverage, releaseDate) are present.
