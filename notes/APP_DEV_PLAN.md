@@ -998,3 +998,78 @@ Wire the search input field in `MoviesActivity` to initiate the search and navig
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(MODIFY)_
 
 **Deliverable:** ✅ Fully functional Search Results screen with pagination, navigable directly from the search bar in the Movies Activity.
+
+---
+
+## Phase 11: Movie Category (Trending, Popular, Top Rated) Activity
+
+**Goal:** Create a reusable Activity designed to load paginated grids or lists of specific movie categories. It acts as the destination when the user clicks "See More" on any row inside the `MoviesActivity`.
+
+**Estimated Time:** 1-2 days
+
+---
+
+### **Step 11.1: Movie Category Layout (`activity_movie_category.xml`)**
+
+**Context:**
+The layout structure will heavily emulate `activity_searched_movie_result.xml` to keep the UI consistent, featuring a custom header, a scrollable list, and pagination controls at the bottom.
+
+**Tasks:**
+
+- [ ] Create `activity_movie_category.xml`:
+  - Root: `ConstraintLayout`.
+  - **Navbar**: Include `<include layout="@layout/layout_navbar" />` at the top.
+  - **Header Row**:
+    - Left side Back Button (`MaterialButton` with `keyboard_arrow_left` icon, 40dp).
+    - Right side Title `TextView` (e.g., "Trending Movies", dynamic text).
+  - **Movie List**: `RecyclerView` (`id="rv_category_movies"`, vertical `LinearLayoutManager`, `tools:listitem="@layout/item_movie_popular"`).
+  - **Pagination Footer**:
+    - Info `TextView` (e.g., "Showing 20 out of 10000 results").
+    - Prev / Next `MaterialButton`s using the chevron SVG icons.
+
+**Files to Create:**
+
+- `app/src/main/res/layout/activity_movie_category.xml` _(NEW)_
+
+---
+
+### **Step 11.2: Movie Category Activity Logic (`MovieCategoryActivity.java`)**
+
+**Context:**
+Implement a flexible Java activity that determines which API endpoint to ping (Trending, Popular, or Top Rated) based on the Intent Extra passed from the previous screen.
+
+**Tasks:**
+
+- [ ] Create `MovieCategoryActivity.java` extending `BaseActivity`:
+  - Use `EXTRA_CATEGORY` passed via Intent to determine the context ("TRENDING", "POPULAR", "TOP_RATED").
+  - Dynamically set the Header Title `TextView` to match the category.
+  - Setup the `RecyclerView` reusing the `PopularMovieAdapter`.
+  - **API Integration**: Create a `loadMovies(int page)` method carrying a Switch/If-Else block executing `TmdbApiService` endpoints conditionally.
+  - **State tracking**: Implement the robust pagination math (`min(currentPage * 20, totalResults)`) that was built during Phase 10.
+  - Connect Prev / Next button listeners to increment/decrement `currentPage`.
+- [ ] Register `MovieCategoryActivity` in `AndroidManifest.xml` with `singleTop` launch mode natively.
+
+**Files to Create/Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieCategoryActivity.java` _(NEW)_
+- `app/src/main/AndroidManifest.xml` _(MODIFY)_
+
+---
+
+### **Step 11.3: Wiring "See More" Navigation**
+
+**Context:**
+Hook up the entry points from within `MoviesActivity`.
+
+**Tasks:**
+
+- [ ] Update `MoviesActivity.java`:
+  - Add click listeners to `btn_trending_see_more`, `btn_top_rated_see_more`, and `btn_popular_see_more_page`.
+  - Launch an Intent pointing to `MovieCategoryActivity`.
+  - Put `EXTRA_CATEGORY` identifier into the intent data payloads so the destination knows what to load.
+
+**Files to Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(MODIFY)_
+
+**Deliverable:** ⏳ A fully reusable Category screen capable of serving unlimited paginated results for Trending, Popular, and Top Rated movies.

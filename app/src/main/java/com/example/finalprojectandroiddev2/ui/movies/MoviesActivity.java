@@ -119,9 +119,21 @@ public class MoviesActivity extends BaseActivity {
         loadUserProfile();
 
         // "See More" buttons
-        findViewById(R.id.btn_trending_see_more).setOnClickListener(v -> showComingSoon());
-        findViewById(R.id.btn_top_rated_see_more).setOnClickListener(v -> showComingSoon());
-        findViewById(R.id.btn_popular_see_more_page).setOnClickListener(v -> showComingSoon());
+        findViewById(R.id.btn_trending_see_more).setOnClickListener(v -> {
+            Intent intent = new Intent(this, MovieCategoryActivity.class);
+            intent.putExtra(MovieCategoryActivity.EXTRA_CATEGORY, MovieCategoryActivity.CATEGORY_TRENDING);
+            startActivity(intent);
+        });
+        findViewById(R.id.btn_top_rated_see_more).setOnClickListener(v -> {
+            Intent intent = new Intent(this, MovieCategoryActivity.class);
+            intent.putExtra(MovieCategoryActivity.EXTRA_CATEGORY, MovieCategoryActivity.CATEGORY_TOP_RATED);
+            startActivity(intent);
+        });
+        findViewById(R.id.btn_popular_see_more_page).setOnClickListener(v -> {
+            Intent intent = new Intent(this, MovieCategoryActivity.class);
+            intent.putExtra(MovieCategoryActivity.EXTRA_CATEGORY, MovieCategoryActivity.CATEGORY_POPULAR);
+            startActivity(intent);
+        });
 
         // Search field
         TextInputLayout inputLayoutSearch = findViewById(R.id.input_search_movies);
