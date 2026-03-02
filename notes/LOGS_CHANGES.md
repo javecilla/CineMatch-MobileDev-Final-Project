@@ -1414,3 +1414,31 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+### 2026-03-03 – Phase 10: Search Result Activity
+
+**What was done:**
+
+- Created the Search Result UI (`activity_searched_movie_result.xml`) which includes a custom header, a list for movies, and a pagination footer.
+- Updated `TmdbApiService.java` to support the `/search/movie` API endpoint.
+- Implemented `SearchedMovieResultActivity.java` to handle the search logic, API consumption, and page-by-page rendering.
+- Re-used `PopularMovieAdapter` for displaying search results and added `getMovies()` method for list size retrieval.
+- Configured the search input box inside `MoviesActivity` to respond to the soft keyboard search action as well as the text input end icon click. Added validation to require non-empty queries.
+- Registered the new activity in `AndroidManifest.xml`.
+
+**Files created/updated:**
+
+- `app/src/main/res/layout/activity_searched_movie_result.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/SearchedMovieResultActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/api/TmdbApiService.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/PopularMovieAdapter.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
+
+**Follow-up Fixes (Search Result UX Improvements):**
+
+- **Header Layout:** Re-aligned the "Search Result" title to the right side of the screen and swapped the custom SVG back button path for the standard Material `keyboard_arrow_left` to ensure perfect centering inside the `IconButton` style.
+- **Pagination Icons:** Replaced the non-square FontAwesome SVG vectors with standard 24x24 Material Chevron SVG vectors (`<` and `>`), and removed zeroed-out padding/insets to center the icons perfectly inside the buttons. Set button size to 40dp and color to secondary text.
+- **Double-Launch Bug:** Fixed an issue where pressing the Enter key on the keyboard fired the `IME_ACTION_SEARCH` listener twice rapidly (ACTION_DOWN & ACTION_UP). Added a 1000ms debounce check inside `MoviesActivity.performSearch()` and set `android:launchMode="singleTop"` for `SearchedMovieResultActivity` in `AndroidManifest.xml` to prevent stacking duplicates of the search screen on the back stack.
+- **Cumulative Pagination:** Updated the `text_pagination_info` logic in `SearchedMovieResultActivity` from simply showing the fixed current page count (e.g., "Showing 20 out of 141") to showing the cumulative count up to the current page (e.g., "Showing 40 out of 141") by calculating `min(currentPage * 20, totalResults)`.
