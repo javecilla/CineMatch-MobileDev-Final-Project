@@ -95,15 +95,20 @@ public class HomeActivity extends BaseActivity {
 
         findViewById(R.id.sidebar_btn_home).setOnClickListener(v -> closeSidebar());
 
-        // findViewById(R.id.sidebar_btn_favorites).setOnClickListener(v -> {
-        //     closeSidebar();
-        //     Toast.makeText(this, R.string.sidebar_nav_favorites_coming_soon, Toast.LENGTH_SHORT).show();
-        // });
+        findViewById(R.id.sidebar_btn_library).setOnClickListener(v -> {
+            closeSidebar();
+            Toast.makeText(this, R.string.sidebar_nav_library_coming_soon, Toast.LENGTH_SHORT).show();
+        });
 
-        // findViewById(R.id.sidebar_btn_watchlist).setOnClickListener(v -> {
-        //     closeSidebar();
-        //     Toast.makeText(this, R.string.sidebar_nav_watchlist_coming_soon, Toast.LENGTH_SHORT).show();
-        // });
+        findViewById(R.id.sidebar_btn_about).setOnClickListener(v -> {
+            closeSidebar();
+            Toast.makeText(this, R.string.sidebar_nav_about_coming_soon, Toast.LENGTH_SHORT).show();
+        });
+
+        findViewById(R.id.sidebar_btn_team).setOnClickListener(v -> {
+            closeSidebar();
+            Toast.makeText(this, R.string.sidebar_nav_team_coming_soon, Toast.LENGTH_SHORT).show();
+        });
 
         findViewById(R.id.sidebar_btn_movies).setOnClickListener(v -> {
             closeSidebar();
