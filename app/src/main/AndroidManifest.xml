@@ -59,6 +59,9 @@
             android:name=".ui.watch.WatchActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.movies.MoviesActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
     </application>

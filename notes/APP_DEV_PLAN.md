@@ -781,244 +781,119 @@ No votes are intentionally not written — absence of a user entry means No.
 
 ---
 
-## 🎨 Phase 9: UI Polish & Animations
+## 🎬 Phase 9: Movies Activity
 
-**Goal:** Add animations, transitions, and polish.
+**Goal:** Create a dedicated **Movies** screen that mirrors the movie sections already on the Home screen (Trending carousel, Top Rated carousel, Popular vertical list) and adds a movie search field at the top. As a prerequisite, extract the shared navbar + divider into a reusable XML include so future activities don't repeat the same markup.
 
 **Estimated Time:** 2-3 days
 
-### **Step 9.1: Screen Transitions**
-
-**Tasks:**
-
-- [ ] Add slide transitions between activities
-- [ ] Add fade transitions for dialogs
-- [ ] Smooth navigation animations
-
-**Files to Modify:**
-
-- All Activity files
-
-**Deliverable:** Smooth screen transitions
-
 ---
 
-### **Step 9.2: Swipe Animations**
+### **Step 9.1: Reusable Navbar + Divider Include**
+
+**Context:**
+The navbar (logo + hamburger menu) and the horizontal divider below it are currently inline inside `activity_home.xml`. The Movies Activity also needs the same navbar. Rather than duplicating the XML again — and in every future activity — extract it into a standalone layout file that can be included anywhere.
 
 **Tasks:**
 
-- [ ] Enhance card swipe animations
-- [ ] Add rotation effect during swipe
-- [ ] Smooth card stack transitions
-- [ ] Add haptic feedback (optional)
-
-**Files to Modify:**
-
-- `app/src/main/java/com/example/finalprojectandroiddev2/ui/swiping/SwipingActivity.java`
-
-**Deliverable:** Polished swipe experience
-
----
-
-### **Step 9.3: Loading States**
-
-**Tasks:**
-
-- [ ] Add loading indicators for API calls
-- [ ] Add skeleton screens for content loading
-- [ ] Show progress for image loading
-
-**Files to Modify:**
-
-- All Activity files
-
-**Deliverable:** Better loading UX
-
----
-
-### **Step 9.4: Error States**
-
-**Tasks:**
-
-- [ ] Design error message layouts
-- [ ] Show network error screens
-- [ ] Add retry buttons
-- [ ] Handle empty states
+- [x] Create `layout_navbar.xml` — contains the `ConstraintLayout` with `iv_navbar_brand` (logo) + `btn_menu` (hamburger icon `MaterialButton`) and the `View` divider (`android:id="@+id/divider_header"`) below it, exactly matching the existing markup in `activity_home.xml` (lines 66–110).
+- [x] Update `activity_home.xml` — replace the inline navbar + divider block with `<include layout="@layout/layout_navbar" />`.
+- [x] Verify `HomeActivity.java` still resolves `R.id.iv_navbar_brand`, `R.id.btn_menu`, and `R.id.divider_header` after the refactor (IDs remain visible through the include, no Java changes required).
 
 **Files to Create/Modify:**
 
-- `app/src/main/res/layout/error_state.xml`
-- `app/src/main/res/layout/empty_state.xml`
+- `app/src/main/res/layout/layout_navbar.xml` _(NEW)_ — standalone navbar + divider component
+- `app/src/main/res/layout/activity_home.xml` _(MODIFY)_ — swap inline block for `<include>`
 
-**Deliverable:** Proper error handling UI
+**Design notes:**
+
+- Keep all existing IDs (`iv_navbar_brand`, `btn_menu`, `divider_header`) unchanged so `HomeActivity.java` compiles with zero changes.
+- The included layout's root width should be `match_parent`; height `wrap_content`.
+
+**Deliverable:** Reusable navbar component; Home Activity unchanged visually and functionally.
 
 ---
 
-## 🐛 Phase 10: Error Handling & Edge Cases
+### **Step 9.2: Movies Activity Layout (`activity_movies.xml`)**
 
-**Goal:** Handle errors and edge cases gracefully.
+**Context:**
+The wireframe shows (top to bottom):
 
-**Estimated Time:** 2-3 days
-
-### **Step 10.1: Network Error Handling**
+1. Navbar (logo + hamburger), reusing `layout_navbar.xml`.
+2. Page title "Movies".
+3. Search `TextInputLayout` (with `search_icon` as end-icon, placeholder "Type movie name...", red-border error state).
+4. **Trending Movies** — section header row (label left, "See More" pill button right) + horizontal carousel RecyclerView.
+5. **Top Rated Movies** — same header row pattern + horizontal carousel RecyclerView.
+6. **Popular** — same header row pattern + vertical RecyclerView.
 
 **Tasks:**
 
-- [ ] Handle API timeouts
-- [ ] Handle network unavailable
-- [ ] Show user-friendly error messages
-- [ ] Implement retry mechanisms
+- [x] Create `activity_movies.xml`:
+  - Root: `ConstraintLayout` (`android:id="@+id/container_movies"`, `background="@color/color_background"`) wrapping a `NestedScrollView` -> `LinearLayout` (vertical, `paddingBottom="32dp"`).
+  - First child inside `LinearLayout`: `<include layout="@layout/layout_navbar" />` (Step 9.1).
+  - Page title `TextView` (`android:id="@+id/text_movies_title"`, text="Movies", `textSize="26sp"`, `textStyle="bold"`, `textColor="@color/color_text_primary"`, `marginTop="24dp"`, `marginStart/End="18dp"`).
+  - **Search field** — `TextInputLayout` (`id="input_search_movies"`, style `Widget.Material3.TextInputLayout.OutlinedBox`, `marginTop="16dp"`, `marginStart/End="18dp"`, `hint="@string/hint_search_movies"`):
+    - `app:endIconMode="custom"` + `app:endIconDrawable="@drawable/search_icon"` (existing drawable `res/drawable/search_icon.xml`)
+    - `app:endIconTint="@color/color_text_secondary"`
+    - Inner `TextInputEditText` (`id="edit_search_movies"`, `inputType="text"`, `maxLines="1"`, `imeOptions="actionSearch"`)
+  - Error `TextView` (`id="text_search_error"`, `visibility="gone"`, `textColor="@color/color_error"`, `textSize="12sp"`, `marginStart/End="18dp"`, `marginTop="4dp"`) — sits directly below the `TextInputLayout` outside of it, same pattern as `text_error` in `activity_login.xml`.
+  - **Trending section header** — `ConstraintLayout` (`paddingStart/End="18dp"`, `marginTop="32dp"`):
+    - `TextView` `id="text_trending_label"` (text `@string/label_trending_movies`, `textSize="22sp"`, `textStyle="bold"`, constrained start + top + bottom)
+    - `MaterialButton` `id="btn_trending_see_more"` (style `Widget.Material3.Button.OutlinedButton`, text `@string/btn_see_more`, `textSize="12sp"`, `textColor="@color/color_primary"`, `cornerRadius="50dp"`, `strokeColor="@color/color_primary"`, `strokeWidth="2dp"`, `backgroundTint="@color/color_surface"`, constrained end + top + bottom) — exact same spec as `btn_popular_see_more` in `activity_home.xml`.
+  - **Trending RecyclerView** (`id="rv_trending_movies_page"`, `layout_marginTop="12dp"`, `paddingStart="18dp"`, `paddingEnd="6dp"`, `clipToPadding="false"`, `orientation="horizontal"`, `layoutManager` LinearLayoutManager, `tools:listitem="@layout/item_movie_trending"`, `tools:itemCount="4"`).
+  - **Top Rated section header** — identical `ConstraintLayout` pattern with `id="text_top_rated_label"`, `text="@string/label_top_rated_movies"`, and `id="btn_top_rated_see_more"`.
+  - **Top Rated RecyclerView** (`id="rv_top_rated_movies_page"`, same horizontal spec, `tools:listitem="@layout/item_movie_top_rated"`).
+  - **Popular section header** — identical `ConstraintLayout` with `id="text_popular_label_page"`, `text="@string/label_popular_movies"`, and `id="btn_popular_see_more_page"`.
+  - **Popular RecyclerView** (`id="rv_popular_movies_page"`, `paddingStart/End="18dp"`, `clipToPadding="false"`, `nestedScrollingEnabled="false"`, vertical `LinearLayoutManager`, `tools:listitem="@layout/item_movie_popular"`, `tools:itemCount="5"`).
 
-**Files to Modify:**
+**Files to Create/Modify:**
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/MovieRepository.java`
-- All Activity files
+- `app/src/main/res/layout/activity_movies.xml` _(NEW)_
+- `app/src/main/res/values/strings.xml` _(MODIFY)_ — add string `hint_search_movies` = "Type movie name..."
 
-**Deliverable:** Robust network error handling
+**Design notes:**
+
+- All three section header rows copy the structure of the Popular header in `activity_home.xml` (lines 237–273): a `ConstraintLayout` with the label `TextView` constrained to start and a pill `MaterialButton` constrained to end, both vertically centered via `constraintTop/Bottom_toTopOf/BottomOf="parent"`.
+- The search field mirrors the password `TextInputLayout` in `activity_login.xml` (lines 83–102): same `OutlinedBox` style + end-icon approach, but uses `endIconMode="custom"` + `endIconDrawable="@drawable/search_icon"` instead of `password_toggle`.
+- All item layouts (`item_movie_trending`, `item_movie_top_rated`, `item_movie_popular`) are **reused as-is** — no new item layouts needed.
+
+**Deliverable:** Fully designed `activity_movies.xml` matching the wireframe.
 
 ---
 
-### **Step 10.2: Firebase Error Handling**
+### **Step 9.3: MoviesActivity Java Class**
+
+**Context:**
+Wire up `activity_movies.xml` with Java. The API call pattern is identical to `HomeActivity`'s three `setup*Movies()` methods — reuse the same adapters (`TrendingMovieAdapter`, `TopRatedMovieAdapter`, `PopularMovieAdapter`) and the same `TmdbApiService` calls. Search functionality and "See More" navigation are stubs for now (future phases).
 
 **Tasks:**
 
-- [ ] Handle Firebase connection errors
-- [ ] Handle permission errors
-- [ ] Handle data validation errors
-- [ ] Show appropriate error messages
+- [x] Create `MoviesActivity.java` in package `ui.movies`:
+  - Extends `BaseActivity`.
+  - `setContentView(R.layout.activity_movies)` + `applyEdgeToEdgeInsets(R.id.container_movies)`.
+  - Navbar: wire `btn_menu` as an **up/back** button — `btn_menu.setOnClickListener(v -> finish())` (no drawer on this screen).
+  - Call `setupTrendingMovies()`, `setupTopRatedMovies()`, `setupPopularMovies()` from `onCreate()` — implementations mirror those in `HomeActivity.java` exactly, using `BuildConfig.TMDB_READ_ACCESS_TOKEN` for the Bearer header.
+  - "See More" buttons (`btn_trending_see_more`, `btn_top_rated_see_more`, `btn_popular_see_more_page`): each shows `Toast.makeText(this, "Coming soon", Toast.LENGTH_SHORT).show()` — placeholder until a future phase adds dedicated list screens.
+  - Search field: attach `OnEditorActionListener` to `edit_search_movies` for `IME_ACTION_SEARCH` — for now show a `Toast("Search coming soon")`. Add `// TODO: Phase 10 — implement TMDB search API call` comment.
+  - Register in `AndroidManifest.xml`.
 
-**Files to Modify:**
+- [x] Update `HomeActivity.java`:
+  - Change `sidebar_btn_movies` click listener from `Toast` to `startActivity(new Intent(this, MoviesActivity.class))`.
 
-- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/FirebaseRepository.java`
+- [x] Update `AndroidManifest.xml`:
+  - Add `<activity android:name=".ui.movies.MoviesActivity" />`.
 
-**Deliverable:** Firebase error handling
+**Files to Create/Modify:**
 
----
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(NEW)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` _(MODIFY)_ — sidebar Movies button navigates to `MoviesActivity`
+- `app/src/main/AndroidManifest.xml` _(MODIFY)_ — register `MoviesActivity`
 
-### **Step 10.3: Edge Cases**
+**Design notes:**
 
-**Tasks:**
+- Use `TrendingMovieAdapter`, `TopRatedMovieAdapter`, `PopularMovieAdapter` from `ui/home/` directly — no new adapter classes.
+- Bearer token: `"Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN` (same as `HomeActivity`).
+- `onFailure` -> `Toast.makeText(this, "Failed to load ...", Toast.LENGTH_SHORT).show()` (same pattern as Home).
+- Search and "See More" are intentionally deferred — mark with `// TODO: Phase 10` comments.
 
-- [ ] Handle member leaving during swiping
-- [ ] Handle host leaving
-- [ ] Handle app backgrounding/foregrounding
-- [ ] Handle screen rotation
-- [ ] Handle session timeout
-
-**Files to Modify:**
-
-- All Activity files
-
-**Deliverable:** App handles edge cases
-
----
-
-## 🧪 Phase 11: Testing & QA
-
-**Goal:** Test functionality and fix bugs.
-
-**Estimated Time:** 3-4 days
-
-### **Step 11.1: Unit Tests**
-
-**Tasks:**
-
-- [ ] Test RoomCodeGenerator
-- [ ] Test MatchDetector logic
-- [ ] Test data models
-- [ ] Test utility functions
-
-**Files to Create:**
-
-- Test files in `app/src/test/`
-
-**Deliverable:** Unit test coverage
-
----
-
-### **Step 11.2: Integration Tests**
-
-**Tasks:**
-
-- [ ] Test API integration
-- [ ] Test Firebase operations
-- [ ] Test authentication flow
-
-**Files to Create:**
-
-- Test files in `app/src/androidTest/`
-
-**Deliverable:** Integration tests
-
----
-
-### **Step 11.3: Manual Testing**
-
-**Tasks:**
-
-- [ ] Test on multiple devices
-- [ ] Test different network conditions
-- [ ] Test with multiple users simultaneously
-- [ ] Test all user flows
-- [ ] Document bugs and fix them
-
-**Deliverable:** App tested and bugs fixed
-
----
-
-## 🚀 Phase 12: Final Polish & Deployment
-
-**Goal:** Final touches and preparation for deployment.
-
-**Estimated Time:** 1-2 days
-
-### **Step 12.1: Performance Optimization**
-
-**Tasks:**
-
-- [ ] Optimize image loading
-- [ ] Reduce Firebase listeners
-- [ ] Optimize API calls
-- [ ] Profile app performance
-
-**Deliverable:** Optimized app performance
-
----
-
-### **Step 12.2: Accessibility**
-
-**Tasks:**
-
-- [ ] Add content descriptions
-- [ ] Test with screen readers
-- [ ] Ensure proper contrast
-- [ ] Test with accessibility services
-
-**Deliverable:** Accessible app
-
----
-
-### **Step 12.3: Final Review**
-
-**Tasks:**
-
-- [ ] Code review
-- [ ] UI/UX review
-- [ ] Documentation review
-- [ ] Prepare for submission
-
-**Deliverable:** Production-ready app
-
----
-
-## 📝 Notes
-
-- **Estimated Total Time:** 30-40 days (with team of 5)
-- **Priority Order:** Follow phases sequentially, but some tasks can be parallelized
-- **Team Coordination:** Assign phases to team members based on roles
-- **Version Control:** Use feature branches, merge after code review
-- **Communication:** Daily standups to sync progress
-
----
-
-_This plan is a living document. Update as development progresses and requirements change._
+**Deliverable:** Fully functional Movies Activity displaying all three movie sections from TMDB, navigable from the sidebar "Movies" item.

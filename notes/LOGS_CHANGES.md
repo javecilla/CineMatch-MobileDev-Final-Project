@@ -1383,3 +1383,34 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - `app/src/main/res/layout/activity_home.xml` (updated – DrawerLayout root)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
 - `app/src/main/res/values/strings.xml` (updated)
+
+## 2026-03-02 – Phase 9: Movies Activity Implementation
+
+**What:** Implemented the initial layout and data loading for the standalone Movies screen.
+
+**Changes:**
+
+- **Navigation Navbar Component**: Extracted the shared navbar (logo + hamburger menu) and horizontal divider from `activity_home.xml` into a reusable `layout_navbar.xml` `<include>`.
+- **Movies Layout (`activity_movies.xml`)**: Created the layout for the Movies screen, featuring the reusable navbar, a new Search movie `TextInputLayout` (copying the outline/error style from login), and three movie carousels/lists: Trending, Top Rated, and Popular. Reused existing `.xml` item layouts for movie cards.
+- **Movies Activity Logic (`MoviesActivity.java`)**: Implemented the activity logic to fetch data using `TmdbApiService` and populate the `RecyclerView` adapters just like on the Home screen.
+- **Navigation/Wiring**:
+  - Registered `MoviesActivity` in `AndroidManifest.xml`.
+  - Updated `HomeActivity.java` so clicking "Movies" in the sidebar opens `MoviesActivity`.
+  - Added `// TODO: Phase 10` for pending features: TMDB Search functionality and "See More" list navigation.
+  - Added new string resource `hint_search_movies`.
+
+**Follow-up Fix (Sidebar Navigation in MoviesActivity):**
+
+- Wrapped `activity_movies.xml` in a `DrawerLayout` and included `layout_sidebar.xml`.
+- Updated `MoviesActivity.java` to handle sidebar toggling, back-button interception, and user profile data loading (mirroring the UX of `HomeActivity`).
+- Added logic in `MoviesActivity.onCreate()` to set the active state of the sidebar items programmatically (Unhighlighting "Home" and highlighting "Movies").
+
+**Files created/updated:**
+
+- `app/src/main/res/layout/layout_navbar.xml` (new)
+- `app/src/main/res/layout/activity_movies.xml` (new / updated to DrawerLayout)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` (new / updated for sidebar logic)
+- `app/src/main/res/layout/activity_home.xml` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` (updated)
+- `app/src/main/res/values/strings.xml` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)
