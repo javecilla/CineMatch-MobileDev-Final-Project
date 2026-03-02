@@ -1442,3 +1442,24 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - **Pagination Icons:** Replaced the non-square FontAwesome SVG vectors with standard 24x24 Material Chevron SVG vectors (`<` and `>`), and removed zeroed-out padding/insets to center the icons perfectly inside the buttons. Set button size to 40dp and color to secondary text.
 - **Double-Launch Bug:** Fixed an issue where pressing the Enter key on the keyboard fired the `IME_ACTION_SEARCH` listener twice rapidly (ACTION_DOWN & ACTION_UP). Added a 1000ms debounce check inside `MoviesActivity.performSearch()` and set `android:launchMode="singleTop"` for `SearchedMovieResultActivity` in `AndroidManifest.xml` to prevent stacking duplicates of the search screen on the back stack.
 - **Cumulative Pagination:** Updated the `text_pagination_info` logic in `SearchedMovieResultActivity` from simply showing the fixed current page count (e.g., "Showing 20 out of 141") to showing the cumulative count up to the current page (e.g., "Showing 40 out of 141") by calculating `min(currentPage * 20, totalResults)`.
+
+### 2026-03-03 – Phase 11: Movie Category Activity
+
+**What was done:**
+
+- Created a reusable `activity_movie_category.xml` layout patterned off the search results view to maintain consistency, featuring a dynamic title.
+- Implemented `MovieCategoryActivity.java` mapped to launch a specific TMDB query (`getTrendingMovies`, `getPopularMovies`, `getTopRatedMovies`) based on an incoming `EXTRA_CATEGORY` intent flag.
+- Integrated **Infinite Scrolling** on the `RecyclerView` using an `OnScrollListener`, removing the old manual pagination buttons entirely.
+- Created `ic_arrow_upward.xml` and added a `FloatingActionButton` that intelligently appears when scrolling down and smoothly scrolls back to the top when clicked.
+- Extended `PopularMovieAdapter` with an `addMovies()` method to support appending dataset efficiently tracking page limits (`totalResults`).
+- Updated `MoviesActivity.java` "See More" placeholder buttons to pass their respective tracking constants into `MovieCategoryActivity`.
+- Registered `MovieCategoryActivity` in `AndroidManifest.xml` natively setting `launchMode="singleTop"`.
+
+**Files created/updated:**
+
+- `app/src/main/res/drawable/ic_arrow_upward.xml` (new)
+- `app/src/main/res/layout/activity_movie_category.xml` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieCategoryActivity.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/PopularMovieAdapter.java` (updated)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` (updated)
+- `app/src/main/AndroidManifest.xml` (updated)

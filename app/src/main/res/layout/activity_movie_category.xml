@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container_category_movies"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background">
+
+    <!-- Navbar Include -->
+    <include
+        android:id="@+id/layout_navbar"
+        layout="@layout/layout_navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Header Row: Back Button & Title -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_back_category"
+        style="@style/Widget.Material3.Button.IconButton.Outlined"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="24dp"
+        app:backgroundTint="@color/color_surface"
+        app:cornerRadius="50dp"
+        app:icon="@drawable/arrow_back_icon"
+        app:iconTint="@color/color_primary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_navbar"
+        app:strokeColor="@color/color_primary"
+        app:strokeWidth="2dp" />
+
+    <TextView
+        android:id="@+id/text_category_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="18dp"
+        android:text="Category Movies"
+        android:textColor="@color/color_text_primary"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textAlignment="viewEnd"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_back_category"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_back_category"
+        app:layout_constraintTop_toTopOf="@+id/btn_back_category" />
+
+    <!-- Movie List (using Popular Movies design) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_category_movies"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_back_category"
+        tools:listitem="@layout/item_movie_popular" />
+
+    <!-- Floating Action Button for Scroll to Top -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_fab_scroll_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Scroll to top"
+        android:visibility="gone"
+        app:backgroundTint="@color/color_primary"
+        app:tint="@color/color_background"
+        app:srcCompat="@drawable/ic_arrow_upward"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

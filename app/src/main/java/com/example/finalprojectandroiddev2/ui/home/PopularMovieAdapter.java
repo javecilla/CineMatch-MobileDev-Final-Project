@@ -78,6 +78,14 @@ public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapte
         notifyDataSetChanged();
     }
 
+    public void addMovies(List<Movie> newMovies) {
+        if (newMovies != null && !newMovies.isEmpty()) {
+            int startPosition = movies.size();
+            movies.addAll(newMovies);
+            notifyItemRangeInserted(startPosition, newMovies.size());
+        }
+    }
+
     public List<Movie> getMovies() {
         return movies;
     }
