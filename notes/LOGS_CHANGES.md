@@ -1573,3 +1573,17 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java`
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java`
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/ViewMovieActivity.java`
+
+---
+
+### 2026-03-04 – Adjusting secondary login/registration CTA styling
+
+**What was done:**
+
+- Updated `btn_create_account` string resource to use HTML tags to color "Sign up" specifically to the primary color.
+- Changed the explicit `textColor` property of the `btn_register` text view inside `activity_login.xml` from `color_primary` to `color_text_primary`.
+
+**Files updated:**
+
+- `app/src/main/res/layout/activity_login.xml`
+- `app/src/main/res/values/strings.xml`
