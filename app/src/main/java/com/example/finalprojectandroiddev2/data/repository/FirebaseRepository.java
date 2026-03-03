@@ -948,4 +948,80 @@ public class FirebaseRepository {
             callback.onResult(task.isSuccessful() && task.getResult().exists());
         });
     }
+
+    /**
+     * Fetches all favorites for the user.
+     */
+    public void getFavorites(String uid, MovieQueueCallback callback) {
+        if (uid == null) {
+            callback.onError("User not logged in");
+            return;
+        }
+        getLibraryRef(uid, "favorites").get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful() || !task.getResult().exists()) {
+                callback.onLoaded(new ArrayList<>());
+                return;
+            }
+            List<com.example.finalprojectandroiddev2.data.model.Movie> movies = new ArrayList<>();
+            for (DataSnapshot snap : task.getResult().getChildren()) {
+                com.example.finalprojectandroiddev2.data.model.Movie m = new com.example.finalprojectandroiddev2.data.model.Movie();
+                m.setId(snap.getKey() != null ? Integer.parseInt(snap.getKey()) : 0);
+                m.setTitle(snap.child("title").getValue(String.class));
+                m.setPosterPath(snap.child("posterPath").getValue(String.class));
+                
+                List<com.example.finalprojectandroiddev2.data.model.Movie.Genre> genres = new ArrayList<>();
+                if (snap.hasChild("genres")) {
+                    for (DataSnapshot gSnap : snap.child("genres").getChildren()) {
+                        String gName = gSnap.getValue(String.class);
+                        if (gName != null) {
+                            com.example.finalprojectandroiddev2.data.model.Movie.Genre g = new com.example.finalprojectandroiddev2.data.model.Movie.Genre();
+                            g.setName(gName);
+                            genres.add(g);
+                        }
+                    }
+                }
+                m.setGenres(genres);
+                movies.add(m);
+            }
+            callback.onLoaded(movies);
+        });
+    }
+
+    /**
+     * Fetches all watchlist movies for the user.
+     */
+    public void getWatchlist(String uid, MovieQueueCallback callback) {
+        if (uid == null) {
+            callback.onError("User not logged in");
+            return;
+        }
+        getLibraryRef(uid, "watchlist").get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful() || !task.getResult().exists()) {
+                callback.onLoaded(new ArrayList<>());
+                return;
+            }
+            List<com.example.finalprojectandroiddev2.data.model.Movie> movies = new ArrayList<>();
+            for (DataSnapshot snap : task.getResult().getChildren()) {
+                com.example.finalprojectandroiddev2.data.model.Movie m = new com.example.finalprojectandroiddev2.data.model.Movie();
+                m.setId(snap.getKey() != null ? Integer.parseInt(snap.getKey()) : 0);
+                m.setTitle(snap.child("title").getValue(String.class));
+                m.setPosterPath(snap.child("posterPath").getValue(String.class));
+                
+                List<com.example.finalprojectandroiddev2.data.model.Movie.Genre> genres = new ArrayList<>();
+                if (snap.hasChild("genres")) {
+                    for (DataSnapshot gSnap : snap.child("genres").getChildren()) {
+                        String gName = gSnap.getValue(String.class);
+                        if (gName != null) {
+                            com.example.finalprojectandroiddev2.data.model.Movie.Genre g = new com.example.finalprojectandroiddev2.data.model.Movie.Genre();
+                            g.setName(gName);
+                            genres.add(g);
+                        }
+                    }
+                }
+                m.setGenres(genres);
+                movies.add(m);
+            }
+            callback.onLoaded(movies);
+        });
+    }
 }

@@ -61,6 +61,18 @@ public class Movie {
 
     public List<Genre> getGenres() { return genres; }
 
+    public String getGenreString() {
+        if (genres == null || genres.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < genres.size(); i++) {
+            sb.append(genres.get(i).getName());
+            if (i < genres.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
+    }
+
     public double getPopularity() { return popularity; }
 
     // ── Setters (used when rebuilding Movie from Firebase) ────────────────────
@@ -82,6 +94,8 @@ public class Movie {
         @SerializedName("name") private String name;
         public int    getId()   { return id;   }
         public String getName() { return name; }
+        public void   setId(int id) { this.id = id; }
+        public void   setName(String name) { this.name = name; }
     }
 }
 
