@@ -100,15 +100,7 @@ public class HomeActivity extends BaseActivity {
             startActivity(new Intent(this, com.example.finalprojectandroiddev2.ui.library.LibraryActivity.class));
         });
 
-        findViewById(R.id.sidebar_btn_about).setOnClickListener(v -> {
-            closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_about_coming_soon, Toast.LENGTH_SHORT).show();
-        });
 
-        findViewById(R.id.sidebar_btn_team).setOnClickListener(v -> {
-            closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_team_coming_soon, Toast.LENGTH_SHORT).show();
-        });
 
         findViewById(R.id.sidebar_btn_movies).setOnClickListener(v -> {
             closeSidebar();
