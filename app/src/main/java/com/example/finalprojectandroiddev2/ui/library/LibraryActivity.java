@@ -95,15 +95,7 @@ public class LibraryActivity extends BaseActivity {
             finish();
         });
 
-        findViewById(R.id.sidebar_btn_about).setOnClickListener(v -> {
-            closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_about_coming_soon, Toast.LENGTH_SHORT).show();
-        });
 
-        findViewById(R.id.sidebar_btn_team).setOnClickListener(v -> {
-            closeSidebar();
-            Toast.makeText(this, R.string.sidebar_nav_team_coming_soon, Toast.LENGTH_SHORT).show();
-        });
 
         findViewById(R.id.sidebar_btn_signout).setOnClickListener(v -> logout());
 

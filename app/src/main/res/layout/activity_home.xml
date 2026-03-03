@@ -250,7 +250,7 @@
     <!-- ── Sidebar (slides from END / right) ── -->
     <include
         layout="@layout/layout_sidebar"
-        android:layout_width="300dp"
+        android:layout_width="250dp"
         android:layout_height="match_parent"
         android:layout_gravity="end" />
 

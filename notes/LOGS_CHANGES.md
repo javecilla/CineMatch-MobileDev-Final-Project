@@ -1556,3 +1556,20 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/ViewMovieActivity.java` (new)
 - `app/src/main/java/com/example/finalprojectandroiddev2/data/api/TmdbApiService.java` (added endpoints)
 - `app/src/main/AndroidManifest.xml` (registered activity)
+
+---
+
+### 2026-03-04 – Removing About and Team from Sidebar
+
+**What was done:**
+
+- Removed the "About" and "Team" buttons from the sidebar layout.
+- Removed the corresponding click listeners from all activities that implement the sidebar.
+
+**Files updated:**
+
+- `app/src/main/res/layout/layout_sidebar.xml`
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java`
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java`
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java`
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/ViewMovieActivity.java`

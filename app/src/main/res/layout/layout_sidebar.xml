@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sidebar_menu"
-    android:layout_width="300dp"
+    android:layout_width="250dp"
     android:layout_height="match_parent"
     android:layout_gravity="end"
     android:background="@color/color_surface"
@@ -99,37 +99,7 @@
             app:backgroundTint="@android:color/transparent"
             app:cornerRadius="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sidebar_btn_about"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sidebar_nav_about"
-            android:textColor="@color/color_text_secondary"
-            android:textSize="15sp"
-            android:textAlignment="textStart"
-            android:layout_marginStart="10dp"
-            android:padding="16dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            app:backgroundTint="@android:color/transparent"
-            app:cornerRadius="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sidebar_btn_team"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sidebar_nav_team"
-            android:textColor="@color/color_text_secondary"
-            android:textSize="15sp"
-            android:textAlignment="textStart"
-            android:layout_marginStart="10dp"
-            android:padding="16dp"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            app:backgroundTint="@android:color/transparent"
-            app:cornerRadius="8dp" />
 
         <!-- Sign Out -->
         <com.google.android.material.button.MaterialButton
