@@ -1500,3 +1500,39 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - **`app/src/main/java/com/example/finalprojectandroiddev2/data/repository/FirebaseRepository.java`** — Added library methods (`favorites`/`watchlist`).
 - **`app/src/main/java/com/example/finalprojectandroiddev2/ui/home/PopularMovieAdapter.java`** — Added `OnMovieLongClickListener`.
 - **`ui/home/HomeActivity.java`**, **`ui/movies/MovieCategoryActivity.java`**, **`ui/movies/MoviesActivity.java`**, **`ui/movies/SearchedMovieResultActivity.java`** — Wired up long press interactions.
+
+---
+
+### 2026-03-03 – Phase 13: Library Activity
+
+**What was done:**
+
+- Created `item_movie_library.xml` with a wider 16:9 backdrop styling optimized for a vertical list constraint to showcase saved movies.
+- Developed the `activity_library.xml` interface including custom tab switching ("Watchlist" vs "Favorites"), informative messages, and a `RecyclerView`.
+- Implemented `LibraryMovieAdapter.java` to bind Firebase-retrieved movies.
+- Implemented `LibraryActivity.java` to manage tab state, fetch data from the `favorites` and `watchlist` Firebase nodes, and handle Long-Press to invoke the reusable `MovieModalBottomSheet`.
+- Ensured uniform `300dp` sidebar drawer width across `activity_home.xml`, `activity_movies.xml` and `activity_library.xml`.
+- Wired the "Library" sidebar navigation across necessary activities.
+
+**Files created/updated:**
+
+- `app/src/main/res/layout/item_movie_library.xml` (new)
+- `app/src/main/res/layout/activity_library.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryMovieAdapter.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/model/Movie.java` (added helper getters and setters)
+- `app/src/main/res/layout/layout_sidebar.xml` (updated width to 300dp)
+- `app/src/main/res/layout/activity_home.xml` (updated sidebar width)
+- `app/src/main/res/layout/activity_movies.xml` (updated sidebar width)
+- `app/src/main/res/layout/activity_library.xml` (updated sidebar width)
+- `app/src/main/AndroidManifest.xml` (registered activity)
+
+**Follow-up Bug Fix (ActivityNotFoundException & Invisible Navbar):**
+
+- **What was done:**
+  - Resolved a crash (`android.content.ActivityNotFoundException`) when attempting to open `LibraryActivity` from the sidebar navigation by registering the missing Activity in `AndroidManifest.xml`.
+  - Fixed a UI bug where the shared Navbar was invisible on `LibraryActivity`. Corrected `applyEdgeToEdgeInsets` to target the `ConstraintLayout` instead of the root `DrawerLayout`, and wrapped the navbar `<include>` inside a `FrameLayout` to ensure constraints and edge insets propagated correctly.
+- **Files updated:**
+  - `app/src/main/AndroidManifest.xml` (added `<activity android:name=".ui.library.LibraryActivity" />`).
+  - `app/src/main/res/layout/activity_library.xml` (layout cleanup and added `container_library` ID).
+  - `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java` (updated edge-to-edge target ID).

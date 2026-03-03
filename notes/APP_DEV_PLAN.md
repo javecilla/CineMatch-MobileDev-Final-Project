@@ -1191,3 +1191,76 @@ Hook up the entry points from within `MoviesActivity`.
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieCategoryActivity.java` _(MODIFY)_
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(MODIFY)_
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/SearchedMovieResultActivity.java` _(MODIFY)_
+
+---
+
+## Phase 13: Library Activity
+
+**Goal:** Create a Library screen for users to view their saved Watchlist and Favorite movies.
+
+### **Step 13.1: Library Movie Item Layout (`item_movie_library.xml`)**
+
+**Tasks:**
+
+- [x] Create `item_movie_library.xml` for displaying a single saved movie.
+- [x] Base the layout on `item_movie_top_rated.xml` but optimize for a vertical list constraint.
+- [x] Make the movie poster/thumbnail wider (e.g., using a 16:9 backdrop style).
+- [x] Display Movie Title and Genres text.
+
+**Files to Create:**
+
+- `app/src/main/res/layout/item_movie_library.xml` _(NEW)_
+
+---
+
+### **Step 13.2: Library Activity Layout (`activity_library.xml`)**
+
+**Tasks:**
+
+- [x] Create `activity_library.xml`.
+- [x] Include the reusable navbar (`layout_navbar.xml`).
+- [x] Add a screen title `TextView` with the text "Library".
+- [x] Add a custom tab selector at the top (Watchlist | Favorites).
+  - Use `LinearLayout` or custom tab views.
+  - Active tab should have `@color/color_primary` text and a line indicator underneath.
+- [x] Add an Info Message `TextView` below the tabs.
+- [x] Add a `RecyclerView` configured with a vertical `LinearLayoutManager` to display the movie items.
+
+**Files to Create/Modify:**
+
+- `app/src/main/res/layout/activity_library.xml` _(NEW)_
+- `app/src/main/res/values/strings.xml` _(MODIFY)_
+
+---
+
+### **Step 13.3: Library Adapter (`LibraryMovieAdapter.java`)**
+
+**Tasks:**
+
+- [x] Create `LibraryMovieAdapter` extending `RecyclerView.Adapter`.
+- [x] Inflate `item_movie_library.xml` and bind movie data (Title, Genres, Glide image).
+- [x] Implement `OnMovieLongClickListener` interface so long-pressing a movie card passes the event to the Activity.
+
+**Files to Create:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryMovieAdapter.java` _(NEW)_
+
+---
+
+### **Step 13.4: Library Activity Logic (`LibraryActivity.java`)**
+
+**Tasks:**
+
+- [x] Create `LibraryActivity.java`.
+- [x] Implement Tab click listeners to switch between Watchlist and Favorites:
+  - Update tab styling (active color + line indicator).
+  - Update Info Message text based on active tab.
+  - Fetch corresponding list from `FirebaseRepository` and update the adapter.
+- [x] Initialize `LibraryMovieAdapter` with an `OnMovieLongClickListener` that instantiates and shows `MovieModalBottomSheet(movieId)`.
+- [x] Wire up the Sidebar "Library" button in `HomeActivity` to navigate to `LibraryActivity`.
+
+**Files to Create/Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java` _(NEW)_
+- `app/src/main/AndroidManifest.xml` _(MODIFY)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` _(MODIFY)_
