@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    tools:context=".ui.movies.ViewMovieActivity">
+
+    <!-- Main Content Layout -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_view_movie"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="32dp">
+
+                <FrameLayout
+                    android:id="@+id/container_navbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    
+                    <include layout="@layout/layout_navbar" />
+                </FrameLayout>
+
+                <!-- Header Row: Back Button & Title -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp">
+                    
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_back_view_movie"
+                        style="@style/Widget.Material3.Button.IconButton.Outlined"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="18dp"
+                        app:backgroundTint="@color/color_surface"
+                        app:cornerRadius="50dp"
+                        app:icon="@drawable/arrow_back_icon"
+                        app:iconTint="@color/color_primary"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:strokeColor="@color/color_primary"
+                        app:strokeWidth="2dp" />
+
+                    <TextView
+                        android:id="@+id/text_view_movie_title_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="18dp"
+                        android:text="Movie Details"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Movie Info Block -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="18dp"
+                    android:layout_marginTop="24dp"
+                    app:cardBackgroundColor="@color/color_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <!-- Full Backdrop Image -->
+                        <ImageView
+                            android:id="@+id/iv_movie_backdrop"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:scaleType="centerCrop"
+                            app:layout_constraintDimensionRatio="H,16:9"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:src="#444444" />
+
+                        <!-- Dark Scrim Overlay at the bottom of the image -->
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:background="@drawable/gradient_bottom_scrim"
+                            app:layout_constraintBottom_toBottomOf="@id/iv_movie_backdrop"
+                            app:layout_constraintEnd_toEndOf="@id/iv_movie_backdrop"
+                            app:layout_constraintStart_toStartOf="@id/iv_movie_backdrop"
+                            app:layout_constraintTop_toTopOf="@id/iv_movie_backdrop" />
+
+                        <!-- Movie Info Container -->
+                        <LinearLayout
+                            android:id="@+id/layout_movie_info"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingTop="12dp"
+                            android:paddingBottom="16dp"
+                            app:layout_constraintTop_toBottomOf="@id/iv_movie_backdrop"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent">
+
+                            <!-- Title -->
+                            <TextView
+                                android:id="@+id/text_movie_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/white"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:maxLines="3"
+                                android:ellipsize="end"
+                                tools:text="Movie Title Here..." />
+
+                            <!-- Release date + rating row -->
+                            <LinearLayout
+                                android:id="@+id/row_release_date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <!-- Calendar icon -->
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:src="@drawable/calendar_icon"
+                                    android:contentDescription="@null"
+                                    app:tint="@color/color_text_secondary" />
+
+                                <!-- Release date -->
+                                <TextView
+                                    android:id="@+id/text_movie_release_date"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="13sp"
+                                    tools:text="Feb 2025" />
+
+                                <!-- Separator dot -->
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:text="•"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="13sp" />
+
+                                <!-- Star icon -->
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:src="@drawable/star_icon"
+                                    android:contentDescription="@null"
+                                    app:tint="@color/color_secondary" />
+
+                                <!-- Rating value -->
+                                <TextView
+                                    android:id="@+id/text_movie_rating"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:textColor="@color/color_secondary"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    tools:text="8.4" />
+                            </LinearLayout>
+
+                            <!-- Overview -->
+                            <TextView
+                                android:id="@+id/text_movie_overview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="13sp"
+                                android:lineSpacingMultiplier="1.4"
+                                tools:text="Movie description Movie description Movie description Movie description..." />
+
+                            <!-- Genre chips -->
+                            <com.google.android.material.chip.ChipGroup
+                                android:id="@+id/chip_group_genres"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                app:singleLine="false"
+                                app:chipSpacingVertical="-9dp"
+                                app:chipSpacingHorizontal="5dp" />
+                                
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Similar Movies -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="24dp"
+                    android:text="Similar Movies"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    android:id="@+id/pb_similar_movies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_similar_movies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="6dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_movie_top_rated"
+                    tools:itemCount="3" />
+
+                <!-- Recommendation Movies -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="24dp"
+                    android:text="Recommendation"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    android:id="@+id/pb_recommended_movies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_recommended_movies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="6dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_movie_trending"
+                    tools:itemCount="3" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Sidebar Layout Navigation -->
+    <include layout="@layout/layout_sidebar" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

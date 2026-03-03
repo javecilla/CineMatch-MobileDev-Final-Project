@@ -1264,3 +1264,57 @@ Hook up the entry points from within `MoviesActivity`.
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java` _(NEW)_
 - `app/src/main/AndroidManifest.xml` _(MODIFY)_
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` _(MODIFY)_
+
+---
+
+## Phase 14: View Movie Details Activity
+
+**Goal:** Create a `ViewMovieActivity` to display detailed movie information along with horizontal carousels for similar and recommended movies.
+
+### **Step 14.1: Extend TMDB API**
+
+**Tasks:**
+
+- [x] Add `getSimilarMovies` endpoint (`/movie/{movie_id}/similar`) to `TmdbApiService`.
+- [x] Add `getRecommendedMovies` endpoint (`/movie/{movie_id}/recommendations`) to `TmdbApiService`.
+
+**Files to Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/api/TmdbApiService.java` _(MODIFY)_
+
+---
+
+### **Step 14.2: View Movie Layout Design**
+
+**Tasks:**
+
+- [x] Create `activity_view_movie.xml` structured with a `ConstraintLayout` and `NestedScrollView`.
+- [x] Include standard `layout_navbar`.
+- [x] Add Custom Header with a back button and "Movie Details" title right-aligned.
+- [x] Assemble a Movie Info block similar to `activity_match.xml` (Backdrop Image, Gradient Overlay, Title, Release Date, Ratings, Overview, Genre Chips).
+- [x] Add a "Similar Movies" section containing a horizontal `RecyclerView`.
+- [x] Add a "Recommendations" section containing a horizontal `RecyclerView`.
+
+**Files to Create:**
+
+- `app/src/main/res/layout/activity_view_movie.xml` _(NEW)_
+
+---
+
+### **Step 14.3: View Movie Logic Implementation**
+
+**Tasks:**
+
+- [x] Create `ViewMovieActivity.java`.
+- [x] Retrieve `Movie ID` from Intent Extras.
+- [x] Make simultaneous Retrofit calls for Details, Similar, and Recommended movies.
+- [x] Bind basic UI fields (Glide backdrop, custom genre chips wrapper).
+- [x] Configure `RecyclerViews` with existing `TopRatedMovieAdapter` (for similar) and `TrendingMovieAdapter` (for recommended).
+- [x] Pass the `OnMovieLongClickListener` lambda to adapters to ensure the `MovieModalBottomSheet` triggers.
+- [x] Configure the Smart Back Button to behave correctly using the dispatcher.
+- [x] Register activity in `AndroidManifest.xml`.
+
+**Files to Create/Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/ViewMovieActivity.java` _(NEW)_
+- `app/src/main/AndroidManifest.xml` _(MODIFY)_

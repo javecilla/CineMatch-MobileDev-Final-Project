@@ -74,6 +74,9 @@
             android:name=".ui.library.LibraryActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.movies.ViewMovieActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
     </application>
