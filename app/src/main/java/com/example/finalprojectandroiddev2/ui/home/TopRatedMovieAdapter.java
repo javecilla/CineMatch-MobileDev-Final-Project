@@ -52,8 +52,15 @@ public class TopRatedMovieAdapter extends RecyclerView.Adapter<TopRatedMovieAdap
         GENRE_MAP.put(37,    "Western");
     }
 
-    public TopRatedMovieAdapter(List<Movie> movies) {
+    private final OnMovieLongClickListener longClickListener;
+
+    public interface OnMovieLongClickListener {
+        void onMovieLongClick(Movie movie);
+    }
+
+    public TopRatedMovieAdapter(List<Movie> movies, OnMovieLongClickListener longClickListener) {
         this.movies = movies != null ? movies : new ArrayList<>();
+        this.longClickListener = longClickListener;
     }
 
     // ── Dataset update ────────────────────────────────────────────────────────
@@ -93,6 +100,14 @@ public class TopRatedMovieAdapter extends RecyclerView.Adapter<TopRatedMovieAdap
 
         // Genres: convert IDs → names
         holder.tvGenres.setText(getGenresAsString(movie.getGenreIds()));
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (longClickListener != null) {
+                longClickListener.onMovieLongClick(movie);
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

@@ -77,6 +77,8 @@
 
     <!-- Lobby -->
     <string name="label_room_code">Room Code</string>
+    <string name="tab_reviews">Reviews</string>
+    <string name="btn_close">Close</string>
     <string name="label_members">Members</string>
     <string name="label_host">Host</string>
     <string name="label_member">Member</string>

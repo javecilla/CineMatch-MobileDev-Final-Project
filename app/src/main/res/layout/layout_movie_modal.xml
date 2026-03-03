@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp">
+
+    <!-- Header: Drag Handle & Close Button -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <!-- Optional: Small pill visual indicator for dragging -->
+        <View
+            android:id="@+id/drag_handle"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:background="@color/color_surface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/btn_close_modal"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:layout_marginTop="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/btn_close"
+            android:src="@drawable/close_icon"
+            app:tint="@color/color_text_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/drag_handle" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Top Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:alpha="0.2"
+        android:background="@color/color_text_secondary" />
+
+    <!-- Movie Details Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <!-- Movie Poster -->
+        <ImageView
+            android:id="@+id/iv_modal_poster"
+            android:layout_width="120dp"
+            android:layout_height="170dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Movie Poster"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@color/color_surface" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_modal_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textColor="@color/color_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_modal_poster"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Avengers: Endgame" />
+
+        <!-- Popularity row -->
+        <LinearLayout
+            android:id="@+id/row_modal_popularity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_modal_poster"
+            app:layout_constraintTop_toBottomOf="@id/tv_modal_title">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:contentDescription="@null"
+                android:src="@drawable/star_icon"
+                app:tint="@color/color_secondary" />
+
+            <TextView
+                android:id="@+id/tv_modal_popularity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp"
+                tools:text="8.5" />
+        </LinearLayout>
+
+        <!-- Genre chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_modal_genres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            app:chipSpacingHorizontal="5dp"
+            app:chipSpacingVertical="-9dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_modal_poster"
+            app:layout_constraintTop_toBottomOf="@id/row_modal_popularity"
+            app:singleLine="false" />
+
+        <!-- Release date row -->
+        <LinearLayout
+            android:id="@+id/row_modal_release_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_modal_poster"
+            app:layout_constraintTop_toBottomOf="@id/chip_group_modal_genres">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="@null"
+                android:src="@drawable/calendar_icon"
+                app:tint="@color/color_text_secondary" />
+
+            <TextView
+                android:id="@+id/tv_modal_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp"
+                tools:text="Apr 2019" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Bottom Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:alpha="0.2"
+        android:background="@color/color_text_secondary" />
+
+    <!-- Action Buttons Container (Stacked) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- View Full Details -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_modal_full_details"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="start|center_vertical"
+            android:text="View Full Details"
+            android:textColor="@color/color_text_primary"
+            android:textSize="16sp"
+            app:icon="@drawable/view_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconTint="@color/color_text_primary" />
+
+        <!-- Add to Watchlist -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_modal_watchlist"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="start|center_vertical"
+            android:text="Add to Watchlist"
+            android:textColor="@color/color_text_primary"
+            android:textSize="16sp"
+            app:icon="@drawable/add_item_outline"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconTint="@color/color_text_primary" />
+
+        <!-- Add to Favorites -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_modal_favorite"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="start|center_vertical"
+            android:text="Add to Favorites"
+            android:textColor="@color/color_text_primary"
+            android:textSize="16sp"
+            app:icon="@drawable/heart_outline_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconTint="@color/color_text_primary" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -33,7 +33,17 @@ import java.util.Map;
  */
 public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapter.PopularViewHolder> {
 
+    public interface OnMovieClickListener {
+        void onMovieClick(Movie movie);
+    }
+
+    public interface OnMovieLongClickListener {
+        void onMovieLongClick(Movie movie);
+    }
+
     private final List<Movie> movies;
+    private OnMovieClickListener listener;
+    private OnMovieLongClickListener longClickListener;
 
     // ── TMDB Genre ID → Name map ──────────────────────────────────────────────
     private static final Map<Integer, String> GENRE_MAP = new HashMap<>();
@@ -69,6 +79,17 @@ public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapte
     public PopularMovieAdapter(List<Movie> movies) {
         this.movies = movies != null ? movies : new ArrayList<>();
     }
+    
+    public PopularMovieAdapter(List<Movie> movies, OnMovieClickListener clickListener) {
+        this.movies = movies != null ? movies : new ArrayList<>();
+        this.listener = clickListener;
+    }
+
+    public PopularMovieAdapter(List<Movie> movies, OnMovieClickListener clickListener, OnMovieLongClickListener longClickListener) {
+        this.movies = movies != null ? movies : new ArrayList<>();
+        this.listener = clickListener;
+        this.longClickListener = longClickListener;
+    }
 
     // ── Dataset update ────────────────────────────────────────────────────────
 
@@ -88,6 +109,14 @@ public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapte
 
     public List<Movie> getMovies() {
         return movies;
+    }
+
+    public void setOnMovieClickListener(OnMovieClickListener listener) {
+        this.listener = listener;
+    }
+
+    public void setOnMovieLongClickListener(OnMovieLongClickListener listener) {
+        this.longClickListener = listener;
     }
 
     // ── RecyclerView.Adapter overrides ────────────────────────────────────────
@@ -149,6 +178,22 @@ public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapte
 
         // Release date: "YYYY-MM-DD"  →  "MMM yyyy"
         holder.tvReleaseDate.setText(formatReleaseDate(movie.getReleaseDate()));
+
+        // Click Listener logic
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onMovieClick(movie);
+            }
+        });
+
+        // Long Click Listener logic
+        holder.itemView.setOnLongClickListener(v -> {
+            if (longClickListener != null) {
+                longClickListener.onMovieLongClick(movie);
+                return true; // handled
+            }
+            return false;
+        });
     }
 
     @Override
@@ -174,7 +219,7 @@ public class PopularMovieAdapter extends RecyclerView.Adapter<PopularMovieAdapte
 
     // ── ViewHolder ────────────────────────────────────────────────────────────
 
-    static class PopularViewHolder extends RecyclerView.ViewHolder {
+    public static class PopularViewHolder extends RecyclerView.ViewHolder {
         final ImageView  ivPoster;
         final TextView   tvTitle;
         final TextView   tvPopularity;

@@ -1463,3 +1463,40 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/PopularMovieAdapter.java` (updated)
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` (updated)
 - `app/src/main/AndroidManifest.xml` (updated)
+
+---
+
+## 2026-03-02 – Feature: Phase 12 - Movie Item Modal
+
+**What:** Implemented a reusable Bottom Sheet Modal that appears when a user long-presses a movie item. This modal displays quick movie details and allows saving the movie to a Watchlist or Favorites backed by Firebase.
+
+**Phase Breakdown:**
+
+- **UI:** Designed `layout_movie_modal.xml` as a bottom sheet with a rounded top, displaying movie poster, title, popularity, release date, and genres.
+- **Logic:** Created `MovieModalBottomSheet.java` which extends `BottomSheetDialogFragment`, makes a call to TMDB for movie details, and populates the UI.
+- **Firebase:** Extended `FirebaseRepository` with methods `addTo/removeFrom/checkIf Favorite/Watchlist`.
+- **Wiring:** Modified `PopularMovieAdapter` to support an `OnMovieLongClickListener`. Added triggers in `HomeActivity`, `MoviesActivity`, `SearchedMovieResultActivity`, and `MovieCategoryActivity` so long-pressing anywhere across the app opens the same modal.
+
+## 2026-03-03 – Bug Fix: MovieModalBottomSheet Crash & Carousel Long Press
+
+**What:** Resolved a `NullPointerException` that crashed the app when opening the movie modal from Popular Movies. Also implemented the missing long-press interactions for the horizontal carousels (Trending & Top Rated).
+
+- **Crash Fix:** Fixed `MovieModalBottomSheet.setUiVisibility()` which was attempting to call `getView().findViewById(...)` during initial layout creation (when `getView()` returns null in fragments). The target views (`row_modal_popularity` and `row_modal_release_date`) are now correctly cached as class-level member variables during `onCreateView`.
+- **Carousel Long Press:** Added the `OnMovieLongClickListener` interface to both `TrendingMovieAdapter` and `TopRatedMovieAdapter`. Wired them up in both `HomeActivity` and `MoviesActivity` to instantiate and show the `MovieModalBottomSheet` just like `PopularMovieAdapter`.
+
+**Files changed:**
+
+- **`ui/movies/MovieModalBottomSheet.java`** — Prevented NPE by removing dynamic view lookups inside `setUiVisibility`.
+- **`ui/home/TrendingMovieAdapter.java`**, **`ui/home/TopRatedMovieAdapter.java`** — Added long press support.
+- **`ui/home/HomeActivity.java`**, **`ui/movies/MoviesActivity.java`** — Initialized carousels with the modal open callbacks.
+
+---
+
+**Files changed:**
+
+- **`app/src/main/res/layout/layout_movie_modal.xml`** _(NEW)_
+- **`app/src/main/res/drawable/bg_bottom_sheet.xml`** _(NEW)_
+- **`app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieModalBottomSheet.java`** _(NEW)_
+- **`app/src/main/java/com/example/finalprojectandroiddev2/data/repository/FirebaseRepository.java`** — Added library methods (`favorites`/`watchlist`).
+- **`app/src/main/java/com/example/finalprojectandroiddev2/ui/home/PopularMovieAdapter.java`** — Added `OnMovieLongClickListener`.
+- **`ui/home/HomeActivity.java`**, **`ui/movies/MovieCategoryActivity.java`**, **`ui/movies/MoviesActivity.java`**, **`ui/movies/SearchedMovieResultActivity.java`** — Wired up long press interactions.

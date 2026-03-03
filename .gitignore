@@ -17,3 +17,6 @@ local.properties
 .agent
 GEMINI.md
 CLAUDE.md
+build_output.log
+error.log
+

@@ -66,7 +66,14 @@ public class SearchedMovieResultActivity extends BaseActivity {
         // RecyclerView
         RecyclerView rvSearchedMovies = findViewById(R.id.rv_searched_movies);
         rvSearchedMovies.setLayoutManager(new LinearLayoutManager(this));
-        moviesAdapter = new PopularMovieAdapter(new ArrayList<>());
+        moviesAdapter = new PopularMovieAdapter(new ArrayList<>(),
+            null, // click listener
+            movie -> { // long click listener
+                com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet modal = 
+                        com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.newInstance(movie.getId());
+                modal.show(getSupportFragmentManager(), com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.TAG);
+            }
+        );
         rvSearchedMovies.setAdapter(moviesAdapter);
 
         // Pagination handlers

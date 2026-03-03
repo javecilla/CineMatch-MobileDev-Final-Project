@@ -842,4 +842,110 @@ public class FirebaseRepository {
             activePageRef      = null;
         }
     }
+
+    // ── User Libraries (Favorites & Watchlist) ──────────────────────────────────
+
+    private DatabaseReference getLibraryRef(String uid, String libraryType) {
+        return FirebaseDatabase.getInstance(BuildConfig.FB_ROUTE_INSTANCE_URL)
+                .getReference("libraries")
+                .child(libraryType)
+                .child(uid);
+    }
+
+    /**
+     * Adds a movie to the user's "favorites" node.
+     */
+    public void addToFavorites(String uid, com.example.finalprojectandroiddev2.data.model.Movie movie, SimpleCallback callback) {
+        if (uid == null || movie == null) return;
+        DatabaseReference favRef = getLibraryRef(uid, "favorites").child(String.valueOf(movie.getId()));
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("title", movie.getTitle() != null ? movie.getTitle() : "");
+        data.put("posterPath", movie.getPosterPath() != null ? movie.getPosterPath() : "");
+        data.put("addedAt", System.currentTimeMillis());
+
+        // Extract genres as simple names for easy display
+        List<String> genreNames = new ArrayList<>();
+        if (movie.getGenres() != null) {
+            for (com.example.finalprojectandroiddev2.data.model.Movie.Genre genre : movie.getGenres()) {
+                if (genre.getName() != null) genreNames.add(genre.getName());
+            }
+        }
+        data.put("genres", genreNames);
+
+        favRef.setValue(data)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    /**
+     * Removes a movie from the user's "favorites" node.
+     */
+    public void removeFromFavorites(String uid, int movieId, SimpleCallback callback) {
+        if (uid == null) return;
+        getLibraryRef(uid, "favorites").child(String.valueOf(movieId)).removeValue()
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    /**
+     * Single read to check if a specific movie exists in the user's "favorites".
+     */
+    public void checkIfFavorite(String uid, int movieId, ExistsCallback callback) {
+        if (uid == null) {
+            callback.onResult(false);
+            return;
+        }
+        getLibraryRef(uid, "favorites").child(String.valueOf(movieId)).get().addOnCompleteListener(task -> {
+            callback.onResult(task.isSuccessful() && task.getResult().exists());
+        });
+    }
+
+    /**
+     * Adds a movie to the user's "watchlist" node.
+     */
+    public void addToWatchlist(String uid, com.example.finalprojectandroiddev2.data.model.Movie movie, SimpleCallback callback) {
+        if (uid == null || movie == null) return;
+        DatabaseReference watchRef = getLibraryRef(uid, "watchlist").child(String.valueOf(movie.getId()));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("title", movie.getTitle() != null ? movie.getTitle() : "");
+        data.put("posterPath", movie.getPosterPath() != null ? movie.getPosterPath() : "");
+        data.put("addedAt", System.currentTimeMillis());
+
+        List<String> genreNames = new ArrayList<>();
+        if (movie.getGenres() != null) {
+            for (com.example.finalprojectandroiddev2.data.model.Movie.Genre genre : movie.getGenres()) {
+                if (genre.getName() != null) genreNames.add(genre.getName());
+            }
+        }
+        data.put("genres", genreNames);
+
+        watchRef.setValue(data)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    /**
+     * Removes a movie from the user's "watchlist" node.
+     */
+    public void removeFromWatchlist(String uid, int movieId, SimpleCallback callback) {
+        if (uid == null) return;
+        getLibraryRef(uid, "watchlist").child(String.valueOf(movieId)).removeValue()
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    /**
+     * Single read to check if a specific movie exists in the user's "watchlist".
+     */
+    public void checkIfWatchlist(String uid, int movieId, ExistsCallback callback) {
+        if (uid == null) {
+            callback.onResult(false);
+            return;
+        }
+        getLibraryRef(uid, "watchlist").child(String.valueOf(movieId)).get().addOnCompleteListener(task -> {
+            callback.onResult(task.isSuccessful() && task.getResult().exists());
+        });
+    }
 }

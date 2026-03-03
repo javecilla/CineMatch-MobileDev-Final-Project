@@ -1073,3 +1073,121 @@ Hook up the entry points from within `MoviesActivity`.
 - `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(MODIFY)_
 
 **Deliverable:** ⏳ A fully reusable Category screen capable of serving unlimited paginated results for Trending, Popular, and Top Rated movies.
+
+---
+
+## Phase 12: Movie Item Modal
+
+**Goal:** Create a reusable Bottom Sheet Modal that appears when a user long-presses a movie item across all movie lists (Home, Movies, Category, Search Results). It will display quick details fetched from the TMDB API and action buttons for Watchlist and Favorites backed by Firebase.
+
+### **Step 12.1: Modal Layout Design (`layout_movie_modal.xml`)**
+
+**Context:** Design the bottom sheet layout to match the provided wireframe, utilizing a rounded top border and a clean, stacked action list.
+
+**Tasks:**
+
+- [x] Create `layout_movie_modal.xml`:
+  - Root: `LinearLayout` (vertical) with a rounded top-left and top-right background (e.g., 24dp corner radius).
+  - **Header:**
+    - Right-aligned Close Button (`ImageView` or `ImageButton` with `@drawable/close_icon`).
+    - Divider line (copy from `layout_navbar.xml`).
+  - **Movie Quick Details:**
+    - Replicate the UI mapping from `item_movie_popular.xml` (Poster, Title, Popularity, Genres, Release Date).
+    - Another horizontal divider line below the movie details.
+  - **Action Buttons (Stack Layout):**
+    - "View Full Details" button (Icon: `@drawable/view_icon`).
+    - "Add to Watchlist" button (Icon: `@drawable/add_item_outline`, toggles to solid state).
+    - "Add to Favorites" button (Icon: `@drawable/heart_outline_icon`, toggles to `@drawable/heart_solid_icon`).
+    - Button styles should match `btn_share_room_code` styled with `Widget.Material3.Button.TextButton` and `iconGravity="textStart"`.
+
+**Files to Create:**
+
+- `app/src/main/res/layout/layout_movie_modal.xml` _(NEW)_
+- Background drawable for bottom sheet with rounded top corners if needed `bg_bottom_sheet.xml` _(NEW)_
+
+---
+
+### **Step 12.2: Modal Fragment Implementation (`MovieModalBottomSheet.java`)**
+
+**Context:** Implement the `BottomSheetDialogFragment` logic to handle fetching movie details, displaying the UI, and managing click events.
+
+**Tasks:**
+
+- [x] Create `MovieModalBottomSheet.java` extending `BottomSheetDialogFragment`.
+- [x] Override `onCreateView` to inflate `layout_movie_modal.xml`.
+- [x] Override `onCreateDialog` to enforce `setCancelable(false)` and `setCanceledOnTouchOutside(false)` so it exclusively closes via the Close button.
+- [x] Add `movie_id` as a required Fragment argument.
+- [x] On open, fetch full movie details via Retrofit: `https://api.themoviedb.org/3/movie/{movie_id}`.
+- [x] Bind response data to the Movie Quick Details UI.
+- [x] Set a click listener on the Close button to trigger `dismiss()`.
+
+**Files to Create:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieModalBottomSheet.java` _(NEW)_
+
+---
+
+### **Step 12.3: Firebase Integration for Favorites & Watchlist**
+
+**Context:** Implement the backend logic to store and retrieve the user's saved movies under their `uid`. Only basic details are stored to prevent excessive TMDB API calls when viewing lists later on.
+
+**Tasks:**
+
+- [x] Update `FirebaseRepository.java` to include methods for managing libraries:
+  - `addToFavorites(String uid, Movie movie)`
+  - `removeFromFavorites(String uid, int movieId)`
+  - `checkIfFavorite(String uid, int movieId, Callback)`
+  - Mirror the exact same signature methods for Watchlist.
+- [x] In `MovieModalBottomSheet.java`, fetch the current saved status (Favorite/Watchlist) when the modal opens to properly set the initial icons (Solid vs Outline).
+- [x] Add click listeners to the Action buttons:
+  - Add/Remove from Firebase dynamically based on the current toggle state.
+  - Toggle the button icons instantly based on the updated state.
+  - Show a `Toast` or `Snackbar` confirming the action ("Added to Favorites").
+
+**Data Structure (Firebase):**
+
+```
+/libraries
+  /favorites
+    /{uid}
+      /{movieId}
+        - title: "Movie Name"
+        - posterPath: "/image.jpg"
+        - genres: ["Action", "Crime"] (List/Array)
+        - addedAt: timestamp
+
+  /watchlist
+    /{uid}
+      /{movieId}
+        - title: "Movie Name"
+        - posterPath: "/image.jpg"
+        - genres: ["Action", "Crime"] (List/Array)
+        - addedAt: timestamp
+```
+
+**Files to Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/repository/FirebaseRepository.java` _(MODIFY)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieModalBottomSheet.java` _(MODIFY)_
+
+---
+
+### **Step 12.4: Wiring Long-Press Triggers**
+
+**Context:** Enable the modal to appear when movie items are long-pressed across every relevant list in the app.
+
+**Tasks:**
+
+- [x] Update `PopularMovieAdapter.java` (used consistently across almost all views):
+  - Add an interface `OnMovieLongClickListener`.
+  - Trigger the interface via `holder.itemView.setOnLongClickListener()`.
+- [x] Implement the `OnMovieLongClickListener` in `HomeActivity`, `MovieCategoryActivity`, `MoviesActivity`, and `SearchedMovieResultActivity`.
+- [x] In the callback of those activities, instantiate `MovieModalBottomSheet`, put the `movieId` into the parameters, and invoke `show()`.
+
+**Files to Modify:**
+
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/PopularMovieAdapter.java` _(MODIFY)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/home/HomeActivity.java` _(MODIFY)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MovieCategoryActivity.java` _(MODIFY)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/MoviesActivity.java` _(MODIFY)_
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/SearchedMovieResultActivity.java` _(MODIFY)_
