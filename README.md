@@ -27,7 +27,6 @@ The app utilizes a frictionless **Swipe-to-Match** mechanic designed for modern 
 - **Movie Discovery:**
   - Dynamic display of movie lists fetched from TMDB.
   - Search functionality to find movies by title.
-  - Advanced filtering to browse movies by genres (Action, Drama, Horror, etc.).
   - Interactive carousels showcasing trending and top-rated movies.
 - **User Personalization:**
   - Secure user registration and login powered by Firebase Authentication.
