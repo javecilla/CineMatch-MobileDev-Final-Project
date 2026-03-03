@@ -26,9 +26,15 @@ import java.util.List;
 public class TrendingMovieAdapter extends RecyclerView.Adapter<TrendingMovieAdapter.MovieViewHolder> {
 
     private final List<Movie> movies;
+    private final OnMovieLongClickListener longClickListener;
 
-    public TrendingMovieAdapter(List<Movie> movies) {
+    public interface OnMovieLongClickListener {
+        void onMovieLongClick(Movie movie);
+    }
+
+    public TrendingMovieAdapter(List<Movie> movies, OnMovieLongClickListener longClickListener) {
         this.movies = movies;
+        this.longClickListener = longClickListener;
     }
 
     @NonNull
@@ -62,6 +68,14 @@ public class TrendingMovieAdapter extends RecyclerView.Adapter<TrendingMovieAdap
         //         Toast.makeText(v.getContext(),
         //                 "\"" + movie.getTitle() + "\" added to Watchlist",
         //                 Toast.LENGTH_SHORT).show());
+        
+        holder.itemView.setOnLongClickListener(v -> {
+            if (longClickListener != null) {
+                longClickListener.onMovieLongClick(movie);
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

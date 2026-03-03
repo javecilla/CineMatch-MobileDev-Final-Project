@@ -188,7 +188,11 @@ public class MoviesActivity extends BaseActivity {
         RecyclerView rv = findViewById(R.id.rv_trending_movies_page);
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        trendingAdapter = new TrendingMovieAdapter(new ArrayList<>());
+        trendingAdapter = new TrendingMovieAdapter(new ArrayList<>(), movie -> {
+            com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet modal = 
+                    com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.newInstance(movie.getId());
+            modal.show(getSupportFragmentManager(), com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.TAG);
+        });
         rv.setAdapter(trendingAdapter);
 
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
@@ -219,7 +223,11 @@ public class MoviesActivity extends BaseActivity {
         RecyclerView rv = findViewById(R.id.rv_top_rated_movies_page);
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        topRatedAdapter = new TopRatedMovieAdapter(new ArrayList<>());
+        topRatedAdapter = new TopRatedMovieAdapter(new ArrayList<>(), movie -> {
+            com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet modal = 
+                    com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.newInstance(movie.getId());
+            modal.show(getSupportFragmentManager(), com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.TAG);
+        });
         rv.setAdapter(topRatedAdapter);
 
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;
@@ -249,7 +257,14 @@ public class MoviesActivity extends BaseActivity {
         RecyclerView rv = findViewById(R.id.rv_popular_movies_page);
         rv.setLayoutManager(new LinearLayoutManager(this));
 
-        popularAdapter = new PopularMovieAdapter(new ArrayList<>());
+        popularAdapter = new PopularMovieAdapter(new ArrayList<>(), 
+            null, // click listener
+            movie -> { // long click listener
+                com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet modal = 
+                        com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.newInstance(movie.getId());
+                modal.show(getSupportFragmentManager(), com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.TAG);
+            }
+        );
         rv.setAdapter(popularAdapter);
 
         String bearer = "Bearer " + BuildConfig.TMDB_READ_ACCESS_TOKEN;

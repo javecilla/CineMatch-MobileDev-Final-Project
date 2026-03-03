@@ -69,7 +69,14 @@ public class MovieCategoryActivity extends BaseActivity {
         rvCategoryMovies = findViewById(R.id.rv_category_movies);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvCategoryMovies.setLayoutManager(layoutManager);
-        moviesAdapter = new PopularMovieAdapter(new ArrayList<>());
+        moviesAdapter = new PopularMovieAdapter(new ArrayList<>(),
+            null, // click listener
+            movie -> { // long click listener
+                com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet modal = 
+                        com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.newInstance(movie.getId());
+                modal.show(getSupportFragmentManager(), com.example.finalprojectandroiddev2.ui.movies.MovieModalBottomSheet.TAG);
+            }
+        );
         rvCategoryMovies.setAdapter(moviesAdapter);
 
         // Infinite Scroll Listener
