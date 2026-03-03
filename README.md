@@ -1,6 +1,8 @@
-<p align="center">
+<center>
+  <p align="center">
   <img src="https://jerome-avecilla.infinityfreeapp.com/assets/mobiledev/mockup3.png" alt="Logo">
 </p>
+</center>
 
 # <p align="center">CineMatch: Real-time Collaborative Movie Discovery Engine</p>
 
