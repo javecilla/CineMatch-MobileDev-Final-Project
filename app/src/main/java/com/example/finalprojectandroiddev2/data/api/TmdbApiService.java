@@ -75,4 +75,28 @@ public interface TmdbApiService {
             @Query("language") String language,
             @Header("Authorization") String bearerToken
     );
+
+    /**
+     * GET /movie/{movie_id}/similar
+     * Returns a list of similar movies.
+     */
+    @GET("movie/{movie_id}/similar")
+    Call<MovieListResponse> getSimilarMovies(
+            @Path("movie_id") int movieId,
+            @Query("language") String language,
+            @Query("page") int page,
+            @Header("Authorization") String bearerToken
+    );
+
+    /**
+     * GET /movie/{movie_id}/recommendations
+     * Returns a list of recommended movies.
+     */
+    @GET("movie/{movie_id}/recommendations")
+    Call<MovieListResponse> getRecommendedMovies(
+            @Path("movie_id") int movieId,
+            @Query("language") String language,
+            @Query("page") int page,
+            @Header("Authorization") String bearerToken
+    );
 }

@@ -1,6 +1,7 @@
 package com.example.finalprojectandroiddev2.ui.movies;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -265,8 +266,14 @@ public class MovieModalBottomSheet extends BottomSheetDialogFragment {
     }
     
     private void setupActionButtons() {
-        // Feature flagged for later
-        btnViewDetails.setOnClickListener(v -> Toast.makeText(getContext(), "Coming Soon", Toast.LENGTH_SHORT).show());
+        btnViewDetails.setOnClickListener(v -> {
+            if (getContext() != null) {
+                Intent intent = new Intent(getContext(), ViewMovieActivity.class);
+                intent.putExtra(ViewMovieActivity.EXTRA_MOVIE_ID, movieId);
+                startActivity(intent);
+                dismiss();
+            }
+        });
         
         btnWatchlist.setOnClickListener(v -> {
             if (currentUserUid == null || currentMovie == null) {

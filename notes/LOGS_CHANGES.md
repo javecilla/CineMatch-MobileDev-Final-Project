@@ -1536,3 +1536,23 @@ Same lobby = same room code = same hash = same page = **identical ordered movie 
   - `app/src/main/AndroidManifest.xml` (added `<activity android:name=".ui.library.LibraryActivity" />`).
   - `app/src/main/res/layout/activity_library.xml` (layout cleanup and added `container_library` ID).
   - `app/src/main/java/com/example/finalprojectandroiddev2/ui/library/LibraryActivity.java` (updated edge-to-edge target ID).
+
+---
+
+### 2026-03-03 – Phase 14: View Movie Details Activity
+
+**What was done:**
+
+- Extended `TmdbApiService` with `/movie/{movie_id}/similar` and `/movie/{movie_id}/recommendations` endpoints.
+- Designed `activity_view_movie.xml` to match the wireframe with a custom back button header, matching `activity_match.xml`'s movie info block (backdrop scrim, title, ratings, overview, dynamic genre chips), and horizontal carousels for similar/recommendation movies.
+- Created `ViewMovieActivity.java` with a Smart Back button routing (`getOnBackPressedDispatcher()`), and built a robust 3-part concurrent API fetch (details, similar, recommended).
+- Wired the "View Full Details" button in `MovieModalBottomSheet` to launch the `ViewMovieActivity` Intent with the `movieId` extra instead of showing a "Coming Soon" toast.
+- Shared the existing `MovieModalBottomSheet` logic by passing long-click listeners down through the `TopRatedMovieAdapter` and `TrendingMovieAdapter`.
+- Registered `ViewMovieActivity` in `AndroidManifest.xml` and fixed all syntax issues related to `androidx.core.content.ContextCompat` and adapter method signatures (`setMovies()`).
+
+**Files created/updated:**
+
+- `app/src/main/res/layout/activity_view_movie.xml` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/ui/movies/ViewMovieActivity.java` (new)
+- `app/src/main/java/com/example/finalprojectandroiddev2/data/api/TmdbApiService.java` (added endpoints)
+- `app/src/main/AndroidManifest.xml` (registered activity)
